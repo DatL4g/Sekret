@@ -21,7 +21,8 @@ internal class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
                 SubpluginOption("packageName", gradleExtension.packageName.toString()),
                 SubpluginOption("khashVersion", gradleExtension.khashVersion.toString()),
                 SubpluginOption("recreateGeneratedFiles", gradleExtension.recreateGeneratedFiles.toString()),
-                SubpluginOption("propertiesFile", gradleExtension.propertiesFile.toString())
+                SubpluginOption("propertiesFile", gradleExtension.propertiesFile.toString()),
+                SubpluginOption("generateCommonSourceFile", gradleExtension.generateCommonSourceFile.toString())
             )
         }
     }

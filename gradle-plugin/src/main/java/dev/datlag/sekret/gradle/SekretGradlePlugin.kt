@@ -67,7 +67,10 @@ class SekretGradlePlugin : Plugin<Project> {
             }
         }
 
-    override fun apply(target: Project) {
+    private val Project.generateCommonSourceFile: Boolean
+        get() = this.sekretConfig().generateCommonSourceFile
+
+            override fun apply(target: Project) {
         with(target) {
             when (val current = kotlinExtension) {
                 is KotlinMultiplatformExtension -> {
@@ -83,10 +86,13 @@ class SekretGradlePlugin : Plugin<Project> {
                     SekretFile.create(
                         srcFolder,
                         File(projectDir, COMMON_MAIN_FOLDER).also {
-                            it.mkdirsSafely()
+                            if (generateCommonSourceFile) {
+                                it.mkdirsSafely()
+                            }
                         },
                         properties,
-                        packageName
+                        packageName,
+                        generateCommonSourceFile
                     )
                 }
             }

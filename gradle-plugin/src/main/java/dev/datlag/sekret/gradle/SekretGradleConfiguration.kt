@@ -23,4 +23,9 @@ open class SekretGradleConfiguration {
      * The properties file (location), to get the key - value pairs from
      */
     var propertiesFile: String = "sekret.properties"
+
+    /**
+     * Whether a Sekret.kt file should be generated in the given [packageName] or not
+     */
+    var generateCommonSourceFile: Boolean = true
 }
