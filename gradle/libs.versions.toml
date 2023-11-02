@@ -1,12 +1,15 @@
 [versions]
 lib = "0.1.0-SNAPSHOT"
+auto-service = "1.1.1"
 kotlin = "1.9.20"
 kotlinpoet = "1.14.2"
 publish = "0.25.3"
 kase-change = "1.4.1"
 
 [libraries]
+auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
 kotlin-gradle-plugin-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
+kotlin-compiler-embeddable = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
 kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
 

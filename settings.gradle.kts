@@ -1,6 +1,7 @@
 rootProject.name = "sekret"
 
 include(":gradle-plugin")
+include(":compiler-plugin")
 include(":sample")
 include(":sample:sekret")
 

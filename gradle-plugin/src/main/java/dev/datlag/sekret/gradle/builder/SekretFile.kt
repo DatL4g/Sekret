@@ -17,8 +17,7 @@ object SekretFile {
         nativeDirectory: File,
         targetDirectory: File,
         properties: Properties,
-        packageName: String,
-        generateCommonSourceFile: Boolean
+        packageName: String
     ) {
         val (nativeFileSpec, targetFileSpec) = Encoder.encodeProperties(properties, packageName)
 
@@ -28,12 +27,10 @@ object SekretFile {
             nativeFileSpec.writeTo(System.out)
         }
 
-        if (generateCommonSourceFile) {
-            if (targetDirectory.existsSafely() && targetDirectory.canWriteSafely()) {
-                targetFileSpec.writeTo(targetDirectory)
-            } else {
-                targetFileSpec.writeTo(System.out)
-            }
+        if (targetDirectory.existsSafely() && targetDirectory.canWriteSafely()) {
+            targetFileSpec.writeTo(targetDirectory)
+        } else {
+            targetFileSpec.writeTo(System.out)
         }
     }
 

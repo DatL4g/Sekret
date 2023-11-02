@@ -39,7 +39,7 @@ mavenPublishing {
     publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
 
-    val publishId = "sekret-gradle-plugin"
+    val publishId = "gradle-plugin"
 
     coordinates(
         groupId = artifact,
