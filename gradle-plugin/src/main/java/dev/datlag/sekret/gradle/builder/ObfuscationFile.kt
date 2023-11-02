@@ -59,7 +59,7 @@ object ObfuscationFile {
                 .addStatement("val obfuscatorByte = hexBytes[index %L hexBytes.size]", "%")
                 .addStatement("it.toByte().%M(obfuscatorByte)", MemberName("kotlin.experimental", "xor"))
                 .endControlFlow()
-                .addStatement("return out.toByteArray().toKString().toJString(env)")
+                .addStatement("return out.toByteArray().%M().toJString(env)", C.kString)
                 .build()
         )
     }

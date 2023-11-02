@@ -6,7 +6,7 @@ object JNI {
 
     private const val JNI_ENV_VAR = "JNIEnvVar"
     private const val J_STRING = "jstring"
-    private const val J_CHAR_VAR = "jCharVar"
+    private const val J_CHAR_VAR = "jcharVar"
     private const val J_CLASS = "jclass"
 
     fun jniEnvVar(packageName: String) = ClassName(packageName, JNI_ENV_VAR)
