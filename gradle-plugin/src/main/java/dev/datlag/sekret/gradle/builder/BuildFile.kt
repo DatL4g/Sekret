@@ -17,7 +17,7 @@ object BuildFile {
                     kotlin("multiplatform")
                 }
                 
-                group = $packageName
+                group = "$packageName"
                 
                 repositories {
                     mavenCentral()
@@ -37,7 +37,7 @@ object BuildFile {
                         }
                         compilations["main"].cinterops.create("sekret") {
                             val javaHome = System.getenv("JAVA_HOME") ?: System.getProperty("java.home")
-                            packageName = $packageName
+                            packageName = "$packageName"
                 
                             includeDirs(
                                 Callable { File(javaHome, "include") },
@@ -60,7 +60,7 @@ object BuildFile {
                 fun getHost(): Host {
                     val hostOs = System.getProperty("os.name")
                     
-                    when {
+                    return when {
                         hostOs.equals("Linux", true) -> Host.LINUX
                         hostOs.equals("Mac OS X", true) -> Host.MAC
                         hostOs.startsWith("Windows", true) -> Host.WINDOWS

@@ -1,5 +1,5 @@
 [versions]
-lib = "0.1.0"
+lib = "0.1.0-SNAPSHOT"
 kotlin = "1.9.20"
 kotlinpoet = "1.14.2"
 publish = "0.25.3"
@@ -11,3 +11,4 @@ kotlin-poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotl
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
+gradle-plugin = { id = "dev.datlag.sekret", version.ref = "lib" }
