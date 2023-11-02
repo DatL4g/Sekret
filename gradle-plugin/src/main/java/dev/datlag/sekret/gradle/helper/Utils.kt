@@ -20,10 +20,14 @@ object Utils {
             .replace(".", "_")
     }
 
-    fun optInAnnotation(type: TypeName): AnnotationSpec {
-        return AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
-            .addMember("%T::class", type)
-            .build()
+    fun optInAnnotation(vararg type: TypeName): AnnotationSpec {
+        val spec = AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+
+        type.forEach { t ->
+            spec.addMember("%T::class", t)
+        }
+
+        return spec.build()
     }
 
     fun propertiesFromFile(propFile: File): Properties {

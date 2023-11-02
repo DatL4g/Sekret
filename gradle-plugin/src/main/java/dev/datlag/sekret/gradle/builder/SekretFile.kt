@@ -43,7 +43,7 @@ object SekretFile {
     ) {
         nativeFileSpec.addFunction(
             FunSpec.builder(key)
-                .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi))
+                .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
                 .addAnnotation(
                     AnnotationSpec.builder(C.cname)
                         .addMember("%S", "Java_${Utils.packageNameCSave(packageName)}_Sekret_$key")

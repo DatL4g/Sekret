@@ -82,7 +82,9 @@ class SekretGradlePlugin : Plugin<Project> {
 
                     SekretFile.create(
                         srcFolder,
-                        File(projectDir, COMMON_MAIN_FOLDER),
+                        File(projectDir, COMMON_MAIN_FOLDER).also {
+                            it.mkdirsSafely()
+                        },
                         properties,
                         packageName
                     )
