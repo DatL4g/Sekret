@@ -7,17 +7,13 @@ object BuildFile {
 
     fun create(
         file: File,
-        deletePrevious: Boolean,
-        packageName: String,
-        khashVersion: String
+        deletePrevious: Boolean
     ) {
         if (file.createEmpty(deletePrevious)) {
             file.writeText("""
                 plugins {
                     kotlin("multiplatform")
                 }
-                
-                group = "$packageName"
                 
                 repositories {
                     mavenCentral()
@@ -37,7 +33,6 @@ object BuildFile {
                         }
                         compilations["main"].cinterops.create("sekret") {
                             val javaHome = System.getenv("JAVA_HOME") ?: System.getProperty("java.home")
-                            packageName = "$packageName"
                 
                             includeDirs(
                                 Callable { File(javaHome, "include") },
@@ -48,11 +43,19 @@ object BuildFile {
                         }
                     }
                     
+                    jvm()
+                    
                     sourceSets {
+                        val commonMain by getting {
+                            
+                        }
                         val nativeMain by getting {
                             dependencies {
-                                implementation("com.github.komputing.khash:sha256:$khashVersion")
+                                implementation("com.github.komputing.khash:sha256:1.1.3")
                             }
+                        }
+                        val jvmMain by getting {
+                            dependsOn(commonMain)
                         }
                     }
                 }
