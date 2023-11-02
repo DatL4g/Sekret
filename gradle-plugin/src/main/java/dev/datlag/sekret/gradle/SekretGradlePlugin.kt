@@ -5,9 +5,11 @@ import dev.datlag.sekret.gradle.helper.Encoder
 import dev.datlag.sekret.gradle.helper.Utils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import java.io.File
 
 class SekretGradlePlugin : Plugin<Project> {
@@ -73,26 +75,33 @@ class SekretGradlePlugin : Plugin<Project> {
             SekretGradleConfiguration::class.java
         )
 
-        with(target) {
-            when (val current = kotlinExtension) {
-                is KotlinMultiplatformExtension -> {
-                    val sekretDir = File(projectDir, "sekret")
-                    sekretDir.mkdirsSafely()
+        val sekretDir = File(target.projectDir, "sekret")
+        sekretDir.mkdirsSafely()
 
-                    val srcFolder = createSekretFolders(target, sekretDir)
-                    createNativeSourceFiles(target, srcFolder)
+        val srcFolder = createSekretFolders(target, sekretDir)
+        createNativeSourceFiles(target, srcFolder)
 
-                    val propFile = propertiesFile ?: throw IllegalStateException("No secret properties file found")
-                    val properties = Utils.propertiesFromFile(propFile)
+        val propFile = target.propertiesFile ?: throw IllegalStateException("No secret properties file found")
+        val properties = Utils.propertiesFromFile(propFile)
 
-                    SekretFile.create(
-                        srcFolder,
-                        File(sekretDir, COMMON_MAIN_FOLDER).also {
-                            it.mkdirsSafely()
-                        },
-                        properties,
-                        packageName
-                    )
+        SekretFile.create(
+            srcFolder,
+            File(sekretDir, COMMON_MAIN_FOLDER).also {
+                it.mkdirsSafely()
+            },
+            properties,
+            target.packageName
+        )
+
+        when (target.kotlinExtension) {
+            is KotlinSingleTargetExtension<*> -> {
+                target.dependencies {
+                    add("implementation", ":sekret")
+                }
+            }
+            is KotlinMultiplatformExtension -> {
+                target.dependencies {
+                    add("commonMainImplementation", ":sekret")
                 }
             }
         }
