@@ -43,7 +43,7 @@ object UtilsFile {
                 .addParameter("chars", C.pointer.parameterizedBy(JNI.jCharVar(packageName)))
                 .addParameter("length", Int::class)
                 .returns(JNI.jString(packageName).copy(nullable = true))
-                .addStatement("val method = %M?.pointed?.NewString ?: error(%S)", C.pointed, JNI.Error.NewString.toString())
+                .addStatement("val method = %M.pointed?.NewString ?: error(%S)", C.pointed, JNI.Error.NewString.toString())
                 .addStatement("return method.%M(this, chars, length)", C.invoke)
                 .build()
         )

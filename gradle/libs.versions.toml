@@ -3,10 +3,12 @@ lib = "0.1.0-SNAPSHOT"
 kotlin = "1.9.20"
 kotlinpoet = "1.14.2"
 publish = "0.25.3"
+kase-change = "1.4.1"
 
 [libraries]
 kotlin-gradle-plugin-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
+kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
 
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

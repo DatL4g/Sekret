@@ -4,6 +4,8 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
 import dev.datlag.sekret.gradle.builder.SekretFile
+import net.pearx.kasechange.toCamelCase
+import net.pearx.kasechange.universalWordSplitter
 import java.security.MessageDigest
 import java.util.Properties
 import kotlin.experimental.xor
@@ -20,7 +22,7 @@ object Encoder {
         val classTypeBuilder = TypeSpec.classBuilder(ClassName(packageName, "Sekret"))
 
         properties.entries.forEach { entry ->
-            val keyName = entry.key as String
+            val keyName = (entry.key as String).toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false))
             val secretValue = encode(entry.value as String, packageName)
 
             SekretFile.addMethod(fileSpecBuilder, classTypeBuilder, keyName, secretValue, packageName)

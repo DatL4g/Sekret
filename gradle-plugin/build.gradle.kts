@@ -17,6 +17,7 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlin.poet)
+    implementation(libs.kase.change)
 }
 
 gradlePlugin {
