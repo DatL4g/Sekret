@@ -91,6 +91,7 @@ class SekretGradlePlugin : Plugin<Project> {
                 }
             }
         }
+        target.pluginManager.apply(SekretCompilerSubPlugin::class.java)
     }
 
     private fun createSekretFolders(target: Project, sekretDir: File): File {
