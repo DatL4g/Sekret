@@ -13,32 +13,93 @@ group = artifact
 version = libVersion
 
 kotlin {
-    androidTarget()
     androidNativeX86()
     androidNativeX64()
     androidNativeArm32()
     androidNativeArm64()
 
-    jvm()
+    val jniTargets = listOf(
+        linuxX64(),
+        linuxArm64(),
+        mingwX64()
+    )
 
-    linuxX64()
-    linuxArm64()
+    jniTargets.forEach { target ->
+        target.compilations["main"].cinterops.create("sekret") {
+            val javaHome = System.getenv("JAVA_HOME") ?: System.getProperty("java.home")
+            packageName = "dev.datlag.sekret"
 
-    mingwX64()
-
-    js(IR) {
-        browser()
-        nodejs()
+            includeDirs(
+                Callable { File(javaHome, "include") },
+                Callable { File(javaHome, "include/darwin") },
+                Callable { File(javaHome, "include/linux") },
+                Callable { File(javaHome, "include/win32") }
+            )
+        }
     }
+
+    // non-native targets
+    androidTarget()
+    jvm()
 
     sourceSets {
         val commonMain by getting
+
+        val androidNativeX86Main by getting
+        val androidNativeX64Main by getting
+        val androidNativeArm32Main by getting
+        val androidNativeArm64Main by getting
+
+        val androidNativeMain by creating {
+            androidNativeX86Main.dependsOn(this)
+            androidNativeX64Main.dependsOn(this)
+            androidNativeArm32Main.dependsOn(this)
+            androidNativeArm64Main.dependsOn(this)
+        }
+
+        val linuxX64Main by getting
+        val linuxArm64Main by getting
+        val mingwX64Main by getting
+
+        val jniNativeMain by creating {
+            linuxX64Main.dependsOn(this)
+            linuxArm64Main.dependsOn(this)
+            mingwX64Main.dependsOn(this)
+        }
+
+        val jniNativeCommonMain by creating {
+            androidNativeMain.dependsOn(this)
+            jniNativeMain.dependsOn(this)
+        }
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+
+            jniNativeCommonMain.dependsOn(this)
+        }
+
+        // non-native sourceSets
+        val androidMain by getting {
+            dependsOn(commonMain)
+        }
+        val jvmMain by getting {
+            dependsOn(commonMain)
+        }
     }
 }
 
 android {
-    compileSdk = 21
+    compileSdk = Configuration.compileSdk
     namespace = artifact
+
+    defaultConfig {
+        minSdk = Configuration.minSdk
+    }
+
+    compileOptions {
+        sourceCompatibility = CompileOptions.sourceCompatibility
+        targetCompatibility = CompileOptions.targetCompatibility
+    }
 }
 
 mavenPublishing {
