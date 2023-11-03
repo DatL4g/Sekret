@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.multiplatform) apply false
+    alias(libs.plugins.android.library) apply false
     alias(libs.plugins.vanniktech.publish) apply false
 }
 

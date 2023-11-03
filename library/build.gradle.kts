@@ -1,9 +1,8 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    `kotlin-dsl`
-    kotlin("jvm")
-    id("java-gradle-plugin")
+    alias(libs.plugins.multiplatform)
+    alias(libs.plugins.android.library)
     `maven-publish`
     signing
     alias(libs.plugins.vanniktech.publish)
@@ -13,52 +12,40 @@ val artifact = VersionCatalog.artifactName()
 group = artifact
 version = libVersion
 
-dependencies {
-    implementation(kotlin("gradle-plugin"))
-    implementation(libs.kotlin.gradle.plugin.api)
-    implementation(libs.kotlin.poet)
-    implementation(libs.kase.change)
-}
+kotlin {
+    androidTarget()
+    androidNativeX86()
+    androidNativeX64()
+    androidNativeArm32()
+    androidNativeArm64()
 
-val generateVersion = tasks.create("generateVersion") {
-    val propFile = layout.buildDirectory.file("generated/sekret_plugin.properties").get().asFile
+    jvm()
 
-    outputs.file(propFile)
-    doLast {
-        runCatching {
-            propFile.parentFile?.mkdirs()
-        }.getOrNull()
-        runCatching {
-            propFile.createNewFile()
-        }.getOrNull()
-        propFile.writeText("version=$libVersion")
+    linuxX64()
+    linuxArm64()
+
+    mingwX64()
+
+    js(IR) {
+        browser()
+        nodejs()
+    }
+
+    sourceSets {
+        val commonMain by getting
     }
 }
 
-tasks.processResources {
-    from(files(generateVersion))
-}
-
-gradlePlugin {
-    plugins {
-        website.set("https://github.com/DatL4g/Sekret")
-        vcsUrl.set("https://github.com/DatL4g/Sekret")
-
-        create("sekretPlugin") {
-            id = artifact
-            implementationClass = "dev.datlag.sekret.gradle.SekretGradlePlugin"
-            displayName = "Sekret Gradle Plugin"
-            description = "Gradle Plugin for Sekret"
-            tags.set(listOf("kotlin", "secret", "hidden"))
-        }
-    }
+android {
+    compileSdk = 21
+    namespace = artifact
 }
 
 mavenPublishing {
     publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
 
-    val publishId = "gradle-plugin"
+    val publishId = "library"
 
     coordinates(
         groupId = artifact,

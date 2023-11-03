@@ -5,8 +5,8 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 
 object KHash {
 
-    private const val SHA256_PACKAGE = "org.komputing.khash.sha256"
-    private const val SHA256_CLASS = "Sha256"
+    private const val SHA256_PACKAGE = "dev.datlag.sekret"
+    private const val SHA256_CLASS = "SHA256"
 
     val sha256 = ClassName(SHA256_PACKAGE, SHA256_CLASS)
 

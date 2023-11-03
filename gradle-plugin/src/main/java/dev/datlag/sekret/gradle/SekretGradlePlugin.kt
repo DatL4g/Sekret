@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
+import java.util.Properties
 
 class SekretGradlePlugin : Plugin<Project> {
 
@@ -126,9 +127,7 @@ class SekretGradlePlugin : Plugin<Project> {
                     }.getOrNull()?.let {
                         add("implementation", it)
                     } ?: run {
-                        sekretModuleNotLoaded(
-                            target.path ?: String()
-                        )
+                        sekretModuleNotLoaded(target.path)
                     }
                 }
             }
@@ -139,9 +138,7 @@ class SekretGradlePlugin : Plugin<Project> {
                     }.getOrNull()?.let {
                         add("commonMainImplementation", it)
                     } ?: run {
-                        sekretModuleNotLoaded(
-                            target.path ?: String()
-                        )
+                        sekretModuleNotLoaded(target.path)
                     }
                 }
             }
@@ -156,6 +153,7 @@ class SekretGradlePlugin : Plugin<Project> {
         val buildFile = File(sekretDir, "build.gradle.kts")
         BuildFile.create(
             file = buildFile,
+            version = getVersion(),
             deletePrevious = true
         )
 
@@ -181,10 +179,20 @@ class SekretGradlePlugin : Plugin<Project> {
 
     private fun Task.createNativeSourceFiles(target: Project, srcFolder: File) = createNativeSourceFiles(target, this, srcFolder)
 
+    private fun getVersion(): String {
+        return runCatching {
+            val props = Properties()
+            props.load(javaClass.classLoader.getResourceAsStream("sekret_plugin.properties"))
+            props.getProperty("version")
+        }.getOrNull() ?: VERSION
+    }
+
     companion object {
         private const val SOURCE_FOLDER = "src/"
         private const val COMMON_MAIN_FOLDER = "${SOURCE_FOLDER}commonMain/kotlin"
         private const val NATIVE_MAIN_FOLDER = "${SOURCE_FOLDER}nativeMain/kotlin/"
         private const val NATIVE_INTEROP_FOLDER = "${SOURCE_FOLDER}nativeInterop/cinterop/"
+
+        private const val VERSION = "0.1.0-SNAPSHOT"
     }
 }
