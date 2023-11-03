@@ -1,12 +1,10 @@
 package dev.datlag.sekret
 
 import kotlinx.cinterop.*
+import kotlin.experimental.xor
 
 @OptIn(ExperimentalForeignApi::class)
-fun CPointer<JNIEnvVar>.newString(chars: CPointer<jCharVar>, length: Int): jString? {
-    val method = pointed.pointed?.NewString ?: error("Could not find NewString method in JNI")
-    return method.invoke(this, chars, length)
-}
+expect fun CPointer<JNIEnvVar>.newString(chars: CPointer<jCharVar>, length: Int): jString?
 
 @OptIn(ExperimentalForeignApi::class)
 fun String.toJString(env: CPointer<JNIEnvVar>): jString? = memScoped {
@@ -14,13 +12,20 @@ fun String.toJString(env: CPointer<JNIEnvVar>): jString? = memScoped {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-fun jString.getStringUTFChars(env: CPointer<JNIEnvVar>): CPointer<ByteVar>? {
-    val method = env.pointed.pointed?.GetStringUTFChars ?: error("Could not find GetStringUTFChars method in JNI")
-    return method.invoke(env, this, null)
-}
+expect fun jString.getStringUTFChars(env: CPointer<JNIEnvVar>): CPointer<ByteVar>?
 
 @OptIn(ExperimentalForeignApi::class)
 fun jString.getString(env: CPointer<JNIEnvVar>): String {
     val chars = getStringUTFChars(env)
     return chars?.toKStringFromUtf8() ?: error("Unable to create String from the given jString")
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun getOriginalValue(
+    secret: IntArray,
+    key: jString,
+    env: CPointer<JNIEnvVar>
+): jString? {
+    val obfuscator = key.getString(env)
+    return getOriginalValue(secret, obfuscator).toJString(env)
 }

@@ -12,7 +12,7 @@ typealias JNIEnv = CPointer<JNIInterface>
 typealias JNIEnvVar = CPointerVarOf<JNIEnv>
 
 @OptIn(ExperimentalForeignApi::class)
-typealias jObject = CPointer<*>
+typealias jObject = CPointer<out CPointed>
 
 @OptIn(ExperimentalForeignApi::class)
 typealias jString = jObject
