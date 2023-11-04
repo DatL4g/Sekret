@@ -87,9 +87,6 @@ class SekretGradlePlugin : Plugin<Project> {
         )
 
         val sekretDir = File(target.projectDir, "sekret")
-        sekretDir.mkdirsSafely()
-
-        val srcFolder = createSekretFolders(sekretDir)
         val generateTask = target.tasks.maybeCreate("generateSekret")
 
         target.applyToSettings { settings ->
@@ -101,16 +98,17 @@ class SekretGradlePlugin : Plugin<Project> {
         }
 
         generateTask.doFirst {
-            createNativeSourceFiles(target, srcFolder)
+            val sourceInfo = ModuleStructure.create(
+                sekretDir,
+                target.packageName(this),
+                getVersion()
+            )
 
             val propFile = target.propertiesFile(this) ?: throw IllegalStateException("No secret properties file found")
             val properties = Utils.propertiesFromFile(propFile)
 
             SekretFile.create(
-                srcFolder,
-                File(sekretDir, COMMON_MAIN_FOLDER).also {
-                    it.mkdirsSafely()
-                },
+                sourceInfo,
                 properties,
                 target.packageName(this)
             )
@@ -149,50 +147,15 @@ class SekretGradlePlugin : Plugin<Project> {
         println("Seems like the ${path}${Project.PATH_SEPARATOR}sekret module isn't included to your settings, please add it")
     }
 
-    private fun createSekretFolders(sekretDir: File): File {
-        val buildFile = File(sekretDir, "build.gradle.kts")
-        BuildFile.create(
-            file = buildFile,
-            version = getVersion(),
-            deletePrevious = true
-        )
-
-        val interopFolder = File(sekretDir, NATIVE_INTEROP_FOLDER)
-        interopFolder.mkdirsSafely()
-
-        val interopFile = File(interopFolder, "sekret.def")
-        HeaderFile.create(
-            file = interopFile,
-            deletePrevious = true
-        )
-
-        val srcFolder = File(sekretDir, NATIVE_MAIN_FOLDER)
-        srcFolder.mkdirsSafely()
-
-        return srcFolder
-    }
-
-    private fun createNativeSourceFiles(target: Project, task: Task?, srcFolder: File) {
-        UtilsFile.create(srcFolder, target.packageName(task))
-        ObfuscationFile.create(srcFolder, target.packageName(task))
-    }
-
-    private fun Task.createNativeSourceFiles(target: Project, srcFolder: File) = createNativeSourceFiles(target, this, srcFolder)
-
     private fun getVersion(): String {
         return runCatching {
             val props = Properties()
             props.load(javaClass.classLoader.getResourceAsStream("sekret_plugin.properties"))
             props.getProperty("version")
-        }.getOrNull() ?: VERSION
+        }.getOrNull()?.ifBlank { null } ?: VERSION
     }
 
     companion object {
-        private const val SOURCE_FOLDER = "src/"
-        private const val COMMON_MAIN_FOLDER = "${SOURCE_FOLDER}commonMain/kotlin"
-        private const val NATIVE_MAIN_FOLDER = "${SOURCE_FOLDER}nativeMain/kotlin/"
-        private const val NATIVE_INTEROP_FOLDER = "${SOURCE_FOLDER}nativeInterop/cinterop/"
-
         private const val VERSION = "0.1.0-SNAPSHOT"
     }
 }

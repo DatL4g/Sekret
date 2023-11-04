@@ -14,24 +14,12 @@ import java.util.Properties
 object SekretFile {
 
     fun create(
-        nativeDirectory: File,
-        targetDirectory: File,
+        sourceInfo: ModuleStructure.SourceInfo,
         properties: Properties,
         packageName: String
     ) {
         val (nativeFileSpec, targetFileSpec) = Encoder.encodeProperties(properties, packageName)
 
-        if (nativeDirectory.existsSafely() && nativeDirectory.canWriteSafely()) {
-            nativeFileSpec.writeTo(nativeDirectory)
-        } else {
-            nativeFileSpec.writeTo(System.out)
-        }
-
-        if (targetDirectory.existsSafely() && targetDirectory.canWriteSafely()) {
-            targetFileSpec.writeTo(targetDirectory)
-        } else {
-            targetFileSpec.writeTo(System.out)
-        }
     }
 
     fun addMethod(
