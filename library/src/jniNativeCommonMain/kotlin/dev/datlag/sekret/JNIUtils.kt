@@ -7,7 +7,7 @@ import kotlin.experimental.xor
 expect fun CPointer<JNIEnvVar>.newString(chars: CPointer<jCharVar>, length: Int): jString?
 
 @OptIn(ExperimentalForeignApi::class)
-fun String.toJString(env: CPointer<JNIEnvVar>): jString? = memScoped {
+internal fun String.toJString(env: CPointer<JNIEnvVar>): jString? = memScoped {
     env.newString(wcstr.ptr, length)
 }
 
@@ -15,13 +15,13 @@ fun String.toJString(env: CPointer<JNIEnvVar>): jString? = memScoped {
 expect fun jString.getStringUTFChars(env: CPointer<JNIEnvVar>): CPointer<ByteVar>?
 
 @OptIn(ExperimentalForeignApi::class)
-fun jString.getString(env: CPointer<JNIEnvVar>): String {
+internal fun jString.getString(env: CPointer<JNIEnvVar>): String {
     val chars = getStringUTFChars(env)
     return chars?.toKStringFromUtf8() ?: error("Unable to create String from the given jString")
 }
 
 @OptIn(ExperimentalForeignApi::class)
-fun getOriginalValue(
+public fun getOriginalValue(
     secret: IntArray,
     key: jString,
     env: CPointer<JNIEnvVar>

@@ -6,16 +6,16 @@ import platform.posix.uint16_t
 import platform.posix.uint8_t
 
 @OptIn(ExperimentalForeignApi::class)
-typealias JNIEnv = CPointer<JNIInterface>
+public typealias JNIEnv = CPointer<JNIInterface>
 
 @OptIn(ExperimentalForeignApi::class)
-typealias JNIEnvVar = CPointerVarOf<JNIEnv>
+public typealias JNIEnvVar = CPointerVarOf<JNIEnv>
 
 @OptIn(ExperimentalForeignApi::class)
-typealias jObject = CPointer<*>
+public typealias jObject = CPointer<*>
 
 @OptIn(ExperimentalForeignApi::class)
-typealias jString = jObject
+public typealias jString = jObject
 
 typealias jChar = uint16_t
 

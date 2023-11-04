@@ -5,7 +5,7 @@ import kotlinx.cinterop.toKString
 import kotlin.experimental.xor
 
 @OptIn(ExperimentalForeignApi::class)
-fun getOriginalValue(
+public fun getOriginalValue(
     secret: IntArray,
     key: String
 ): String {
