@@ -84,6 +84,8 @@ kotlin {
         }
 
         val jniNativeCommonMain by creating {
+            dependsOn(nativeMain.get())
+
             androidNativeMain.get().dependsOn(this)
             jniNativeMain.dependsOn(this)
         }
