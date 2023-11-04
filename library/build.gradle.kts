@@ -73,85 +73,19 @@ kotlin {
         nodejs()
     }
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
-        val commonMain by getting
-
-        val androidNativeX86Main by getting
-        val androidNativeX64Main by getting
-        val androidNativeArm32Main by getting
-        val androidNativeArm64Main by getting
-
-        val androidNativeMain by creating {
-            androidNativeX86Main.dependsOn(this)
-            androidNativeX64Main.dependsOn(this)
-            androidNativeArm32Main.dependsOn(this)
-            androidNativeArm64Main.dependsOn(this)
-        }
-
-        val linuxX64Main by getting
-        val linuxArm64Main by getting
-        val mingwX64Main by getting
-
-        val macosX64Main = findByName("macosX64Main")
-        val macosArm64Main = findByName("macosArm64Main")
-
         val jniNativeMain by creating {
-            linuxX64Main.dependsOn(this)
-            linuxArm64Main.dependsOn(this)
-            mingwX64Main.dependsOn(this)
+            linuxMain.get().dependsOn(this)
+            mingwMain.get().dependsOn(this)
 
-            macosX64Main?.dependsOn(this)
-            macosArm64Main?.dependsOn(this)
+            macosMain.orNull?.dependsOn(this)
         }
 
         val jniNativeCommonMain by creating {
-            androidNativeMain.dependsOn(this)
+            androidNativeMain.get().dependsOn(this)
             jniNativeMain.dependsOn(this)
-        }
-
-        val iosX64Main = findByName("iosX64Main")
-        val iosArm64Main = findByName("iosArm64Main")
-        val iosSimulatorArm64Main = findByName("iosSimulatorArm64Main")
-
-        val tvosX64Main = findByName("tvosX64Main")
-        val tvosArm64Main = findByName("tvosArm64Main")
-        val tvosSimulatorArm64Main = findByName("tvosSimulatorArm64Main")
-
-        val watchosX64Main = findByName("watchosX64Main")
-        val watchosArm32Main = findByName("watchosArm32Main")
-        val watchosArm64Main = findByName("watchosArm64Main")
-        val watchosSimulatorArm64Main = findByName("watchosSimulatorArm64Main")
-        val watchosDeviceArm64Main = findByName("watchosDeviceArm64Main")
-
-        val nativeMain by creating {
-            dependsOn(commonMain)
-
-            jniNativeCommonMain.dependsOn(this)
-
-            iosX64Main?.dependsOn(this)
-            iosArm64Main?.dependsOn(this)
-            iosSimulatorArm64Main?.dependsOn(this)
-
-            tvosX64Main?.dependsOn(this)
-            tvosArm64Main?.dependsOn(this)
-            tvosSimulatorArm64Main?.dependsOn(this)
-
-            watchosX64Main?.dependsOn(this)
-            watchosArm32Main?.dependsOn(this)
-            watchosArm64Main?.dependsOn(this)
-            watchosSimulatorArm64Main?.dependsOn(this)
-            watchosDeviceArm64Main?.dependsOn(this)
-        }
-
-        // non-native sourceSets
-        val androidMain by getting {
-            dependsOn(commonMain)
-        }
-        val jvmMain by getting {
-            dependsOn(commonMain)
-        }
-        val jsMain by getting {
-            dependsOn(commonMain)
         }
     }
 }
