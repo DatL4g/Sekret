@@ -40,24 +40,8 @@ object BuildFile {
         }
     }
 
-    private fun addPlugins(fileSpec: FileSpec.Builder, sourceSets: Set<Target>): FileSpec.Builder {
-        val pluginNames = sourceSets.map { it.requiredPlugin }.toMutableSet().apply {
-            add("multiplatform")
-        }
-
-        var controlFlow = fileSpec.beginControlFlow("plugins")
-        pluginNames.forEach { plugin ->
-            controlFlow = if (plugin == "multiplatform") {
-                controlFlow.addStatement("kotlin(%S)", plugin)
-            } else {
-                controlFlow.addStatement("id(%S)", plugin)
-            }
-        }
-        return controlFlow.endControlFlow()
-    }
-
-    private fun addSourceSets(fileSpec: FileSpec.Builder, version: String, sourceSets: Set<Target>): FileSpec.Builder {
-        var spec = fileSpec
+    private fun FileSpec.Builder.addSourceSets(version: String, sourceSets: Set<Target>): FileSpec.Builder {
+        var spec = this
 
         sourceSets.forEach { target ->
             spec = spec.addStatement("${target.name}()")
@@ -89,9 +73,21 @@ object BuildFile {
         return spec
     }
 
-    private fun FileSpec.Builder.addSourceSets(version: String, sourceSets: Set<Target>) = addSourceSets(this, version, sourceSets)
+    private fun FileSpec.Builder.addPlugins(sourceSets: Set<Target>): FileSpec.Builder {
+        val pluginNames = sourceSets.map { it.requiredPlugin }.toMutableSet().apply {
+            add("multiplatform")
+        }
 
-    private fun FileSpec.Builder.addPlugins(sourceSets: Set<Target>): FileSpec.Builder = addPlugins(this, sourceSets)
+        var controlFlow = this.beginControlFlow("plugins")
+        pluginNames.forEach { plugin ->
+            controlFlow = if (plugin == "multiplatform") {
+                controlFlow.addStatement("kotlin(%S)", plugin)
+            } else {
+                controlFlow.addStatement("id(%S)", plugin)
+            }
+        }
+        return controlFlow.endControlFlow()
+    }
 
     sealed class Target(
         open val name: String,

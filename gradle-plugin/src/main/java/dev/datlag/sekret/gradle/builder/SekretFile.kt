@@ -45,7 +45,7 @@ object SekretFile {
         jniFileSpec.build().writeTo(sourceInfo.jniMain)
     }
 
-    fun addMethod(
+    private fun addMethod(
         nativeFileSpec: FileSpec.Builder,
         nativeJniFileSpec: FileSpec.Builder,
         jniClassSpec: TypeSpec.Builder,
@@ -53,15 +53,15 @@ object SekretFile {
         secret: String,
         packageName: String
     ) {
+        val origValueMember = JNI.getOriginalValue(JNI_PACKAGE_NAME)
+
         nativeFileSpec.addFunction(
             FunSpec.builder(key)
                 .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
                 .addParameter("key", String::class)
-                .returns(String::class.asClassName().copy(nullable = true))
-                .addStatement("val obfuscatedSecret = intArrayOf(")
-                .addStatement("\t%L", secret)
-                .addStatement(")")
-                .addStatement("return getOriginalKey(key)")
+                .returns(String::class)
+                .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
+                .addStatement("return %M(obfuscatedSecret, key)", origValueMember)
                 .build()
         )
 
@@ -73,14 +73,14 @@ object SekretFile {
                         .addMember("%S", "Java_${Utils.packageNameCSave(packageName)}_Sekret_$key")
                         .build()
                 )
-                .addParameter("env", C.pointer.parameterizedBy(JNI.jniEnvVar(packageName)))
-                .addParameter("clazz", JNI.jClass(packageName).copy(nullable = true))
-                .addParameter("key", JNI.jString(packageName))
-                .returns(JNI.jString(packageName).copy(nullable = true))
+                .addParameter("env", C.pointer.parameterizedBy(JNI.jniEnvVar(JNI_PACKAGE_NAME)))
+                .addParameter("clazz", JNI.jClass(JNI_PACKAGE_NAME).copy(nullable = true))
+                .addParameter("key", JNI.jString(JNI_PACKAGE_NAME))
+                .returns(JNI.jString(JNI_PACKAGE_NAME).copy(nullable = true))
                 .addStatement("val obfuscatedSecret = intArrayOf(")
                 .addStatement("\t%L", secret)
                 .addStatement(")")
-                .addStatement("return getOriginalKey(obfuscatedSecret, key, env)")
+                .addStatement("return %M(obfuscatedSecret, key, env)", origValueMember)
                 .build()
         )
 
@@ -92,4 +92,6 @@ object SekretFile {
                 .build()
         )
     }
+
+    private const val JNI_PACKAGE_NAME = "dev.datlag.sekret"
 }

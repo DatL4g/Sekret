@@ -1,6 +1,7 @@
 package dev.datlag.sekret.gradle.helper
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 object JNI {
 
@@ -13,6 +14,8 @@ object JNI {
     fun jString(packageName: String) = ClassName(packageName, J_STRING)
     fun jCharVar(packageName: String) = ClassName(packageName, J_CHAR_VAR)
     fun jClass(packageName: String) = ClassName(packageName, J_CLASS)
+
+    fun getOriginalValue(packageName: String) = MemberName(packageName, "getOriginalValue")
 
     sealed class Error(private val msg: String) {
         object NewString : Error("Could not find NewString method in JNI")
