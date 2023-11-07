@@ -44,7 +44,15 @@ object BuildFile {
         var spec = this
 
         sourceSets.forEach { target ->
-            spec = spec.addStatement("${target.name}()")
+            spec = if (target.native) {
+                spec.beginControlFlow(target.name)
+                    .beginControlFlow("binaries")
+                    .addStatement("sharedLib()")
+                    .endControlFlow()
+                    .endControlFlow()
+            } else {
+                spec.addStatement("${target.name}()")
+            }
         }
 
         spec = spec.addStatement("applyDefaultHierarchyTemplate()")
@@ -92,20 +100,22 @@ object BuildFile {
     sealed class Target(
         open val name: String,
         open val sourceSet: String = name,
+        open val native: Boolean = false,
         open val jniNative: Boolean = false,
         open val jni: Boolean = false
     ) {
         sealed class Android(
             override val name: String,
             override val sourceSet: String = name,
+            override val native: Boolean = true,
             override val jniNative: Boolean = true,
             override val jni: Boolean = false
-        ) : Target(name, sourceSet, jniNative, jni) {
+        ) : Target(name, sourceSet, native, jniNative, jni) {
             object NATIVE_32 : Android("androidNativeX86")
             object NATIVE_64 : Android("androidNativeX64")
             object NATIVE_ARM_32 : Android("androidNativeArm32")
             object NATIVE_ARM_64 : Android("androidNativeArm64")
-            object JVM : Android("androidTarget", "android", jniNative = false, jni = true) {
+            object JVM : Android("androidTarget", "android", native = false, jniNative = false, jni = true) {
                 override val requiredPlugin: String = "com.android.library"
             }
         }
@@ -113,15 +123,16 @@ object BuildFile {
         sealed class Desktop(
             override val name: String,
             override val sourceSet: String = name,
+            override val native: Boolean = true,
             override val jniNative: Boolean = true,
             override val jni: Boolean = false
-        ) : Target(name, sourceSet) {
+        ) : Target(name, sourceSet, native, jniNative, jni) {
             sealed class Linux(override val name: String) : Desktop(name) {
                 object NATIVE_64 : Linux("linuxX64")
                 object NATIVE_ARM_64 : Linux("linuxArm64")
             }
             object Windows : Desktop("mingwX64")
-            object JVM : Desktop("jvm", jniNative = false, jni = true)
+            object JVM : Desktop("jvm", native = false, jniNative = false, jni = true)
         }
 
         open val requiredPlugin: String = "multiplatform"
