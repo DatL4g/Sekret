@@ -12,31 +12,21 @@ import kotlin.experimental.xor
 
 object Encoder {
 
-    fun encodeProperties(properties: Properties, packageName: String): Pair<FileSpec, FileSpec> {
-        val fileSpecBuilder = FileSpec.builder(packageName, "sekret")
-        fileSpecBuilder.addKotlinDefaultImports(includeJvm = false, includeJs = false)
-
-        val classSpecBuilder = FileSpec.builder(packageName, "Sekret")
-        classSpecBuilder.addKotlinDefaultImports(includeJvm = false, includeJs = false)
-
-        val classTypeBuilder = TypeSpec.classBuilder(ClassName(packageName, "Sekret"))
-
+    fun encodeProperties(
+        properties: Properties,
+        password: String,
+        onNewMethod: (name: String, secret: String) -> Unit
+    ) {
         properties.entries.forEach { entry ->
             val keyName = (entry.key as String).toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false))
-            val secretValue = encode(entry.value as String, packageName)
+            val secretValue = encode(entry.value as String, password)
 
-            SekretFile.addMethod(fileSpecBuilder, classTypeBuilder, keyName, secretValue, packageName)
+            onNewMethod(keyName, secretValue)
         }
-
-        classSpecBuilder.addType(
-            classTypeBuilder.build()
-        )
-
-        return fileSpecBuilder.build() to classSpecBuilder.build()
     }
 
-    private fun encode(value: String, packageName: String): String {
-        val obfuscator = sha256(packageName)
+    private fun encode(value: String, password: String): String {
+        val obfuscator = sha256(password)
         val obfuscatorBytes = obfuscator.encodeToByteArray()
         val obfuscatedSecretBytes = arrayListOf<Byte>()
         var i = 0

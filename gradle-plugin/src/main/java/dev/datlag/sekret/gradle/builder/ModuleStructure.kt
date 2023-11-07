@@ -6,11 +6,11 @@ import java.io.File
 
 object ModuleStructure {
 
-    fun create(sekretDir: File, packageName: String, version: String): SourceInfo {
+    fun create(sekretDir: File, packageName: String, version: String, sourceSets: Set<BuildFile.Target>): SourceInfo {
         sekretDir.mkdirsSafely()
 
         if (!File(sekretDir, "build.gradle.kts").existsSafely()) {
-            BuildFile.create(sekretDir, packageName, version)
+            BuildFile.create(sekretDir, packageName, version, sourceSets)
         }
 
         val sourceInfo = SourceInfo(

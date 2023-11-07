@@ -14,6 +14,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.util.Properties
@@ -23,6 +24,10 @@ class SekretGradlePlugin : Plugin<Project> {
     private val Project.kotlinExtension: KotlinProjectExtension?
         get() = this.extensions.findByType<KotlinProjectExtension>()
 
+    private val Project.kotlinMultiplatform: KotlinMultiplatformExtension?
+        get() = this.extensions.findByType<KotlinMultiplatformExtension>()
+            ?: (this.extensions.findByName("kotlin") as? KotlinMultiplatformExtension)
+
     private fun Project.sekretConfig(task: Task? = null) =
         task?.extensions?.findByType(SekretGradleConfiguration::class)
             ?: task?.extensions?.findByType(SekretGradleConfiguration::class.java)
@@ -31,6 +36,12 @@ class SekretGradlePlugin : Plugin<Project> {
             ?: SekretGradleConfiguration()
 
     private fun Project.packageName(task: Task?): String = this.sekretConfig(task).packageName
+
+    private fun Project.password(task: Task?): String = this.sekretConfig(task).password.ifBlank {
+        this.sekretConfig(task).packageName.ifEmpty {
+            throw IllegalArgumentException("The password must no be empty")
+        }
+    }
 
     private fun Project.propertiesFile(task: Task?): File? {
             val defined = this.sekretConfig(task).propertiesFile
@@ -101,7 +112,9 @@ class SekretGradlePlugin : Plugin<Project> {
             val sourceInfo = ModuleStructure.create(
                 sekretDir,
                 target.packageName(this),
-                getVersion()
+                getVersion(),
+                target.kotlinMultiplatform?.sourceSets?.names?.let { BuildFile.Target.fromSourceSetNames(it) }
+                    ?: setOf(BuildFile.Target.Desktop.JVM)
             )
 
             val propFile = target.propertiesFile(this) ?: throw IllegalStateException("No secret properties file found")
@@ -110,7 +123,8 @@ class SekretGradlePlugin : Plugin<Project> {
             SekretFile.create(
                 sourceInfo,
                 properties,
-                target.packageName(this)
+                target.packageName(this),
+                target.password(this)
             )
         }
 
@@ -144,7 +158,16 @@ class SekretGradlePlugin : Plugin<Project> {
     }
 
     private fun sekretModuleNotLoaded(path: String) {
-        println("Seems like the ${path}${Project.PATH_SEPARATOR}sekret module isn't included to your settings, please add it")
+        println("Seems like the ${sekretModule(path)} module isn't included to your settings, please add it")
+    }
+
+    private fun sekretModule(path: String): String {
+        val separator = Project.PATH_SEPARATOR
+        return if (path.endsWith(separator)) {
+            "${path}sekret"
+        } else {
+            "${path}${separator}sekret"
+        }
     }
 
     private fun getVersion(): String {

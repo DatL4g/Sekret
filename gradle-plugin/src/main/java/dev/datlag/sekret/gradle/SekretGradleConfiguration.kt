@@ -8,6 +8,11 @@ open class SekretGradleConfiguration {
     var packageName: String = "dev.datlag.sekret"
 
     /**
+     * Specify the key, the secrets will be encrypted with
+     */
+    var password: String = packageName
+
+    /**
      * The properties file (location), to get the key - value pairs from
      */
     var propertiesFile: String = "sekret.properties"
