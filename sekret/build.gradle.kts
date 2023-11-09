@@ -110,7 +110,7 @@ mavenPublishing {
     publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
 
-    val publishId = "library"
+    val publishId = "sekret"
 
     coordinates(
         groupId = artifact,

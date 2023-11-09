@@ -1,7 +1,7 @@
 rootProject.name = "sekret"
 
 include(":gradle-plugin")
-include(":library")
+include(":sekret")
 
 pluginManagement {
     repositories {

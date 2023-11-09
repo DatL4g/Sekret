@@ -60,7 +60,7 @@ object BuildFile {
 
         spec = spec.beginControlFlow("val commonMain by getting")
         spec = spec.beginControlFlow("dependencies")
-        spec = spec.addStatement("api(%S)", "dev.datlag.sekret:library:$version")
+        spec = spec.addStatement("api(%S)", "dev.datlag.sekret:sekret:$version")
         spec = spec.endControlFlow()
         spec = spec.endControlFlow()
 
