@@ -17,18 +17,6 @@ This plugin can be used with any Kotlin project (single-, or multiplatform).
 
 ## Install
 
-### Snapshot
-
-This project is currently available as snapshot version only!
-
-⚠️ The snapshot **can not be used with any Apple target**, for example macOsX64 or iosX64
-
-To access the snapshots add the follwoing to your repository resolution:
-
-```kotlin
-maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-```
-
 ### Maven Central
 
 This project is available through `mavenCentral`
@@ -39,7 +27,7 @@ Then apply the gradle plugin to the desired project in the corresponding `build.
 
 ```kotlin
 plugins {
-  id("dev.datlag.sekret") version "0.1.0-SNAPSHOT"
+  id("dev.datlag.sekret") version "0.1.0"
 }
 ```
 
