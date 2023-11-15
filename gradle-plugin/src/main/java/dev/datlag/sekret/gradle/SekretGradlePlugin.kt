@@ -35,13 +35,11 @@ class SekretGradlePlugin : Plugin<Project> {
             ?: this.extensions.findByType(SekretGradleConfiguration::class.java)
             ?: SekretGradleConfiguration()
 
-    private fun Project.packageName(task: Task?): String = this.sekretConfig(task).packageName
+    private fun Project.packageName(task: Task?): String = this.sekretConfig(task).packageName.trim()
 
-    private fun Project.password(task: Task?): String = this.sekretConfig(task).password.ifBlank {
-        this.sekretConfig(task).packageName.ifEmpty {
-            throw IllegalArgumentException("The password must no be empty")
-        }
-    }
+    private fun Project.password(task: Task?): String = this.sekretConfig(task).password?.ifBlank {
+        packageName(task)
+    }?.trim() ?: packageName(task)
 
     private fun Project.propertiesFile(task: Task?): File? {
             val defined = this.sekretConfig(task).propertiesFile
@@ -179,6 +177,6 @@ class SekretGradlePlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "0.1.0-SNAPSHOT"
+        private const val VERSION = "0.1.1"
     }
 }

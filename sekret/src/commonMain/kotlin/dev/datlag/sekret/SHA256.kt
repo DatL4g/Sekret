@@ -5,7 +5,11 @@ import dev.datlag.sekret.common.putLong
 import dev.datlag.sekret.common.toByteArray
 import dev.datlag.sekret.common.toIntArray
 
-data object SHA256 {
+/**
+ * Digest Class for SHA-256.
+ * Original Java version at https://github.com/meyfa/java-sha256/blob/master/src/main/java/net/meyfa/sha256/Sha256.java
+ */
+public object SHA256 {
 
     private val K = intArrayOf(
         0x428a2f98, 0x71374491, -0x4a3f0431, -0x164a245b, 0x3956c25b, 0x59f111f1, -0x6dc07d5c, -0x54e3a12b,
@@ -23,17 +27,18 @@ data object SHA256 {
         0x510e527f, -0x64fa9774, 0x1f83d9ab, 0x5be0cd19
     )
 
-    private val W = IntArray(64)
-    private val H = IntArray(8)
-    private val TEMP = IntArray(8)
-
     /**
      * Hashes the given message with SHA-256 and returns the digest.
      *
      * @param message The bytes to digest.
      * @return The digest's bytes.
      */
-    fun digest(message: ByteArray): ByteArray {
+    public fun digest(message: ByteArray): ByteArray {
+        // Working arrays
+        val W = IntArray(64)
+        val H = IntArray(8)
+        val TEMP = IntArray(8)
+
         // Let H = H0
         H0.copy(0,
             H, 0, H0.size)
@@ -88,14 +93,14 @@ data object SHA256 {
     }
 
     /**
-     * Pads the given message to have a length
+     * Internal method, no need to call. Pads the given message to have a length
      * that is a multiple of 512 bits (64 bytes), including the addition of a
      * 1-bit, k 0-bits, and the message length as a 64-bit integer.
      *
      * @param message The message to padMessage.
      * @return A new array with the padded message bytes.
      */
-    private fun padMessage(message: ByteArray): ByteArray {
+    internal fun padMessage(message: ByteArray): ByteArray {
         val blockBits = 512
         val blockBytes = blockBits / 8
 
@@ -144,5 +149,4 @@ data object SHA256 {
     private fun smallSig1(x: Int): Int {
         return (x.rotateRight(17) xor x.rotateRight(19) xor x.ushr(10))
     }
-
 }

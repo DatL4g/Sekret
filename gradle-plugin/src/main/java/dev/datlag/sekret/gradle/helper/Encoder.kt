@@ -18,7 +18,7 @@ object Encoder {
         onNewMethod: (name: String, secret: String) -> Unit
     ) {
         properties.entries.forEach { entry ->
-            val keyName = (entry.key as String).toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false))
+            val keyName = (entry.key as String).toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
             val secretValue = encode(entry.value as String, password)
 
             onNewMethod(keyName, secretValue)
