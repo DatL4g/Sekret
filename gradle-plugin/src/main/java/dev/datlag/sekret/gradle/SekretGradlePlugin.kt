@@ -41,6 +41,8 @@ class SekretGradlePlugin : Plugin<Project> {
         packageName(task)
     }?.trim() ?: packageName(task)
 
+    private fun Project.generateJS(task: Task?): Boolean? = this.sekretConfig(task).generateJsSourceSet
+
     private fun Project.propertiesFile(task: Task?): File? {
             val defined = this.sekretConfig(task).propertiesFile
             val definedFile = this.file(defined)
@@ -112,7 +114,8 @@ class SekretGradlePlugin : Plugin<Project> {
                 target.packageName(this),
                 getVersion(),
                 target.kotlinMultiplatform?.sourceSets?.names?.let { BuildFile.Target.fromSourceSetNames(it) }
-                    ?: setOf(BuildFile.Target.Desktop.JVM)
+                    ?: setOf(BuildFile.Target.Desktop.JVM),
+                target.generateJS(this)
             )
 
             val propFile = target.propertiesFile(this) ?: throw IllegalStateException("No secret properties file found")
@@ -135,7 +138,7 @@ class SekretGradlePlugin : Plugin<Project> {
                     runCatching {
                         target.findProject("sekret")
                     }.getOrNull()?.let {
-                        add("implementation", it)
+                        add("api", it)
                     } ?: run {
                         sekretModuleNotLoaded(target.path)
                     }
@@ -146,7 +149,7 @@ class SekretGradlePlugin : Plugin<Project> {
                     runCatching {
                         target.findProject("sekret")
                     }.getOrNull()?.let {
-                        add("commonMainImplementation", it)
+                        add("commonMainApi", it)
                     } ?: run {
                         sekretModuleNotLoaded(target.path)
                     }

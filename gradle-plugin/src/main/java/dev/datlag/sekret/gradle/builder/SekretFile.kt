@@ -24,15 +24,21 @@ object SekretFile {
         val jniFileSpec = FileSpec.builder(packageName, "Sekret")
         val jniTypeSpec = TypeSpec.classBuilder("Sekret")
 
+        val jsFileSpec = FileSpec.builder(packageName, "Sekret")
+        val jsTypeSpec = TypeSpec.objectBuilder("Sekret")
+
         nativeFileSpec.addKotlinDefaultImports(includeJvm = false, includeJs = false)
         nativeJniFileSpec.addKotlinDefaultImports(includeJvm = false, includeJs = false)
         jniFileSpec.addKotlinDefaultImports(includeJvm = false, includeJs = false)
+
+        jsFileSpec.addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
         Encoder.encodeProperties(properties, password) { name, secret ->
             addMethod(
                 nativeFileSpec,
                 nativeJniFileSpec,
                 jniTypeSpec,
+                jsTypeSpec,
                 name,
                 secret,
                 packageName
@@ -43,12 +49,18 @@ object SekretFile {
         nativeFileSpec.build().writeTo(sourceInfo.nativeMain)
         nativeJniFileSpec.build().writeTo(sourceInfo.jniNativeMain)
         jniFileSpec.build().writeTo(sourceInfo.jniMain)
+
+        if (sourceInfo.hasJs) {
+            jsFileSpec.addType(jsTypeSpec.build())
+            jsFileSpec.build().writeTo(sourceInfo.jsMain)
+        }
     }
 
     private fun addMethod(
         nativeFileSpec: FileSpec.Builder,
         nativeJniFileSpec: FileSpec.Builder,
         jniClassSpec: TypeSpec.Builder,
+        jsClassSpec: TypeSpec.Builder,
         key: String,
         secret: String,
         packageName: String
@@ -87,6 +99,15 @@ object SekretFile {
                 .addModifiers(KModifier.EXTERNAL)
                 .addParameter("key", String::class)
                 .returns(String::class.asClassName().copy(nullable = true))
+                .build()
+        )
+
+        jsClassSpec.addFunction(
+            FunSpec.builder(key)
+                .addParameter("key", String::class)
+                .returns(String::class)
+                .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
+                .addStatement("return %M(obfuscatedSecret, key, env)", origValueMember)
                 .build()
         )
     }

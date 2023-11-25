@@ -16,4 +16,9 @@ open class SekretGradleConfiguration {
      * The properties file (location), to get the key - value pairs from
      */
     var propertiesFile: String = "sekret.properties"
+
+    /**
+     * Specify if the JS target should be added or not, default tries to read your source module.
+     */
+    var generateJsSourceSet: Boolean? = null
 }

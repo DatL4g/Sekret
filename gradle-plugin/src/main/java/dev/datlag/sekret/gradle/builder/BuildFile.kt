@@ -11,7 +11,8 @@ object BuildFile {
         directory: File,
         packageName: String, // can be used for the android plugin
         version: String,
-        sourceSets: Set<Target>
+        sourceSets: Set<Target>,
+        forceJS: Boolean?
     ) {
         val nativeSourceSets = sourceSets.toMutableSet()
         if (sourceSets.contains(Target.Desktop.JVM)) {
@@ -24,6 +25,9 @@ object BuildFile {
             nativeSourceSets.add(Target.Android.NATIVE_64)
             nativeSourceSets.add(Target.Android.NATIVE_ARM_32)
             nativeSourceSets.add(Target.Android.NATIVE_ARM_64)
+        }
+        if (forceJS == true) {
+            nativeSourceSets.add(Target.JS)
         }
 
         val fileSpecBuilder = FileSpec.scriptBuilder("build.gradle")
@@ -51,7 +55,11 @@ object BuildFile {
                     .endControlFlow()
                     .endControlFlow()
             } else {
-                spec.addStatement("${target.name}()")
+                if (target is Target.JS) {
+                    spec.addStatement("${target.name}(IR)")
+                } else {
+                    spec.addStatement("${target.name}()")
+                }
             }
         }
 
@@ -134,6 +142,8 @@ object BuildFile {
             object Windows : Desktop("mingwX64")
             object JVM : Desktop("jvm", native = false, jniNative = false, jni = true)
         }
+
+        object JS : Target("js")
 
         open val requiredPlugin: String = "multiplatform"
 

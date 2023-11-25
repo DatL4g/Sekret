@@ -1,11 +1,8 @@
 package dev.datlag.sekret
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.toKString
 import kotlin.experimental.xor
 
-@OptIn(ExperimentalForeignApi::class)
-public fun getOriginalValue(
+fun getOriginalValue(
     secret: IntArray,
     key: String
 ): String {
@@ -25,5 +22,5 @@ public fun getOriginalValue(
         it.toByte().xor(obfuscatorByte)
     }.toByteArray()
 
-    return out.toKString()
+    return out.decodeToString()
 }
