@@ -180,6 +180,6 @@ class SekretGradlePlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "0.1.1"
+        private const val VERSION = "0.2.0"
     }
 }
