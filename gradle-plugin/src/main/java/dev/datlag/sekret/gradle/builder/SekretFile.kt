@@ -45,10 +45,14 @@ object SekretFile {
             )
         }
 
-        jniFileSpec.addType(jniTypeSpec.build())
-        nativeFileSpec.build().writeTo(sourceInfo.nativeMain)
-        nativeJniFileSpec.build().writeTo(sourceInfo.jniNativeMain)
-        jniFileSpec.build().writeTo(sourceInfo.jniMain)
+        if (sourceInfo.hasNative) {
+            nativeFileSpec.build().writeTo(sourceInfo.nativeMain)
+            nativeJniFileSpec.build().writeTo(sourceInfo.jniNativeMain)
+        }
+        if (sourceInfo.hasJNI) {
+            jniFileSpec.addType(jniTypeSpec.build())
+            jniFileSpec.build().writeTo(sourceInfo.jniMain)
+        }
 
         if (sourceInfo.hasJs) {
             jsFileSpec.addType(jsTypeSpec.build())
@@ -107,7 +111,7 @@ object SekretFile {
                 .addParameter("key", String::class)
                 .returns(String::class)
                 .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
-                .addStatement("return %M(obfuscatedSecret, key, env)", origValueMember)
+                .addStatement("return %M(obfuscatedSecret, key)", origValueMember)
                 .build()
         )
     }

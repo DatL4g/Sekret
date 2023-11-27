@@ -20,6 +20,10 @@ object ModuleStructure {
             BuildFile.create(sekretDir, packageName, version, sourceSets, forceJS)
         }
 
+        val hasNativeTarget = sourceSets.any {
+            it.native || it.jniNative || it.jni
+        }
+
         val hasJsTarget = forceJS == true || sourceSets.any {
             it is BuildFile.Target.JS
         }
@@ -30,7 +34,7 @@ object ModuleStructure {
             jniMain = File(sekretDir, JNI_MAIN_FOLDER),
             jsMain = File(sekretDir, JS_MAIN_FOLDER)
         )
-        sourceInfo.mkdirs(hasJsTarget)
+        sourceInfo.mkdirs(hasNativeTarget, hasJsTarget)
 
         return sourceInfo
     }
@@ -47,15 +51,29 @@ object ModuleStructure {
         val jniMain: File,
         val jsMain: File
     ) {
-        fun mkdirs(hasJsTarget: Boolean) {
-            nativeMain.mkdirsSafely()
-            jniNativeMain.mkdirsSafely()
-            jniMain.mkdirsSafely()
+        fun mkdirs(
+            hasNativeTarget: Boolean,
+            hasJsTarget: Boolean
+        ) {
+            if (hasNativeTarget) {
+                nativeMain.mkdirsSafely()
+                jniNativeMain.mkdirsSafely()
+                jniMain.mkdirsSafely()
+            }
 
             if (hasJsTarget) {
                 jsMain.mkdirsSafely()
             }
         }
+
+        val hasNative: Boolean
+            get() = nativeMain.existsSafely() && nativeMain.canWriteSafely()
+
+        val hasJNINative: Boolean
+            get() = hasNative && jniNativeMain.existsSafely() && jniNativeMain.canWriteSafely()
+
+        val hasJNI: Boolean
+            get() = hasJNINative && jniMain.existsSafely() && jniMain.canWriteSafely()
 
         val hasJs: Boolean
             get() = jsMain.existsSafely() && jsMain.canWriteSafely()
