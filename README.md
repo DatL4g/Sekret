@@ -27,7 +27,7 @@ Then apply the gradle plugin to the desired project in the corresponding `build.
 
 ```kotlin
 plugins {
-  id("dev.datlag.sekret") version "0.1.0"
+  id("dev.datlag.sekret") version "0.4.0"
 }
 ```
 
@@ -52,7 +52,7 @@ If you need different secrets for `app` and `network`, you can add the plugin to
 
 ```kotlin
 plugins {
-  id("dev.datlag.sekret") version "0.1.0-SNAPSHOT" apply false
+  id("dev.datlag.sekret") version "0.4.0-SNAPSHOT" apply false
 }
 ```
 
