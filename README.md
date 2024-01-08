@@ -133,6 +133,8 @@ sekret {
 }
 ```
 
+After proper configuration you can call `./gradlew yourProject:createNativeLib`, this compiles your secrets and copies them to your specified directories.
+
 ### Other
 
 First you have to compile the sekret module to a binary, you can do this by calling `./gradlew yourproject:sekret:assemble`, the binary will probably located under `yourproject/sekret/build/bin/(target)/releaseShared/libsekret.(targetEnding)`
