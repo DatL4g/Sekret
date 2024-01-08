@@ -117,7 +117,27 @@ If you use `jvm`, make sure to add `linuxX`, `mingwX` and `macOsX`, depending on
 
 ## Use secrets
 
+### Android or Desktop Compose
+
+Configure the path where the native binary should be located.
+
+- Android default: `src/androidMain/jniLibs`
+- Desktop compose: https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md#adding-files-to-packaged-application
+
+You can configure the plugin as follows:
+
+```kotlin
+sekret {
+    androidJniFolder = "src/androidMain/jniLibs"
+    desktopComposeResourceFolder = project.layout.projectDirectory.dir("resources").asFile.canonicalPath
+}
+```
+
+### Other
+
 First you have to compile the sekret module to a binary, you can do this by calling `./gradlew yourproject:sekret:assemble`, the binary will probably located under `yourproject/sekret/build/bin/(target)/releaseShared/libsekret.(targetEnding)`
+
+### Loading native binary
 
 You can use my implementation of the binary loader called `NativeLoader`, available for **Android** and **JVM**, or use your own.
 
