@@ -27,7 +27,7 @@ object BuildFile {
             nativeSourceSets.add(Target.Android.NATIVE_ARM_64)
         }
         if (forceJS == true) {
-            nativeSourceSets.add(Target.JS)
+            nativeSourceSets.add(Target.JS.Default)
         }
 
         val fileSpecBuilder = FileSpec.scriptBuilder("build.gradle")
@@ -143,7 +143,11 @@ object BuildFile {
             object JVM : Desktop("jvm", native = false, jniNative = false, jni = true)
         }
 
-        object JS : Target("js")
+        sealed class JS(override val name: String) : Target(name) {
+            object Default : JS("js")
+            object WASM : JS("wasmJs")
+            object WASI : JS("wasmWasi")
+        }
 
         open val requiredPlugin: String = "multiplatform"
 

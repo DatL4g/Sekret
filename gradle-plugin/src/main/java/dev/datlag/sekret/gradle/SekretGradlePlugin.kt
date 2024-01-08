@@ -2,6 +2,7 @@ package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.builder.*
 import dev.datlag.sekret.gradle.helper.Utils
+import dev.datlag.sekret.gradle.task.CreateNativeLib
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -14,8 +15,10 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.utils.ObservableSet
 import java.io.File
 import java.util.Properties
 
@@ -43,13 +46,18 @@ class SekretGradlePlugin : Plugin<Project> {
 
     private fun Project.generateJS(task: Task?): Boolean? = this.sekretConfig(task).generateJsSourceSet
 
+    private fun Project.exposeModule(task: Task?): Boolean = this.sekretConfig(task).exposeModule
+
+    private fun Project.androidJNIFolder(task: Task?): String? = this.sekretConfig(task).androidJniFolder
+    private fun Project.desktopComposeResourceFolder(task: Task?): String? = this.sekretConfig(task).desktopComposeResourceFolder
+
     private fun Project.propertiesFile(task: Task?): File? {
             val defined = this.sekretConfig(task).propertiesFile
             val definedFile = this.file(defined)
             val defaultName = SekretGradleConfiguration().propertiesFile
 
             fun getRootFile(): File {
-                val rootDefinedFile = rootProject.file(definedFile)
+                val rootDefinedFile = this.rootProject.file(definedFile)
                 return if (rootDefinedFile.existsSafely() && rootDefinedFile.canReadSafely()) {
                     if (rootDefinedFile.isDirectorySafely()) {
                         File(rootDefinedFile, defaultName)
@@ -91,6 +99,12 @@ class SekretGradlePlugin : Plugin<Project> {
         }
     }
 
+    private val KotlinCompilation<*>.allKotlinSourceSetsObservable
+        get() = this.allKotlinSourceSets as ObservableSet<KotlinSourceSet>
+
+    private val KotlinCompilation<*>.kotlinSourceSetsObservable
+        get() = this.kotlinSourceSets as ObservableSet<KotlinSourceSet>
+
     override fun apply(target: Project) {
         target.extensions.create(
             "sekret",
@@ -98,7 +112,9 @@ class SekretGradlePlugin : Plugin<Project> {
         )
 
         val sekretDir = File(target.projectDir, "sekret")
-        val generateTask = target.tasks.maybeCreate("generateSekret")
+        val generateTask = target.tasks.maybeCreate("generateSekret").apply {
+            group = "sekret"
+        }
 
         target.applyToSettings { settings ->
             runCatching {
@@ -132,13 +148,42 @@ class SekretGradlePlugin : Plugin<Project> {
         val buildTask = target.tasks.findByName("build") ?: target.tasks.withType(KotlinCompile::class).firstOrNull()
         buildTask?.dependsOn(generateTask)
 
+        val createTask = target.tasks.maybeCreate("createNativeLib").apply {
+            group = "sekret"
+        }
+        val sekretProject = runCatching {
+            target.findProject("sekret")
+        }.getOrNull()
+        val sekretAssemble = sekretProject?.getTasksByName("assemble", false)?.firstOrNull { t -> t.name == "assemble" }
+
+        createTask.dependsOn(generateTask, sekretAssemble)
+
+        createTask.doLast {
+            val androidFolder = target.androidJNIFolder(this)?.let { File(it) }
+            val desktopComposeFolder = target.desktopComposeResourceFolder(this)?.let { File(it) }
+
+            CreateNativeLib.create(
+                androidFolder,
+                desktopComposeFolder,
+                sekretProject ?: runCatching {
+                    target.findProject("sekret")
+                }.getOrNull()
+            )
+        }
+
         when (target.kotlinExtension) {
             is KotlinSingleTargetExtension<*> -> {
                 target.dependencies {
                     runCatching {
                         target.findProject("sekret")
                     }.getOrNull()?.let {
-                        add("api", it)
+                        val exposure = if (target.exposeModule(null)) {
+                            "api"
+                        } else {
+                            "implementation"
+                        }
+
+                        add(exposure, it)
                     } ?: run {
                         sekretModuleNotLoaded(target.path)
                     }
@@ -149,7 +194,13 @@ class SekretGradlePlugin : Plugin<Project> {
                     runCatching {
                         target.findProject("sekret")
                     }.getOrNull()?.let {
-                        add("commonMainApi", it)
+                        val exposure = if (target.exposeModule(null)) {
+                            "commonMainApi"
+                        } else {
+                            "commonMainImplementation"
+                        }
+
+                        add(exposure, it)
                     } ?: run {
                         sekretModuleNotLoaded(target.path)
                     }
@@ -180,6 +231,6 @@ class SekretGradlePlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "0.2.1"
+        private const val VERSION = "0.4.0"
     }
 }
