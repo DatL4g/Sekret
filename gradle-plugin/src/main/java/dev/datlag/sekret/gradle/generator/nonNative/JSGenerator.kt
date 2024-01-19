@@ -7,9 +7,13 @@ import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.generator.SekretGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator.JNI_PACKAGE_NAME
 import dev.datlag.sekret.gradle.helper.JNI
+import java.io.File
 
-class JSGenerator(private val settings: SekretGenerator.Settings) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>): FileSpec {
+class JSGenerator(
+    private val settings: SekretGenerator.Settings,
+    private val outputDir: File
+) : SekretGenerator.Generator {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
@@ -26,6 +30,6 @@ class JSGenerator(private val settings: SekretGenerator.Settings) : SekretGenera
             )
         }
 
-        return spec.addType(typeSpec.build()).build()
+        spec.addType(typeSpec.build()).build().writeTo(outputDir)
     }
 }

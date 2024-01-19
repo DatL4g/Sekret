@@ -4,9 +4,13 @@ import com.squareup.kotlinpoet.*
 import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.generator.SekretGenerator
 import dev.datlag.sekret.gradle.keys
+import java.io.File
 
-class JNIGenerator(private val settings: SekretGenerator.Settings) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>): FileSpec {
+class JNIGenerator(
+    private val settings: SekretGenerator.Settings,
+    private val outputDir: File
+) : SekretGenerator.Generator {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
@@ -22,6 +26,6 @@ class JNIGenerator(private val settings: SekretGenerator.Settings) : SekretGener
                     .build()
             )
         }
-        return spec.addType(typeSpec.build()).build()
+        spec.addType(typeSpec.build()).build().writeTo(outputDir)
     }
 }

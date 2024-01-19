@@ -1,50 +1,71 @@
 package dev.datlag.sekret.gradle.generator
 
-import com.squareup.kotlinpoet.FileSpec
 import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.generator.native.NativeGenerator
 import dev.datlag.sekret.gradle.generator.native.NativeJNIGenerator
 import dev.datlag.sekret.gradle.generator.nonNative.JNIGenerator
 import dev.datlag.sekret.gradle.generator.nonNative.JSGenerator
+import java.io.File
 
 object SekretGenerator {
 
     internal const val JNI_PACKAGE_NAME = "dev.datlag.sekret"
 
-    fun createNative(packageName: String): NativeGenerator {
+    fun createNative(packageName: String, outputDir: File): NativeGenerator {
         return NativeGenerator(
             Settings(
                 packageName = packageName,
                 className = "sekret"
-            )
+            ),
+            outputDir
         )
     }
 
-    fun createNativeJNI(packageName: String): NativeJNIGenerator {
+    fun createNativeJNI(packageName: String, outputDir: File): NativeJNIGenerator {
         return NativeJNIGenerator(
             Settings(
                 packageName = packageName,
                 className = "sekret"
-            )
+            ),
+            outputDir
         )
     }
 
-    fun createJNI(packageName: String): JNIGenerator {
+    fun createJNI(packageName: String, outputDir: File): JNIGenerator {
         return JNIGenerator(
             Settings(
                 packageName = packageName,
                 className = "Sekret"
-            )
+            ),
+            outputDir
         )
     }
 
-    fun createJS(packageName: String): JSGenerator {
+    fun createJS(packageName: String, outputDir: File): JSGenerator {
         return JSGenerator(
             Settings(
                 packageName = packageName,
                 className = "Sekret"
-            )
+            ),
+            outputDir
         )
+    }
+
+    fun createAllForTargets(packageName: String, structure: ModuleGenerator.SourceStructure): Set<Generator> {
+        val generators = mutableSetOf<Generator>()
+
+        if (structure.hasNative) {
+            generators.add(createNative(packageName, structure.nativeMain))
+        }
+        if (structure.hasJNI) {
+            generators.add(createNativeJNI(packageName, structure.jniNativeMain))
+            generators.add(createJNI(packageName, structure.jniMain))
+        }
+        if (structure.hasJS) {
+            generators.add(createJS(packageName, structure.jsCommonMain))
+        }
+
+        return generators
     }
 
     fun generate(encodedProperties: Iterable<EncodedProperty>, vararg generator: Generator) {
@@ -52,7 +73,7 @@ object SekretGenerator {
     }
 
     interface Generator {
-        fun generate(encodedProperties: Iterable<EncodedProperty>): FileSpec
+        fun generate(encodedProperties: Iterable<EncodedProperty>)
     }
 
     data class Settings(

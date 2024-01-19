@@ -1,9 +1,6 @@
 package dev.datlag.sekret.gradle.helper
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec
-import dev.datlag.sekret.gradle.builder.SekretFile
+import dev.datlag.sekret.gradle.EncodedProperty
 import net.pearx.kasechange.toCamelCase
 import net.pearx.kasechange.universalWordSplitter
 import java.security.MessageDigest
@@ -14,15 +11,18 @@ object Encoder {
 
     fun encodeProperties(
         properties: Properties,
-        password: String,
-        onNewMethod: (name: String, secret: String) -> Unit
-    ) {
+        password: String
+    ): Iterable<EncodedProperty> {
+        val props = mutableSetOf<EncodedProperty>()
+
         properties.entries.forEach { entry ->
             val keyName = (entry.key as String).toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
             val secretValue = encode(entry.value as String, password)
 
-            onNewMethod(keyName, secretValue)
+            props.add(EncodedProperty(keyName, secretValue))
         }
+
+        return props
     }
 
     private fun encode(value: String, password: String): String {

@@ -1,32 +1,61 @@
 package dev.datlag.sekret.gradle.generator
 
 import com.squareup.kotlinpoet.FileSpec
+import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
+import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
+import java.io.File
 
 object BuildFileGenerator {
 
     fun generate(
-        version: String,
-        forceJS: Boolean,
-        container: KotlinSourceSetContainer
+        project: Project,
+        forceJS: Boolean = project.sekretExtension.jsSourceSet.getOrElse(false),
+        version: String = SekretPlugin.getVersion()
     ) {
-        val allNames = container.sourceSets.names
+        val extension = project.kotlinProjectExtension
+        val allNames = extension.targets.map {
+            it.name
+        }.toMutableSet().apply {
+            addAll(extension.sourceSets.map { it.name })
+        }
         val defaultTargets = Target.fromSourceSetNames(allNames)
         val requiredTargets = Target.addDependingTargets(defaultTargets)
 
+        generate(
+            version = version,
+            forceJS = forceJS,
+            targets = requiredTargets,
+            outputDir = ModuleGenerator.createBase(project)
+        )
+    }
+
+    fun generate(
+        version: String,
+        forceJS: Boolean,
+        targets: Iterable<Target>,
+        outputDir: File
+    ) {
         val fileSpec = FileSpec.scriptBuilder("build.gradle")
-            .addPlugins(requiredTargets)
+            .addPlugins(targets)
             .beginControlFlow("kotlin")
             .addSourceSets(
                 version = version,
-                commonJS = forceJS || requiredTargets.any { it.isJS },
-                sourceSets = requiredTargets
+                commonJS = forceJS || targets.any { it.isJS },
+                sourceSets = targets.toSet()
             )
             .endControlFlow()
+
+        val spec = fileSpec.build()
+
+        if (outputDir.existsSafely() && outputDir.canWriteSafely()) {
+            spec.writeTo(outputDir)
+        }
     }
 
-    private fun FileSpec.Builder.addPlugins(sourceSets: Set<Target>): FileSpec.Builder {
+    private fun FileSpec.Builder.addPlugins(sourceSets: Iterable<Target>): FileSpec.Builder {
         val pluginNames = sourceSets.map { it.requiredPlugin }.toMutableSet().apply {
             add("multiplatform")
         }

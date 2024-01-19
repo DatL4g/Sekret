@@ -10,9 +10,13 @@ import dev.datlag.sekret.gradle.generator.SekretGenerator.JNI_PACKAGE_NAME
 import dev.datlag.sekret.gradle.helper.C
 import dev.datlag.sekret.gradle.helper.JNI
 import dev.datlag.sekret.gradle.helper.Utils
+import java.io.File
 
-class NativeJNIGenerator(private val settings: SekretGenerator.Settings) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>): FileSpec {
+class NativeJNIGenerator(
+    private val settings: SekretGenerator.Settings,
+    private val outputDir: File
+) : SekretGenerator.Generator {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
@@ -35,6 +39,6 @@ class NativeJNIGenerator(private val settings: SekretGenerator.Settings) : Sekre
             )
         }
 
-        return spec.build()
+        spec.build().writeTo(outputDir)
     }
 }
