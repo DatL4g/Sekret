@@ -135,7 +135,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
         get() = this is WATCHOS
 
     fun matchesName(name: String): Boolean {
-        return this.name == name || this.sourceSet == name
+        return this.name.equals(name, true) || this.sourceSet.equals(name, true)
     }
 
     companion object {

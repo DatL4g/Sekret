@@ -4,6 +4,7 @@ import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
 import dev.datlag.sekret.gradle.canReadSafely
 import dev.datlag.sekret.gradle.existsSafely
+import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator
 import dev.datlag.sekret.gradle.helper.Encoder
@@ -12,7 +13,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-class GenerateSekretTask : DefaultTask() {
+open class GenerateSekretTask : DefaultTask() {
 
     init {
         group = "sekret"
@@ -21,20 +22,17 @@ class GenerateSekretTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val sekretDir = ModuleGenerator.createBase(project)
-        val extension = project.kotlinProjectExtension
+        BuildFileGenerator.generate(
+            project = project,
+            overwrite = false
+        )
         val config = project.sekretExtension
 
-        val allNames = extension.targets.map {
-            it.name
-        }.toMutableSet().apply {
-            addAll(extension.sourceSets.map { it.name })
-        }
-        val defaultTargets = Target.fromSourceSetNames(allNames)
+        val defaultTargets = project.targetsMapped
         val requiredTargets = Target.addDependingTargets(defaultTargets)
 
         val structure = ModuleGenerator.createForTargets(
             directory = sekretDir,
-            forceJS = config.jsSourceSet.getOrElse(false),
             targets = requiredTargets
         )
 

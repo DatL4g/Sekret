@@ -4,7 +4,7 @@ import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-class GenerateSekretBuildScriptTask : DefaultTask() {
+open class GenerateSekretBuildScriptTask : DefaultTask() {
 
     init {
         group = "sekret"
@@ -12,6 +12,9 @@ class GenerateSekretBuildScriptTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        BuildFileGenerator.generate(project = project)
+        BuildFileGenerator.generate(
+            project = project,
+            overwrite = true
+        )
     }
 }

@@ -24,11 +24,10 @@ object ModuleGenerator {
 
     fun createForTargets(
         directory: File,
-        forceJS: Boolean,
         targets: Iterable<Target>
     ): SourceStructure {
         val hasNativeTarget = targets.any { it.isNative }
-        val commonJS = forceJS || targets.any { it.isJS }
+        val commonJS = targets.any { it.isJS }
 
         return SourceStructure(
             nativeMain = File(directory, NATIVE_MAIN_FOLDER),

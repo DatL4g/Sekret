@@ -4,46 +4,40 @@ import com.squareup.kotlinpoet.FileSpec
 import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 
 object BuildFileGenerator {
 
     fun generate(
         project: Project,
-        forceJS: Boolean = project.sekretExtension.jsSourceSet.getOrElse(false),
-        version: String = SekretPlugin.getVersion()
+        version: String = SekretPlugin.getVersion(),
+        overwrite: Boolean = false
     ) {
-        val extension = project.kotlinProjectExtension
-        val allNames = extension.targets.map {
-            it.name
-        }.toMutableSet().apply {
-            addAll(extension.sourceSets.map { it.name })
-        }
-        val defaultTargets = Target.fromSourceSetNames(allNames)
+        val defaultTargets = project.targetsMapped
         val requiredTargets = Target.addDependingTargets(defaultTargets)
 
         generate(
             version = version,
-            forceJS = forceJS,
             targets = requiredTargets,
-            outputDir = ModuleGenerator.createBase(project)
+            outputDir = ModuleGenerator.createBase(project),
+            overwrite = overwrite
         )
     }
 
     fun generate(
         version: String,
-        forceJS: Boolean,
         targets: Iterable<Target>,
-        outputDir: File
+        outputDir: File,
+        overwrite: Boolean = false
     ) {
         val fileSpec = FileSpec.scriptBuilder("build.gradle")
             .addPlugins(targets)
             .beginControlFlow("kotlin")
             .addSourceSets(
                 version = version,
-                commonJS = forceJS || targets.any { it.isJS },
+                commonJS = targets.any { it.isJS },
                 sourceSets = targets.toSet()
             )
             .endControlFlow()
@@ -51,7 +45,13 @@ object BuildFileGenerator {
         val spec = fileSpec.build()
 
         if (outputDir.existsSafely() && outputDir.canWriteSafely()) {
-            spec.writeTo(outputDir)
+            if (!overwrite) {
+                if (!File(outputDir, spec.relativePath).existsSafely()) {
+                    spec.writeTo(outputDir)
+                }
+            } else {
+                spec.writeTo(outputDir)
+            }
         }
     }
 
