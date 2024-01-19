@@ -46,8 +46,8 @@ gradlePlugin {
 
         create("sekretPlugin") {
             id = artifact
-            implementationClass = "dev.datlag.sekret.gradle.SekretGradlePlugin"
-            displayName = "Sekret Gradle Plugin"
+            implementationClass = "dev.datlag.sekret.gradle.SekretPlugin"
+            displayName = "Sekret Plugin"
             description = "Gradle Plugin for Sekret"
             tags.set(listOf("kotlin", "secret", "hidden"))
         }
