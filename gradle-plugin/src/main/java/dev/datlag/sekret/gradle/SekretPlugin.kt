@@ -15,9 +15,11 @@ import java.util.*
 open class SekretPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.tasks.maybeCreate("generateSekretBuildScript", GenerateSekretBuildScriptTask::class)
-        project.tasks.maybeCreate("generateSekret", GenerateSekretTask::class)
-        project.tasks.maybeCreate("createAndCopySekretNativeLibrary", CreateAndCopySekretNativeLibraryTask::class)
+        project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
+        project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
+        project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
+            it.setupDependingTasks()
+        }
 
         val expose = project.sekretExtension.exposeModule.getOrElse(false)
 

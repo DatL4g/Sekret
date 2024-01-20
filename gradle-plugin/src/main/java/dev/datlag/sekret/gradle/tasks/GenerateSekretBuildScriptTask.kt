@@ -17,4 +17,8 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
             overwrite = true
         )
     }
+
+    companion object {
+        internal const val NAME = "generateSekretBuildScript"
+    }
 }

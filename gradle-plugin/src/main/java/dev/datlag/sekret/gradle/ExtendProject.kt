@@ -1,9 +1,11 @@
 package dev.datlag.sekret.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
@@ -51,3 +53,14 @@ val KotlinProjectExtension.targetsMapped: Set<Target>
 
 val Project.targetsMapped: Set<Target>
     get() = kotlinProjectExtension.targetsMapped
+
+fun Project.findMatchingTask(name: String): Task? {
+    return this.tasks.findByName(name) ?: this.getTasksByName(
+        name,
+        false
+    ).firstOrNull { t -> t.name == name }
+}
+
+inline fun <reified T : Task> Project.findMatchingTaskWithType(name: String): Task? {
+    return this.tasks.withType<T>().firstOrNull() ?: findMatchingTask(name)
+}

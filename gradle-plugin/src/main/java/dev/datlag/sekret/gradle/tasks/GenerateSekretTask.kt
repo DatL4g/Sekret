@@ -72,4 +72,8 @@ open class GenerateSekretTask : DefaultTask() {
             ?: resolveFile(project.rootProject.projectDir)
             ?: resolveFile(project.rootProject.rootDir)
     }
+
+    companion object {
+        internal const val NAME = "generateSekret"
+    }
 }

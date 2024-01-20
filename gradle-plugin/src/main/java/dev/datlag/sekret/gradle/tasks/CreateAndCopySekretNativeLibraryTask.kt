@@ -1,26 +1,39 @@
 package dev.datlag.sekret.gradle.tasks
 
+import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.existsSafely
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.mkdirsSafely
-import dev.datlag.sekret.gradle.sekretExtension
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.task
+import org.gradle.kotlin.dsl.withType
+import org.gradle.language.assembler.tasks.Assemble
 import java.io.File
 
 open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
 
     init {
-        TODO("depend on assemble")
         group = "sekret"
+    }
+
+    private val sekretProject: Project?
+        get() = runCatching {
+            project.findProject("sekret")
+        }.getOrNull()
+
+    fun setupDependingTasks() {
+        val assembleTask = sekretProject?.findMatchingTask("assemble")
+        val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
+
+        dependsOn(generateTask, assembleTask)
     }
 
     @TaskAction
     fun createAndCopy() {
         val sekretDir = ModuleGenerator.createBase(project)
-        val sekretBuildDir = runCatching {
-            project.findProject("sekret")
-        }.getOrNull()?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
+        val sekretBuildDir = sekretProject?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
         val config = project.sekretExtension
 
         val androidJniFolder = config.androidJNIFolder.orNull?.asFile
@@ -99,5 +112,9 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
 
             it.copyRecursively(File(dest, it.name), true)
         }
+    }
+
+    companion object {
+        internal const val NAME = "createAndCopySekretNativeLibrary"
     }
 }
