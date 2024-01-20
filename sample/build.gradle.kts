@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "0.5.4-SNAPSHOT"
+    id("dev.datlag.sekret") version "1.0.0"
     id("org.jetbrains.compose") version "1.5.11"
 }
 
