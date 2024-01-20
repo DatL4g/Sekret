@@ -1,159 +1,107 @@
 # Sekret
 
-The Sekret plugin allows any Kotlin developer to deeply hide secrets in it's project.
-This prevents **credentials harvseting** to a certain level.
+The Sekret plugin allows any Kotlin developer to deeply hide secrets in your project. This prevents **credentials harvesting** to a certain level.
 
 The following obfuscation techniques are used:
 
-- the secret is obfuscated using a reversible XOR operation, so it never appears as plain text
-- obfuscated secret is stored in a native binary as a hexadecimal array, so it's hard to decompile
-- the obfuscated string is not persisted in the binary to force runtime evaluation
+- The secret is obfuscated using a reversible XOR operation, so it never appears as plain text
+- Obfuscated secret is stored in a native binary as a hexadecimal array, so it's hard to decompile
+  - **This is not the case for javascript modules**
+- The obfuscated string is not persisted in the binary to force runtime evaluation
 
 This plugin is a more flexible and **Kotlin Multiplatform** compatible version of [klaxit/hidden-secrets-gradle-plugin](https://github.com/klaxit/hidden-secrets-gradle-plugin)
 
-⚠️ Nothing on the client-side is unbreakable. So generally speaking, **keeping a secret in a application package is not a smart idea**. But when you absolutely need to, this is the best method to hide it.
+⚠️ Nothing on the client-side is unbreakable. So generally speaking, **keeping a secret in application package is not a smart idea**. But when you absolutely need to, this is the best method to hide it.
 
 This plugin can be used with any Kotlin project (single-, or multiplatform).
 
 ## Install
 
-### Maven Central
+This project is available through `mavenCentral`.
 
-This project is available through `mavenCentral`
+### Gradle Plugin
 
-Make sure to add `mavenCentral` to your repository resolution.
+#### ⚠️ Make sure to apply the plugin to the desired project/module only!
 
-Then apply the gradle plugin to the desired project in the corresponding `build.gradle.kts`
-
-```kotlin
-plugins {
-  id("dev.datlag.sekret") version "0.4.0"
+```gradle
+plugins { 
+    id("dev.datlag.sekret") version "1.0.0"
 }
 ```
 
-#### ⚠️ Make sure to apply the plugin to the desired project only!
+### Plugin configuration
 
-If you have a multimodule project with this structure for example and need your secrets in the app module:
+You can call the following after applying the plugin in your `build.gradle.kts`
 
-```
-app \
-  build.gradle.kts
-network \
-  build.gradle.kts
-build.gradle.kt
-settings.gradle.kts
-```
-
-Then apply the plugin to the `app/build.gradle.kts` only.
-
-##### Multiple secrets
-
-If you need different secrets for `app` and `network`, you can add the plugin to you root `build.gradle.kts`
-
-```kotlin
-plugins {
-  id("dev.datlag.sekret") version "0.4.0-SNAPSHOT" apply false
-}
-```
-
-And apply them in the `app` and `network` module `build.gradle.kts`
-
-```kotlin
-plugins {
-  id("dev.datlag.sekret")
-}
-```
-
-#### Plugin configuration
-
-You can configure the plugin by calling, the follwoing in your `build.gradle.kts`
-
-```kotlin
+```gradle
 sekret {
-  packageName = "your.package.name" // default is "dev.datlag.sekret"
-  password = "yourExamplePassword" // default is the specified packageName
-  propertiesFile = "mysecrets.properties" // default is sekret.properties, you can specify a directory or full file path as well if you want
+    packageName.set("your.package.name")
+    encryptionKey.set("yourUniqueEncryption") // default is the specified packageName
+    // more configuration...
 }
 ```
 
-## Generate secrets
+## Setup
 
-If you have multiple modules the use the plugin, the correct location of your `propertiesFile` matters.
+The plugin will generate a separate module, since it needs to compile for native targets even if you just use Android or JVM for example.
 
-If you don't specify the full file path, it will search in the project directory where the plugin is applied and if none is found, it will use the root properties file.
+### Add generated sekret module
 
-**⚠️ It will never use the parent project file, unless configured otherwise**
+Therefore, you need to include the generated sekret module in your `settings.gradle.kts`.
 
-Then in your `properties` file add your secrets as a simple key-value pair
+⚠️ Make sure to exclude this module by adding it to your `.gitignore`
+
+```gradle
+include(":sample", ":sample:sekret")
+```
+
+### Add secrets
+
+Create a `sekret.properties` file in the project/module where you applied the plugin and simply add key-value pairs.
 
 ```properties
 YOUR_KEY_NAME=yourSuperSecretSecret
 OTHER_SECRET=th1s1s4n0th3rS3cr3t
 ```
 
-⚠️ Make sure to exclude this file by adding it to your `.gitignore`
+You can change the name and location by changing the sekret configuration:
 
-### Generate
-
-To generate the native secrets call `./gradlew yourProject:generateSekret` or add a task in your `build.gradle.kts`, depending on `generateSekret`
-
-If we take our previous example it looks like this: `./gradlew app:generateSekret`
-
-You will see that a new submodule will be created called sekret, make sure to add it to your `settings.gradle.kts`
-
-```kotlin
-include("app:sekret")
-```
-
-If you didn't have this `include` before, you have to re-run the `generateSekret` task.
-
-#### Customize targets
-
-You can change the generated `build.gradle.kts` depending on your needs, just make sure to apply the required native targets:
-
-If you use `android`, make sure to add (all) `androidNativeX`
-
-If you use `jvm`, make sure to add `linuxX`, `mingwX` and `macOsX`, depending on your `jvm` output platform.
-
-## Use secrets
-
-### Android or Desktop Compose
-
-Configure the path where the native binary should be located.
-
-- Android default: `src/androidMain/jniLibs`
-- Desktop compose: https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md#adding-files-to-packaged-application
-
-You can configure the plugin as follows:
-
-```kotlin
+```gradle
 sekret {
-    androidJniFolder = "src/androidMain/jniLibs"
-    desktopComposeResourceFolder = project.layout.projectDirectory.dir("resources").asFile.canonicalPath
+  propertiesFile.set(project.layout.projectDirectory.file("my-secrets.properties"))
 }
 ```
 
-After proper configuration you can call `./gradlew yourProject:createNativeLib`, this compiles your secrets and copies them to your specified directories.
+⚠️ Make sure to exclude this file by adding it to your `.gitignore`
 
-### Other
+### Generate secrets
 
-First you have to compile the sekret module to a binary, you can do this by calling `./gradlew yourproject:sekret:assemble`, the binary will probably located under `yourproject/sekret/build/bin/(target)/releaseShared/libsekret.(targetEnding)`
+To generate source code for your provided secrets, just call `./gradlew generateSekret`.
 
-### Loading native binary
+### Customize targets
 
-You can use my implementation of the binary loader called `NativeLoader`, available for **Android** and **JVM**, or use your own.
+You can change the generated `build.gradle.kts` depending on your needs, just make sure to apply the required native targets:
 
-Just call it like the following in your application code:
+- For **Android**: `androidNativeX`
+- For **JVM**: `linuxX`, `mingwX` and `macOsX`, depending on your output platform.
+
+If you misconfigured your build script or added new targets to your base module, you can run `./gradlew sample:generateSekretBuildScript`.
+
+## Compose
+
+Make sure to configure the compose application correctly, take a look at the sample project.
+
+- If you use **Android** or **JVM** target you have to call `./gradlew createAndCopySekretNativeLibrary`.
+- If you use any **JS** target you can just use the generated `Sekret` class as is.
+
+### Load secrets in code
 
 ```kotlin
-val binaryLoded = NativeLoader.loadLibrary("sekret", File("path/to/libsekret.xx"))
+val binaryLoded = NativeLoader.loadLibrary("sekret", System.getProperty("compose.application.resources.dir")?.let { File(it) })
 
-if (binaryLoaded) {
-  val password = getPackageName() // depends on your plugin configuration
-  val yourKeyName = Sekret().yourKeyName(password)
-  val otherSecret = Sekret().otherSecret(password)
-} else {
-  // use your own binary loader
+if (binaryLoded) {
+  val yourKeyName = Sekret().yourKeyName("your-encryption-key")
+  val otherSecret = Sekret().otherSecret("your-encryption-key")
 }
 ```
 
