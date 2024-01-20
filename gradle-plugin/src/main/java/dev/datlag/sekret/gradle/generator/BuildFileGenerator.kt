@@ -68,7 +68,7 @@ object BuildFileGenerator {
                 controlFlow.addStatement("id(%S)", plugin)
             }
         }
-        return controlFlow.endControlFlow()
+        return controlFlow.endControlFlow().addStatement("")
     }
 
     private fun FileSpec.Builder.addSourceSets(
@@ -77,6 +77,8 @@ object BuildFileGenerator {
         sourceSets: Set<Target>
     ): FileSpec.Builder {
         var spec = this
+        val containsAndroidNative = sourceSets.any { it.isAndroidNative }
+        val containsAndroidJvm = sourceSets.any { it.isAndroidJvm }
 
         sourceSets.forEach { target ->
             spec = if (target.isNative) {
@@ -94,24 +96,36 @@ object BuildFileGenerator {
             }
         }
 
+        spec = spec.addStatement("")
         spec = spec.addStatement("applyDefaultHierarchyTemplate()")
+        spec = spec.addStatement("")
         spec = spec.beginControlFlow("sourceSets")
 
         spec = spec.beginControlFlow("commonMain.dependencies")
         spec = spec.addStatement("api(%S)", "dev.datlag.sekret:sekret:$version")
         spec = spec.endControlFlow()
+        spec = spec.addStatement("")
 
         spec = spec.beginControlFlow("val jniNativeMain by creating")
         spec = spec.addStatement("nativeMain.orNull?.let { dependsOn(it) } ?: dependsOn(commonMain.get())")
-        spec = spec.addStatement("androidNativeMain.orNull?.dependsOn(this)")
+        spec = if (containsAndroidNative) {
+            spec.addStatement("androidNativeMain.orNull?.dependsOn(this)")
+        } else {
+            spec.addBodyComment("androidNativeMain.orNull?.dependsOn(this)")
+        }
         spec = spec.addStatement("linuxMain.orNull?.dependsOn(this)")
         spec = spec.addStatement("mingwMain.orNull?.dependsOn(this)")
         spec = spec.addStatement("macosMain.orNull?.dependsOn(this)")
         spec = spec.endControlFlow()
+        spec = spec.addStatement("")
 
         spec = spec.beginControlFlow("val jniMain by creating")
         spec = spec.addStatement("dependsOn(commonMain.get())")
-        spec = spec.addStatement("androidMain.orNull?.dependsOn(this)")
+        spec = if (containsAndroidJvm) {
+            spec.addStatement("androidMain.orNull?.dependsOn(this)")
+        } else {
+            spec.addBodyComment("androidMain.orNull?.dependsOn(this)")
+        }
         spec = spec.addStatement("jvmMain.orNull?.dependsOn(this)")
         spec = spec.endControlFlow()
 

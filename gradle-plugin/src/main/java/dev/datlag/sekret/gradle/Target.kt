@@ -104,6 +104,9 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
     val isAndroidJvm: Boolean
         get() = this is Android.JVM
 
+    val isAndroidNative: Boolean
+        get() = isAndroid && isNative
+
     val isDesktop: Boolean
         get() = this is Desktop
 
