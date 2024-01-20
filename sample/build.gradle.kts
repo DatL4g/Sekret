@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "0.5.3-SNAPSHOT"
+    id("dev.datlag.sekret") version "0.5.4-SNAPSHOT"
     id("org.jetbrains.compose") version "1.5.11"
 }
 
@@ -20,6 +20,7 @@ dependencies {
 sekret {
     packageName.set("dev.datlag.sekret.sample")
     encryptionKey.set("password12345")
+    propertiesFile.set(project.layout.projectDirectory.file("sekret.properties"))
     desktopComposeResourcesFolder.set(project.layout.projectDirectory.dir("resources"))
 }
 

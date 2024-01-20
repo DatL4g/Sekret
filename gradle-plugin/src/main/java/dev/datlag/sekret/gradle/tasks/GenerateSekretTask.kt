@@ -2,8 +2,6 @@ package dev.datlag.sekret.gradle.tasks
 
 import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
-import dev.datlag.sekret.gradle.canReadSafely
-import dev.datlag.sekret.gradle.existsSafely
 import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator
@@ -65,12 +63,8 @@ open class GenerateSekretTask : DefaultTask() {
             return null
         }
 
-        return resolveFile(project.file(config.propertiesFile.getOrElse(SekretPluginExtension.sekretFileName)))
+        return resolveFile(config.propertiesFile.asFile.getOrElse(project.file(SekretPluginExtension.sekretFileName)))
             ?: resolveFile(project.projectDir)
-            ?: resolveFile(project.rootDir)
-            ?: resolveFile(project.rootProject.file(config.propertiesFile.getOrElse(SekretPluginExtension.sekretFileName)))
-            ?: resolveFile(project.rootProject.projectDir)
-            ?: resolveFile(project.rootProject.rootDir)
     }
 
     companion object {

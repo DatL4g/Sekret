@@ -5,10 +5,6 @@ import dev.datlag.sekret.gradle.canWriteSafely
 import dev.datlag.sekret.gradle.existsSafely
 import dev.datlag.sekret.gradle.mkdirsSafely
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import java.io.File
 
 object ModuleGenerator {

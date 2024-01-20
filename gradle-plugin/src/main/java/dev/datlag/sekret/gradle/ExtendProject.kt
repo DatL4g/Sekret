@@ -2,8 +2,8 @@ package dev.datlag.sekret.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.*

@@ -4,7 +4,7 @@ import dev.datlag.sekret.gradle.EncodedProperty
 import net.pearx.kasechange.toCamelCase
 import net.pearx.kasechange.universalWordSplitter
 import java.security.MessageDigest
-import java.util.Properties
+import java.util.*
 import kotlin.experimental.xor
 
 object Encoder {

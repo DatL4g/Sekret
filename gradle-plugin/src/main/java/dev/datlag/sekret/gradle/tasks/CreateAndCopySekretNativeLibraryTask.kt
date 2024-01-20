@@ -1,15 +1,10 @@
 package dev.datlag.sekret.gradle.tasks
 
 import dev.datlag.sekret.gradle.*
-import dev.datlag.sekret.gradle.existsSafely
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
-import dev.datlag.sekret.gradle.mkdirsSafely
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.task
-import org.gradle.kotlin.dsl.withType
-import org.gradle.language.assembler.tasks.Assemble
 import java.io.File
 
 open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {

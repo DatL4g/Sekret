@@ -4,8 +4,6 @@ import com.squareup.kotlinpoet.FileSpec
 import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 
 object BuildFileGenerator {
