@@ -3,7 +3,7 @@ rootProject.name = "sekret"
 include(":gradle-plugin")
 include(":sekret")
 include(":annotations")
-include(":sample", ":sample:sekret")
+// include(":sample", ":sample:sekret")
 
 pluginManagement {
     repositories {
