@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -71,6 +72,18 @@ kotlin {
     js(IR) {
         browser()
         nodejs()
+        binaries.executable()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+        binaries.executable()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+        binaries.executable()
     }
 
     applyDefaultHierarchyTemplate()
