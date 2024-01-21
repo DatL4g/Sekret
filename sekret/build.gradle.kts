@@ -66,7 +66,9 @@ kotlin {
     }
 
     // non-native targets
-    androidTarget()
+    androidTarget {
+        publishAllLibraryVariants()
+    }
     jvm()
 
     js(IR) {

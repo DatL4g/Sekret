@@ -1,11 +1,12 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
-    // `maven-publish`
-    // signing
-    // alias(libs.plugins.vanniktech.publish)
+    `maven-publish`
+    signing
+    alias(libs.plugins.vanniktech.publish)
     alias(libs.plugins.osdetector)
 }
 
@@ -42,7 +43,9 @@ kotlin {
         watchosDeviceArm64()
     }
 
-    androidTarget()
+    androidTarget {
+        publishAllLibraryVariants()
+    }
     jvm()
 
     js(IR) {
@@ -76,6 +79,47 @@ android {
     compileOptions {
         sourceCompatibility = CompileOptions.sourceCompatibility
         targetCompatibility = CompileOptions.targetCompatibility
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
+    signAllPublications()
+
+    val publishId = "sekret-annotations"
+
+    coordinates(
+        groupId = artifact,
+        artifactId = publishId,
+        version = libVersion
+    )
+
+    pom {
+        name.set(publishId)
+        description.set("Sekret Annotations")
+        url.set("https://github.com/DatL4g/Sekret")
+        inceptionYear.set("2024")
+
+        licenses {
+            license {
+                name.set("Apache License 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/DatL4g/Sekret")
+            connection.set("scm:git:git://github.com/DATL4G/Sekret.git")
+            developerConnection.set("scm:git:git://github.com/DATL4G/Sekret.git")
+        }
+
+        developers {
+            developer {
+                id.set("DatL4g")
+                name.set("Jeff Retz")
+                url.set("https://github.com/DatL4g")
+            }
+        }
     }
 }
 

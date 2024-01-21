@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     id("dev.datlag.sekret") version "1.0.0"
     id("org.jetbrains.compose") version "1.5.11"
+    alias(libs.plugins.ksp)
 }
 
 group = "dev.datlag"
@@ -15,6 +16,9 @@ repositories {
 dependencies {
     implementation(compose.runtime)
     implementation(compose.desktop.currentOs)
+
+    implementation(project(":annotations"))
+    ksp(project(":ksp"))
 }
 
 sekret {
