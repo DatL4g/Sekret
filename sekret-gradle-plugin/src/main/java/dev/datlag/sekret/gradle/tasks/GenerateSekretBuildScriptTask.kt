@@ -1,5 +1,6 @@
 package dev.datlag.sekret.gradle.tasks
 
+import dev.datlag.sekret.gradle.common.sekretExtension
 import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -12,6 +13,9 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        if (!project.sekretExtension.properties.enabled.getOrElse(false)) {
+            return
+        }
         BuildFileGenerator.generate(
             project = project,
             overwrite = true

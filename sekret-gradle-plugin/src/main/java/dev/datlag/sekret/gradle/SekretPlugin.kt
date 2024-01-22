@@ -18,13 +18,13 @@ open class SekretPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val propertiesExtension = project.sekretExtension.properties
 
-        if (propertiesExtension.enabled.getOrElse(false)) {
-            project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
-            project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
-            project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
-                it.setupDependingTasks()
-            }
+        project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
+        project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
+        project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
+            it.setupDependingTasks()
+        }
 
+        if (propertiesExtension.enabled.getOrElse(false)) {
             val expose = propertiesExtension.exposeModule.getOrElse(false)
             when (project.kotlinProjectExtension) {
                 is KotlinSingleTargetExtension<*> -> {

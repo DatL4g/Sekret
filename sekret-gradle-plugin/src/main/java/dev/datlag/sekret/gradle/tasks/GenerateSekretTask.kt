@@ -22,12 +22,16 @@ open class GenerateSekretTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        val config = project.sekretExtension.properties
+        if (!config.enabled.getOrElse(false)) {
+            return
+        }
+
         val sekretDir = ModuleGenerator.createBase(project)
         BuildFileGenerator.generate(
             project = project,
             overwrite = false
         )
-        val config = project.sekretExtension.properties
 
         val defaultTargets = project.targetsMapped
         val requiredTargets = Target.addDependingTargets(defaultTargets)

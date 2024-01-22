@@ -28,9 +28,13 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
 
     @TaskAction
     fun createAndCopy() {
+        val config = project.sekretExtension.properties
+        if (!config.enabled.getOrElse(false)) {
+            return
+        }
+
         val sekretDir = ModuleGenerator.createBase(project)
         val sekretBuildDir = sekretProject?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
-        val config = project.sekretExtension.properties
 
         val androidJniFolder = config.androidJNIFolder.orNull?.asFile
         if (androidJniFolder != null) {
