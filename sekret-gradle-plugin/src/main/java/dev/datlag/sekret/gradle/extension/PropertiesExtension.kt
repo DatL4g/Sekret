@@ -6,6 +6,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
+/**
+ * Used for generating (native binary) secrets from properties file.
+ */
 open class PropertiesExtension(objectFactory: ObjectFactory) {
     /**
      * Set whether secret generation from properties is enabled or not.
@@ -56,18 +59,18 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
      */
     open val desktopComposeResourcesFolder: DirectoryProperty = objectFactory.directoryProperty()
 
+    internal fun setupConvention(project: Project) {
+        enabled.convention(false)
+        packageName.convention(project.provider {
+            project.group.toString().ifBlank { PropertiesExtension.sekretPackageName }
+        })
+        encryptionKey.convention(packageName)
+        propertiesFile.convention(project.layout.projectDirectory.file(PropertiesExtension.sekretFileName))
+        exposeModule.convention(false)
+    }
+
     companion object {
         internal const val sekretFileName = "sekret.properties"
         internal const val sekretPackageName = "dev.datlag.sekret"
     }
-}
-
-internal fun PropertiesExtension.setupConvention(project: Project) {
-    enabled.convention(false)
-    packageName.convention(project.provider {
-        project.group.toString().ifBlank { PropertiesExtension.sekretPackageName }
-    })
-    encryptionKey.convention(packageName)
-    propertiesFile.convention(project.layout.projectDirectory.file(PropertiesExtension.sekretFileName))
-    exposeModule.convention(false)
 }

@@ -24,37 +24,35 @@ open class SekretPlugin : Plugin<Project> {
             it.setupDependingTasks()
         }
 
-        if (propertiesExtension.enabled.getOrElse(false)) {
-            val expose = propertiesExtension.exposeModule.getOrElse(false)
-            when (project.kotlinProjectExtension) {
-                is KotlinSingleTargetExtension<*> -> {
-                    project.dependencies {
-                        runCatching {
-                            project.findProject("sekret")
-                        }.getOrNull()?.let {
-                            val exposure = if (expose) {
-                                "api"
-                            } else {
-                                "implementation"
-                            }
-
-                            add(exposure, it)
+        val expose = propertiesExtension.exposeModule.getOrElse(false)
+        when (project.kotlinProjectExtension) {
+            is KotlinSingleTargetExtension<*> -> {
+                project.dependencies {
+                    runCatching {
+                        project.findProject("sekret")
+                    }.getOrNull()?.let {
+                        val exposure = if (expose) {
+                            "api"
+                        } else {
+                            "implementation"
                         }
+
+                        add(exposure, it)
                     }
                 }
-                is KotlinMultiplatformExtension -> {
-                    project.dependencies {
-                        runCatching {
-                            project.findProject("sekret")
-                        }.getOrNull()?.let {
-                            val exposure = if (expose) {
-                                "commonMainApi"
-                            } else {
-                                "commonMainImplementation"
-                            }
-
-                            add(exposure, it)
+            }
+            is KotlinMultiplatformExtension -> {
+                project.dependencies {
+                    runCatching {
+                        project.findProject("sekret")
+                    }.getOrNull()?.let {
+                        val exposure = if (expose) {
+                            "commonMainApi"
+                        } else {
+                            "commonMainImplementation"
                         }
+
+                        add(exposure, it)
                     }
                 }
             }

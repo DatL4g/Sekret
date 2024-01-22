@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
+
 plugins {
     kotlin("jvm")
     id("dev.datlag.sekret") version "1.1.0-SNAPSHOT"
@@ -18,6 +20,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     implementation(project(":sekret-annotations"))
+    implementation(project("sekret"))
+
+    PLUGIN_CLASSPATH_CONFIGURATION_NAME(project(":sekret-compiler-plugin"))
 }
 
 sekret {

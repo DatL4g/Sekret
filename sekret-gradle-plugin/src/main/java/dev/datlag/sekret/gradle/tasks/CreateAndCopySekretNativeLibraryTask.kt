@@ -23,7 +23,13 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
         val assembleTask = sekretProject?.findMatchingTask("assemble")
         val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
 
-        dependsOn(generateTask, assembleTask)
+        if (assembleTask != null && generateTask != null) {
+            dependsOn(generateTask, assembleTask)
+        } else if (assembleTask != null) {
+            dependsOn(assembleTask)
+        } else if (generateTask != null) {
+            dependsOn(generateTask)
+        }
     }
 
     @TaskAction

@@ -1,6 +1,16 @@
 import dev.datlag.sekret.Obfuscate
+import dev.datlag.sekret.Secret
 
 @Obfuscate
-class KSPTest {
-    val testString = "Test KSP String"
+data class KSPTest<T>(
+    val data: String,
+    @Secret val secret: String,
+    val testing: Int = 1337,
+    val subClass: Sub = Sub("sub-data")
+) {
+    val other: String = "test"
 }
+
+data class Sub(
+    val subData: String
+)

@@ -14,6 +14,8 @@ fun main() {
     if (loaded) {
         val secretValue = Sekret.testKey("password12345")
         println("Decoded secret: $secretValue")
-
     }
+    val testing = KSPTest<Int>("my-data", "my-secret")
+    println(testing.toString())
+    println(testing.secret)
 }
