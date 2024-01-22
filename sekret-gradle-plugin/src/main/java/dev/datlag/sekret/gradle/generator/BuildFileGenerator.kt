@@ -3,6 +3,9 @@ package dev.datlag.sekret.gradle.generator
 import com.squareup.kotlinpoet.FileSpec
 import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
+import dev.datlag.sekret.gradle.common.canWriteSafely
+import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.common.targetsMapped
 import org.gradle.api.Project
 import java.io.File
 

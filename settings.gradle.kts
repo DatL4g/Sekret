@@ -3,7 +3,7 @@ rootProject.name = "sekret"
 include(":sekret-gradle-plugin")
 include(":sekret-lib")
 include(":sekret-annotations")
-//include(":ksp")
+include(":sekret-compiler-plugin")
 include(":sample", ":sample:sekret")
 
 pluginManagement {

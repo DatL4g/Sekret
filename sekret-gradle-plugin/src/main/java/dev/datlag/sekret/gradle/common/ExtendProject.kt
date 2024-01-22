@@ -1,5 +1,8 @@
-package dev.datlag.sekret.gradle
+package dev.datlag.sekret.gradle.common
 
+import dev.datlag.sekret.gradle.SekretPluginExtension
+import dev.datlag.sekret.gradle.Target
+import dev.datlag.sekret.gradle.setupConvention
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.create

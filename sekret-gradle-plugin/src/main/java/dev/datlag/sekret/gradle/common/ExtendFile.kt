@@ -1,4 +1,4 @@
-package dev.datlag.sekret.gradle
+package dev.datlag.sekret.gradle.common
 
 import java.io.File
 import java.nio.file.Files

@@ -86,7 +86,7 @@ mavenPublishing {
     publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
 
-    val publishId = "sekret-annotations"
+    val publishId = "annotations"
 
     coordinates(
         groupId = artifact,

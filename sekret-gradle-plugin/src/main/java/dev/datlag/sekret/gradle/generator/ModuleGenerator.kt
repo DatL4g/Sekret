@@ -1,9 +1,9 @@
 package dev.datlag.sekret.gradle.generator
 
 import dev.datlag.sekret.gradle.Target
-import dev.datlag.sekret.gradle.canWriteSafely
-import dev.datlag.sekret.gradle.existsSafely
-import dev.datlag.sekret.gradle.mkdirsSafely
+import dev.datlag.sekret.gradle.common.canWriteSafely
+import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.common.mkdirsSafely
 import org.gradle.api.Project
 import java.io.File
 

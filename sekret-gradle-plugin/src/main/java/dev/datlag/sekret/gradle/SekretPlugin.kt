@@ -1,5 +1,7 @@
 package dev.datlag.sekret.gradle
 
+import dev.datlag.sekret.gradle.common.kotlinProjectExtension
+import dev.datlag.sekret.gradle.common.sekretExtension
 import dev.datlag.sekret.gradle.tasks.CreateAndCopySekretNativeLibraryTask
 import dev.datlag.sekret.gradle.tasks.GenerateSekretBuildScriptTask
 import dev.datlag.sekret.gradle.tasks.GenerateSekretTask
@@ -14,50 +16,55 @@ import java.util.*
 open class SekretPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
-        project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
-        project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
-            it.setupDependingTasks()
-        }
+        val propertiesExtension = project.sekretExtension.properties
 
-        val expose = project.sekretExtension.exposeModule.getOrElse(false)
+        if (propertiesExtension.enabled.getOrElse(false)) {
+            project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
+            project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
+            project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
+                it.setupDependingTasks()
+            }
 
-        when (project.kotlinProjectExtension) {
-            is KotlinSingleTargetExtension<*> -> {
-                project.dependencies {
-                    runCatching {
-                        project.findProject("sekret")
-                    }.getOrNull()?.let {
-                        val exposure = if (expose) {
-                            "api"
-                        } else {
-                            "implementation"
+            val expose = propertiesExtension.exposeModule.getOrElse(false)
+            when (project.kotlinProjectExtension) {
+                is KotlinSingleTargetExtension<*> -> {
+                    project.dependencies {
+                        runCatching {
+                            project.findProject("sekret")
+                        }.getOrNull()?.let {
+                            val exposure = if (expose) {
+                                "api"
+                            } else {
+                                "implementation"
+                            }
+
+                            add(exposure, it)
                         }
+                    }
+                }
+                is KotlinMultiplatformExtension -> {
+                    project.dependencies {
+                        runCatching {
+                            project.findProject("sekret")
+                        }.getOrNull()?.let {
+                            val exposure = if (expose) {
+                                "commonMainApi"
+                            } else {
+                                "commonMainImplementation"
+                            }
 
-                        add(exposure, it)
+                            add(exposure, it)
+                        }
                     }
                 }
             }
-            is KotlinMultiplatformExtension -> {
-                project.dependencies {
-                    runCatching {
-                        project.findProject("sekret")
-                    }.getOrNull()?.let {
-                        val exposure = if (expose) {
-                            "commonMainApi"
-                        } else {
-                            "commonMainImplementation"
-                        }
-
-                        add(exposure, it)
-                    }
-                }
-            }
         }
+
+        project.pluginManager.apply(SekretCompilerSubPlugin::class.java)
     }
 
     companion object {
-        private const val VERSION = "1.0.1"
+        private const val VERSION = "1.1.0-SNAPSHOT"
 
         internal fun getVersion(): String {
             return runCatching {

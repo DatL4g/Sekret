@@ -1,6 +1,7 @@
 package dev.datlag.sekret.gradle.tasks
 
-import dev.datlag.sekret.gradle.*
+import dev.datlag.sekret.gradle.common.*
+import dev.datlag.sekret.gradle.common.existsSafely
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -29,7 +30,7 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
     fun createAndCopy() {
         val sekretDir = ModuleGenerator.createBase(project)
         val sekretBuildDir = sekretProject?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
-        val config = project.sekretExtension
+        val config = project.sekretExtension.properties
 
         val androidJniFolder = config.androidJNIFolder.orNull?.asFile
         if (androidJniFolder != null) {

@@ -1,7 +1,10 @@
 package dev.datlag.sekret.gradle.tasks
 
-import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
+import dev.datlag.sekret.gradle.common.*
+import dev.datlag.sekret.gradle.common.canReadSafely
+import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.extension.PropertiesExtension
 import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator
@@ -24,7 +27,7 @@ open class GenerateSekretTask : DefaultTask() {
             project = project,
             overwrite = false
         )
-        val config = project.sekretExtension
+        val config = project.sekretExtension.properties
 
         val defaultTargets = project.targetsMapped
         val requiredTargets = Target.addDependingTargets(defaultTargets)
@@ -38,7 +41,7 @@ open class GenerateSekretTask : DefaultTask() {
         val properties = Utils.propertiesFromFile(propFile)
 
         val generator = SekretGenerator.createAllForTargets(
-            packageName = config.packageName.getOrElse(SekretPluginExtension.sekretPackageName),
+            packageName = config.packageName.getOrElse(PropertiesExtension.sekretPackageName),
             structure = structure
         )
 
@@ -46,8 +49,8 @@ open class GenerateSekretTask : DefaultTask() {
         SekretGenerator.generate(encodedProperties, *generator.toTypedArray())
     }
 
-    private fun propertiesFile(config: SekretPluginExtension): File? {
-        val defaultName = SekretPluginExtension.sekretFileName
+    private fun propertiesFile(config: PropertiesExtension): File? {
+        val defaultName = PropertiesExtension.sekretFileName
 
         fun resolveFile(file: File): File? {
             if (file.existsSafely() && file.canReadSafely()) {
@@ -63,7 +66,7 @@ open class GenerateSekretTask : DefaultTask() {
             return null
         }
 
-        return resolveFile(config.propertiesFile.asFile.getOrElse(project.file(SekretPluginExtension.sekretFileName)))
+        return resolveFile(config.propertiesFile.asFile.getOrElse(project.file(PropertiesExtension.sekretFileName)))
             ?: resolveFile(project.projectDir)
     }
 
