@@ -17,8 +17,7 @@ dependencies {
     implementation(compose.runtime)
     implementation(compose.desktop.currentOs)
 
-    implementation(project(":annotations"))
-    ksp(project(":ksp"))
+    implementation(project(":sekret-annotations"))
 }
 
 sekret {
