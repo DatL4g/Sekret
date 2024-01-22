@@ -10,12 +10,12 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
-        val config = kotlinCompilation.target.project.sekretExtension.obfuscation
-
         return kotlinCompilation.target.project.provider {
+            val config = kotlinCompilation.target.project.sekretExtension.obfuscation
+
             listOf(
-                SubpluginOption("secretMask", config.secretMask.getOrElse(ObfuscationExtension.DEFAULT_SECRET_MASK)),
-                SubpluginOption("secretMaskNull", config.secretMaskNull.getOrElse(ObfuscationExtension.DEFAULT_SECRET_MAK_NULL).toString())
+                SubpluginOption("secretMask", config.secretMask.get()),
+                SubpluginOption("secretMaskNull", config.secretMaskNull.get().toString())
             )
         }
     }

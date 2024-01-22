@@ -6,7 +6,8 @@ data class KSPTest<T>(
     val data: String,
     @Secret val secret: String,
     val testing: Int = 1337,
-    val subClass: Sub = Sub("sub-data")
+    val subClass: Sub = Sub("sub-data"),
+    @Secret val charSeq: CharSequence = "abcdefg"
 ) {
     val other: String = "test"
 }

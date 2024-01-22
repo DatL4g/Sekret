@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
 
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "1.1.0-SNAPSHOT"
+    id("dev.datlag.sekret") version "1.1.1-SNAPSHOT"
     id("org.jetbrains.compose") version "1.5.11"
     alias(libs.plugins.ksp)
 }
@@ -26,6 +26,10 @@ dependencies {
 }
 
 sekret {
+    obfuscation {
+        secretMask.set("###")
+        secretMaskNull.set(true)
+    }
     properties {
         enabled.set(true)
         packageName.set("dev.datlag.sekret.sample")

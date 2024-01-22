@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.types.isCharSequence
 import org.jetbrains.kotlin.ir.types.isNullableString
 import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.types.typeConstructorParameters
@@ -34,7 +35,7 @@ class ElementTransformer(
     private val logger: Logger,
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
+
     override fun visitClassNew(declaration: IrClass): IrStatement {
         val hasObfuscate = declaration.hasAnnotation(FqName.fromSegments(listOf("dev.datlag.sekret", "Obfuscate")))
         val secretAnnotation = FqName.fromSegments(listOf("dev.datlag.sekret", "Secret"))
@@ -59,7 +60,9 @@ class ToStringTransformer(
 ) : IrElementTransformerVoidWithContext() {
     override fun visitGetField(expression: IrGetField): IrExpression {
         val stringField = expression.type.isString() || (config.secretMaskNull && expression.type.isNullableString())
-        if (stringField) {
+        val charSequence = expression.type.isCharSequence()
+
+        if (stringField || charSequence) {
             if (expression.symbol.owner.matchesAnyProperty(secretProperties)) {
                 return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
             }

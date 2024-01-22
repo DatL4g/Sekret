@@ -18,4 +18,5 @@ fun main() {
     val testing = KSPTest<Int>("my-data", "my-secret")
     println(testing.toString())
     println(testing.secret)
+    println(testing.charSeq)
 }
