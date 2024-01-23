@@ -99,3 +99,7 @@ fun IrType.isAnyAppendable(nullable: Boolean = false): Boolean {
         nullable = nullable
     ) || this.matchesPossibleNull(JavaSignatureValues.appendable, nullable = nullable)
 }
+
+fun IrType.isStringBuffer(nullable: Boolean = false): Boolean {
+    return this.matchesPossibleNull(JavaSignatureValues.stringBuffer, nullable = nullable)
+}

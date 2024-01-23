@@ -45,8 +45,9 @@ class ToStringTransformer(
         val charSequence = expression.type.isAnyCharSequence(config.secretMaskNull)
         val stringBuilder = expression.type.isAnyStringBuilder(config.secretMaskNull)
         val appendable = expression.type.isAnyAppendable(config.secretMaskNull)
+        val stringBuffer = expression.type.isStringBuffer(config.secretMaskNull)
 
-        if (string || charSequence || stringBuilder || appendable) {
+        if (string || charSequence || stringBuilder || appendable || stringBuffer) {
             if (expression.symbol.owner.matchesAnyProperty(secretProperties)) {
                 return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
             }

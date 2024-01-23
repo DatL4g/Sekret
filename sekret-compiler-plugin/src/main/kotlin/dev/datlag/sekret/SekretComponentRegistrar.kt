@@ -38,6 +38,3 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
         })
     }
 }
-
-val KEY_SECRET_MASK = CompilerConfigurationKey<String>("secretMask")
-val KEY_SECRET_MASK_NULL = CompilerConfigurationKey<Boolean>("secretMaskNull")

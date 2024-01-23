@@ -10,7 +10,8 @@ data class KSPTest<T>(
     @Secret val charSeq: CharSequence = "abcdefg",
     @Secret val javaCharSeq: java.lang.CharSequence = secret as java.lang.CharSequence,
     @Secret val builder: StringBuilder = StringBuilder("string-builder"),
-    @Secret val appendable: Appendable = builder
+    @Secret val appendable: Appendable = builder,
+    @Secret val buffer: StringBuffer = StringBuffer("string-buffer")
 ) {
     val other: String = "test"
 }
