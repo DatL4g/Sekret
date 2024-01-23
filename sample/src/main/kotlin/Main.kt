@@ -15,8 +15,8 @@ fun main() {
         val secretValue = Sekret.testKey("password12345")
         println("Decoded secret: $secretValue")
     }
-    val testing = KSPTest<Int>(java.lang.String("java-string"), "my-secret")
+    val testing = SecretTest("kotlin-string", java.lang.String("java-string"))
     println(testing.toString())
-    println(testing.secret)
-    println(testing.charSeq)
+    println(testing.kString)
+    println(testing.jString)
 }
