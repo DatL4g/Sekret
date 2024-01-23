@@ -3,11 +3,14 @@ import dev.datlag.sekret.Secret
 
 @Obfuscate
 data class KSPTest<T>(
-    val data: String,
+    @Secret val data: java.lang.String,
     @Secret val secret: String,
     val testing: Int = 1337,
     val subClass: Sub = Sub("sub-data"),
-    @Secret val charSeq: CharSequence = "abcdefg"
+    @Secret val charSeq: CharSequence = "abcdefg",
+    @Secret val javaCharSeq: java.lang.CharSequence = secret as java.lang.CharSequence,
+    @Secret val builder: StringBuilder = StringBuilder("string-builder"),
+    @Secret val appendable: Appendable = builder
 ) {
     val other: String = "test"
 }
