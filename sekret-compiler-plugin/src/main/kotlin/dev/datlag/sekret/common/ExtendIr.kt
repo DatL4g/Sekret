@@ -1,6 +1,6 @@
 package dev.datlag.sekret.common
 
-import dev.datlag.sekret.JavaSignatureValues
+import dev.datlag.sekret.model.JavaSignatureValues
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField

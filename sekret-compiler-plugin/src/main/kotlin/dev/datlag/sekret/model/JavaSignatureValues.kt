@@ -1,4 +1,4 @@
-package dev.datlag.sekret
+package dev.datlag.sekret.model
 
 import org.jetbrains.kotlin.ir.types.getPublicSignature
 

@@ -1,4 +1,4 @@
-package dev.datlag.sekret
+package dev.datlag.sekret.model
 
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name

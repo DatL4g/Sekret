@@ -1,4 +1,4 @@
-package dev.datlag.sekret
+package dev.datlag.sekret.model
 
 data class Config(
     val secretMask: String,
