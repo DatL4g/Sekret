@@ -38,10 +38,12 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
                     data = null
                 )
 
-                generatedDeobfuscatorModule.transform(
+                val addedObfuscatedValues = generatedDeobfuscatorModule.transform(
                     transformer = ElementTransformer(config, logger, pluginContext),
                     data = null
                 )
+
+                DeobfuscatorGenerator.generateList(pluginContext)
             }
         })
     }

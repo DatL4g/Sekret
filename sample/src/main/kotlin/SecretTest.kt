@@ -11,5 +11,6 @@ data class SecretTest(
     @Secret val jBuilder: java.lang.StringBuilder = StringBuilder("java-string-builder") as java.lang.StringBuilder,
     @Secret val kAppendable: Appendable = kBuilder,
     @Secret val jAppendable: java.lang.Appendable = jBuilder,
-    @Secret val buffer: StringBuffer = StringBuffer("java-string-buffer")
+    @Secret val buffer: StringBuffer = StringBuffer("java-string-buffer"),
+    @Secret val nullable: String? = null
 )

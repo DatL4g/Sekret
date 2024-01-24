@@ -23,8 +23,10 @@ class ElementTransformer(
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
 
+    private val obfuscateAnnotation = FqName.fromSegments(listOf("dev.datlag.sekret", "Obfuscate"))
+
     override fun visitClassNew(declaration: IrClass): IrStatement {
-        val hasObfuscate = declaration.hasAnnotation(FqName.fromSegments(listOf("dev.datlag.sekret", "Obfuscate")))
+        val hasObfuscate = declaration.hasAnnotation(obfuscateAnnotation)
         val secretAnnotation = FqName.fromSegments(listOf("dev.datlag.sekret", "Secret"))
 
         val secretProperties = declaration.properties.filter { it.hasMatchingAnnotation(secretAnnotation, declaration) }
@@ -35,10 +37,8 @@ class ElementTransformer(
             )
         }
 
-        val deobfuscatorClass = DeobfuscatorGenerator.irClass
-        if (hasObfuscate && deobfuscatorClass != null) {
-            val getString = deobfuscatorClass.getSimpleFunction("getString")
-
+        if (hasObfuscate && DeobfuscatorGenerator.exists) {
+            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
             /**
              * Working example:
              * toString.owner.body = DeclarationIrBuilder(pluginContext, toString).irBlockBody {
@@ -48,5 +48,21 @@ class ElementTransformer(
         }
 
         return super.visitClassNew(declaration)
+    }
+
+    override fun visitFileNew(declaration: IrFile): IrFile {
+        if (declaration.hasAnnotation(obfuscateAnnotation) && DeobfuscatorGenerator.exists) {
+            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
+        }
+
+        return super.visitFileNew(declaration)
+    }
+
+    override fun visitConstructor(declaration: IrConstructor): IrStatement {
+        if (declaration.hasAnnotation(obfuscateAnnotation) && DeobfuscatorGenerator.exists) {
+            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
+        }
+
+        return super.visitConstructor(declaration)
     }
 }
