@@ -2,12 +2,17 @@ package dev.datlag.sekret.common
 
 import dev.datlag.sekret.model.JavaSignatureValues
 import org.jetbrains.kotlin.builtins.StandardNames
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrField
-import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.builders.declarations.UNDEFINED_PARAMETER_INDEX
+import org.jetbrains.kotlin.ir.builders.declarations.addConstructor
+import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
+import org.jetbrains.kotlin.ir.symbols.impl.IrAnonymousInitializerSymbolImpl
+import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.name.SpecialNames
 
 fun IrProperty.hasMatchingAnnotation(
     name: FqName,
@@ -102,4 +107,52 @@ fun IrType.isAnyAppendable(nullable: Boolean = false): Boolean {
 
 fun IrType.isStringBuffer(nullable: Boolean = false): Boolean {
     return this.matchesPossibleNull(JavaSignatureValues.stringBuffer, nullable = nullable)
+}
+
+fun IrClass.declareThisReceiver(
+    irFactory: IrFactory,
+    thisType: IrType,
+    thisOrigin: IrDeclarationOrigin,
+    startOffset: Int = this.startOffset,
+    endOffset: Int = this.endOffset,
+    name: Name = SpecialNames.THIS
+) {
+    thisReceiver = irFactory.createValueParameter(
+        startOffset = startOffset,
+        endOffset = endOffset,
+        origin = thisOrigin,
+        name = name,
+        type = thisType,
+        isAssignable = false,
+        symbol = IrValueParameterSymbolImpl(),
+        index = UNDEFINED_PARAMETER_INDEX,
+        varargElementType = null,
+        isCrossinline = false,
+        isNoinline = false,
+        isHidden = false
+    ).apply {
+        this.parent = this@declareThisReceiver
+    }
+}
+
+fun IrClass.declareObjectConstructor(
+    unitType: IrType,
+    irFactory: IrFactory,
+) {
+    this.addConstructor {
+        isPrimary = true
+        returnType = this@declareObjectConstructor.typeWith()
+    }.apply {
+        body = irFactory.createBlockBody(
+            startOffset = SYNTHETIC_OFFSET,
+            endOffset = SYNTHETIC_OFFSET
+        ).apply {
+            statements += IrInstanceInitializerCallImpl(
+                startOffset = SYNTHETIC_OFFSET,
+                endOffset = SYNTHETIC_OFFSET,
+                classSymbol = this@declareObjectConstructor.symbol,
+                type = unitType
+            )
+        }
+    }
 }

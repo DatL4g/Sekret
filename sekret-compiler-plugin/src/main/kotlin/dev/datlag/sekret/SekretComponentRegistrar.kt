@@ -1,7 +1,9 @@
 package dev.datlag.sekret
 
 import com.google.auto.service.AutoService
+import dev.datlag.sekret.generator.DeobfuscatorGenerator
 import dev.datlag.sekret.model.Config
+import dev.datlag.sekret.transformer.DeobfuscatorTransformer
 import dev.datlag.sekret.transformer.ElementTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -31,7 +33,12 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
 
         IrGenerationExtension.registerExtension(object : IrGenerationExtension {
             override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-                moduleFragment.transform(
+                val generatedDeobfuscatorModule = moduleFragment.transform(
+                    transformer = DeobfuscatorTransformer(logger, pluginContext),
+                    data = null
+                )
+
+                generatedDeobfuscatorModule.transform(
                     transformer = ElementTransformer(config, logger, pluginContext),
                     data = null
                 )

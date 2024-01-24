@@ -16,7 +16,8 @@ kotlin-compiler-embeddable = { group = "org.jetbrains.kotlin", name = "kotlin-co
 kotlin-poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
 kotlin-poet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet" }
 kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
-ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
+reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "android" }
