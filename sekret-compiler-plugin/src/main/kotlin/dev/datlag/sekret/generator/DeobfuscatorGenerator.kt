@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.backend.common.ir.addDispatchReceiver
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.addField
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.createType
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
@@ -115,7 +117,31 @@ object DeobfuscatorGenerator {
                 className = null,
                 callableName = Name.identifier("listOf")
             )
-        ).single()
-        // valuesField!!.initializer = DeclarationIrBuilder(pluginContext, valuesField!!.symbol)
+        )
+
+        val varargListOf = listOfFunction.firstNotNullOf { function ->
+            val params = function.owner.valueParameters
+            if (params.isNotEmpty()) {
+                if (params.single().isVararg) {
+                    function
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+
+        val applyParameter = DeclarationIrBuilder(pluginContext, varargListOf).irCall(varargListOf)
+
+        val irStrings = valueList.map {
+            DeclarationIrBuilder(pluginContext, pluginContext.symbols.string).irString(it)
+        }
+        val varargValue = DeclarationIrBuilder(pluginContext, varargListOf).irVararg(pluginContext.irBuiltIns.stringType, irStrings)
+        applyParameter.putValueArgument(0, varargValue)
+
+        valuesField?.let {
+            it.initializer = DeclarationIrBuilder(pluginContext, it.symbol).irExprBody(applyParameter)
+        }
     }
 }

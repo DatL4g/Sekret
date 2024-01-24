@@ -37,14 +37,10 @@ class DeobfuscatorTransformer(
                 if (value != null) {
                     val position = DeobfuscatorGenerator.addValue(value)
 
+                    val getCall = DeclarationIrBuilder(pluginContext, pluginContext.symbols.string).irCall(getMethod)
+                    getCall.putValueArgument(0, DeclarationIrBuilder(pluginContext, pluginContext.symbols.int).irInt(position))
+                    return getCall
                 }
-
-                return super.visitConst(expression)
-
-                // Working
-                val getCall = DeclarationIrBuilder(pluginContext, pluginContext.symbols.string).irCall(getMethod)
-                getCall.putValueArgument(0, DeclarationIrBuilder(pluginContext, pluginContext.symbols.int).irInt(1))
-                return getCall
             }
         }
         return super.visitConst(expression)
