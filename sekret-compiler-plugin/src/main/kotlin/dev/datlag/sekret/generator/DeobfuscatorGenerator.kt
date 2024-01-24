@@ -6,13 +6,16 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
+import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildClass
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
+import org.jetbrains.kotlin.ir.util.isStatic
 import org.jetbrains.kotlin.name.Name
 
 object DeobfuscatorGenerator {
@@ -40,9 +43,14 @@ object DeobfuscatorGenerator {
         )
         genClass.declareObjectConstructor(pluginContext)
         genClass.addFunction {
-            name = Name.identifier("getString")
+            name = Name.identifier("get")
             returnType = pluginContext.irBuiltIns.stringType
+            isOperator = true
         }.also { function ->
+            function.addValueParameter {
+                name = Name.identifier("index")
+                type = pluginContext.irBuiltIns.intType
+            }
             function.body = DeclarationIrBuilder(pluginContext, function.symbol).irBlockBody {
                 +irReturn(irString("Generated getString method"))
             }
