@@ -38,7 +38,7 @@ object DeobfuscatorGenerator {
             ),
             thisOrigin = IrDeclarationOrigin.INSTANCE_RECEIVER
         )
-        genClass.declareObjectConstructor(pluginContext.irBuiltIns.unitType, pluginContext.irFactory)
+        genClass.declareObjectConstructor(pluginContext)
         genClass.addFunction {
             name = Name.identifier("getString")
             returnType = pluginContext.irBuiltIns.stringType

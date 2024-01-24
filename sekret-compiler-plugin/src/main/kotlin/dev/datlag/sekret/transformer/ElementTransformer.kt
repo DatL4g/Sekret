@@ -5,6 +5,7 @@ import dev.datlag.sekret.Logger
 import dev.datlag.sekret.common.*
 import dev.datlag.sekret.generator.DeobfuscatorGenerator
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
+import org.jetbrains.kotlin.backend.common.extensions.FirIncompatiblePluginAPI
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
@@ -14,8 +15,7 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.*
 
 class ElementTransformer(
     private val config: Config,
@@ -38,13 +38,13 @@ class ElementTransformer(
         val deobfuscatorClass = DeobfuscatorGenerator.irClass
         if (hasObfuscate && deobfuscatorClass != null) {
             val getString = deobfuscatorClass.getSimpleFunction("getString")
-            val toString = declaration.getSimpleFunction("toString")
 
-            if (getString != null && toString != null) {
-                deobfuscatorClass.declarations.forEach {
-                    logger.warn(it.dump())
-                }
-            }
+            /**
+             * Working example:
+             * toString.owner.body = DeclarationIrBuilder(pluginContext, toString).irBlockBody {
+             *                     +irReturn(irCall(getString))
+             *                 }
+             */
         }
 
         return super.visitClassNew(declaration)

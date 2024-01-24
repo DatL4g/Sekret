@@ -1,11 +1,14 @@
 package dev.datlag.sekret.common
 
 import dev.datlag.sekret.model.JavaSignatureValues
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.ir.builders.declarations.UNDEFINED_PARAMETER_INDEX
 import org.jetbrains.kotlin.ir.builders.declarations.addConstructor
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
+import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrAnonymousInitializerSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
@@ -138,6 +141,7 @@ fun IrClass.declareThisReceiver(
 fun IrClass.declareObjectConstructor(
     unitType: IrType,
     irFactory: IrFactory,
+    irConstructorSymbol: IrConstructorSymbol
 ) {
     this.addConstructor {
         isPrimary = true
@@ -147,6 +151,13 @@ fun IrClass.declareObjectConstructor(
             startOffset = SYNTHETIC_OFFSET,
             endOffset = SYNTHETIC_OFFSET
         ).apply {
+            statements += IrDelegatingConstructorCallImpl.fromSymbolOwner(
+                startOffset = SYNTHETIC_OFFSET,
+                endOffset = SYNTHETIC_OFFSET,
+                type = this@declareObjectConstructor.typeWith(),
+                symbol = irConstructorSymbol
+            )
+
             statements += IrInstanceInitializerCallImpl(
                 startOffset = SYNTHETIC_OFFSET,
                 endOffset = SYNTHETIC_OFFSET,
@@ -156,3 +167,11 @@ fun IrClass.declareObjectConstructor(
         }
     }
 }
+
+fun IrClass.declareObjectConstructor(
+    pluginContext: IrPluginContext
+) = this.declareObjectConstructor(
+    unitType = pluginContext.irBuiltIns.unitType,
+    irFactory = pluginContext.irFactory,
+    irConstructorSymbol = pluginContext.irBuiltIns.anyClass.constructors.first()
+)
