@@ -19,13 +19,3 @@ internal fun jString.getString(env: CPointer<JNIEnvVar>): String {
     val chars = getStringUTFChars(env)
     return chars?.toKStringFromUtf8() ?: error("Unable to create String from the given jString")
 }
-
-@OptIn(ExperimentalForeignApi::class)
-public fun getOriginalValue(
-    secret: IntArray,
-    key: jString,
-    env: CPointer<JNIEnvVar>
-): jString? {
-    val obfuscator = key.getString(env)
-    return getOriginalValue(secret, obfuscator).toJString(env)
-}

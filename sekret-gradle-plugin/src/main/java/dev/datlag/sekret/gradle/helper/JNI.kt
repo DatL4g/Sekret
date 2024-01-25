@@ -13,12 +13,16 @@ object JNI {
     private const val LIBRARY_J_STRING = "jString"
     private const val LIBRARY_J_OBJECT = "jObject"
 
+    private const val LIBRARY_SEKRET_HELPER = "SekretHelper"
+
     fun jniEnvVar(packageName: String) = ClassName(packageName, JNI_ENV_VAR)
     fun jString(packageName: String) = ClassName(packageName, J_STRING)
     fun jCharVar(packageName: String) = ClassName(packageName, J_CHAR_VAR)
     fun jClass(packageName: String) = ClassName(packageName, J_CLASS)
 
-    fun getOriginalValue(packageName: String) = MemberName(packageName, "getOriginalValue")
+    fun sekretHelper(packageName: String) = ClassName(packageName, LIBRARY_SEKRET_HELPER)
+
+    fun getNativeValue(packageName: String) = MemberName(sekretHelper(packageName), "getNativeValue")
 
     fun libraryJString(packageName: String) = ClassName(packageName, LIBRARY_J_STRING)
     fun libraryJObject(packageName: String) = ClassName(packageName, LIBRARY_J_OBJECT)

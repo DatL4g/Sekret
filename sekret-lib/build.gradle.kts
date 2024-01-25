@@ -91,6 +91,10 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
+        commonMain.dependencies {
+            api(project(":sekret-annotations"))
+        }
+
         val jniNativeMain by creating {
             linuxMain.get().dependsOn(this)
             mingwMain.get().dependsOn(this)

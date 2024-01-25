@@ -25,7 +25,7 @@ class JSGenerator(
                     .addParameter("key", String::class)
                     .returns(String::class)
                     .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
-                    .addStatement("return %M(obfuscatedSecret, key)", JNI.getOriginalValue(JNI_PACKAGE_NAME))
+                    .addStatement("return %M(obfuscatedSecret, key)", JNI.getNativeValue(JNI_PACKAGE_NAME))
                     .build()
             )
         }
