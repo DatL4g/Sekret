@@ -1,14 +1,15 @@
 package dev.datlag.sekret.gradle.tasks
 
-import dev.datlag.sekret.gradle.common.*
 import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.common.mkdirsSafely
+import dev.datlag.sekret.gradle.common.sekretExtension
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
+open class CopySekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
@@ -19,22 +20,10 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
             project.findProject("sekret")
         }.getOrNull()
 
-    fun setupDependingTasks() {
-        val assembleTask = sekretProject?.findMatchingTask("assemble")
-        val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
-
-        if (assembleTask != null && generateTask != null) {
-            dependsOn(generateTask, assembleTask)
-        } else if (assembleTask != null) {
-            dependsOn(assembleTask)
-        } else if (generateTask != null) {
-            dependsOn(generateTask)
-        }
-    }
-
     @TaskAction
-    fun createAndCopy() {
+    fun copy() {
         val config = project.sekretExtension.properties
+        val copyConfig = config.nativeCopy
         if (!config.enabled.getOrElse(false)) {
             return
         }
@@ -42,7 +31,7 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
         val sekretDir = ModuleGenerator.createBase(project)
         val sekretBuildDir = sekretProject?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
 
-        val androidJniFolder = config.androidJNIFolder.orNull?.asFile
+        val androidJniFolder = copyConfig.androidJNIFolder.orNull?.asFile
         if (androidJniFolder != null) {
             val androidArm32 = getBinPath("androidNativeArm32", sekretBuildDir)
             val androidArm64 = getBinPath("androidNativeArm64", sekretBuildDir)
@@ -66,7 +55,7 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
             }
         }
 
-        val desktopComposeResourcesFolder = config.desktopComposeResourcesFolder.orNull?.asFile
+        val desktopComposeResourcesFolder = copyConfig.desktopComposeResourcesFolder.orNull?.asFile
         if (desktopComposeResourcesFolder != null) {
             val linuxArm64 = getBinPath("linuxArm64", sekretBuildDir)
             val linuxX64 = getBinPath("linuxX64", sekretBuildDir)
@@ -121,6 +110,6 @@ open class CreateAndCopySekretNativeLibraryTask : DefaultTask() {
     }
 
     companion object {
-        internal const val NAME = "createAndCopySekretNativeLibrary"
+        internal const val NAME = "copySekretNativeBinary"
     }
 }

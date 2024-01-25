@@ -1,8 +1,9 @@
+import org.gradle.api.internal.tasks.DefaultTaskDependency
 import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
 
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "1.1.1-SNAPSHOT"
+    id("dev.datlag.sekret") version "1.2.0-SNAPSHOT"
     id("org.jetbrains.compose") version "1.5.11"
     alias(libs.plugins.ksp)
 }
@@ -35,7 +36,10 @@ sekret {
         packageName.set("dev.datlag.sekret.sample")
         encryptionKey.set("password12345")
         propertiesFile.set(project.layout.projectDirectory.file("sekret.properties"))
-        desktopComposeResourcesFolder.set(project.layout.projectDirectory.dir("resources"))
+
+        nativeCopy {
+            desktopComposeResourcesFolder.set(project.layout.projectDirectory.dir("resources"))
+        }
     }
 }
 

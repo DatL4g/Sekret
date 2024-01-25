@@ -25,18 +25,30 @@ open class SekretPluginExtension {
     lateinit var properties: PropertiesExtension
         internal set
 
+    /**
+     * Change how obfuscation settings are handled.
+     */
     fun obfuscation(closure: Closure<in ObfuscationExtension>): ObfuscationExtension {
         return obfuscation(ConfigureUtil.configureUsing(closure))
     }
 
+    /**
+     * Change how obfuscation settings are handled.
+     */
     fun obfuscation(action: Action<in ObfuscationExtension>): ObfuscationExtension {
         return Actions.with(obfuscation, action)
     }
 
+    /**
+     * Change how properties settings are handled.
+     */
     fun properties(closure: Closure<in PropertiesExtension>): PropertiesExtension {
         return properties(ConfigureUtil.configureUsing(closure))
     }
 
+    /**
+     * Change how properties settings are handled.
+     */
     fun properties(action: Action<in PropertiesExtension>): PropertiesExtension {
         return Actions.with(properties, action)
     }

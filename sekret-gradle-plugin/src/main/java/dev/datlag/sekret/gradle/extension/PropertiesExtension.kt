@@ -1,10 +1,14 @@
 package dev.datlag.sekret.gradle.extension
 
+import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.internal.Actions
+import org.gradle.util.internal.ConfigureUtil
 
 /**
  * Used for generating (native binary) secrets from properties file.
@@ -35,38 +39,62 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
     open val propertiesFile: RegularFileProperty = objectFactory.fileProperty()
 
     /**
-     * Change whether the generated "sekret" module should be available in top projects.
-     * * if true: the module is added with "api"
-     * * if false: the module is added with "implementation"
+     * Configuration for handling copy process of native binaries.
      */
-    open val exposeModule: Property<Boolean> = objectFactory.property(Boolean::class.java)
+    lateinit var nativeCopy: NativeCopyExtension
+        private set
 
     /**
-     * Set up the path where the compiled native library for android should be copied to.
-     * * If not set the binary won't be copied.
-     *
-     * Default jni location for android is **src/main/jniLibs** or **src/androidMain/jniLibs**, depending on your setup.
+     * Change how the copy process of native binaries are handled.
      */
-    open val androidJNIFolder: DirectoryProperty = objectFactory.directoryProperty()
+    fun nativeCopy(closure: Closure<in NativeCopyExtension>): NativeCopyExtension {
+        return nativeCopy(ConfigureUtil.configureUsing(closure))
+    }
 
     /**
-     * Set up the path where the compiled native library for desktop compose applications should be copied to.
-     * * If not set the binary won't be copied.
-     *
-     * Default location you should use is resources (**NOT** src/main/resources).
-     *
-     * Take a look on how to configure here: [Adding files to packaged application](https://github.com/JetBrains/compose-multiplatform/tree/master/tutorials/Native_distributions_and_local_execution#adding-files-to-packaged-application)
+     * Change how the copy process of native binaries are handled.
      */
-    open val desktopComposeResourcesFolder: DirectoryProperty = objectFactory.directoryProperty()
+    fun nativeCopy(action: Action<in NativeCopyExtension>): NativeCopyExtension {
+        return Actions.with(nativeCopy, action)
+    }
 
     internal fun setupConvention(project: Project) {
         enabled.convention(false)
         packageName.convention(project.provider {
-            project.group.toString().ifBlank { PropertiesExtension.sekretPackageName }
+            project.group.toString().ifBlank { sekretPackageName }
         })
         encryptionKey.convention(packageName)
-        propertiesFile.convention(project.layout.projectDirectory.file(PropertiesExtension.sekretFileName))
-        exposeModule.convention(false)
+        propertiesFile.convention(project.layout.projectDirectory.file(sekretFileName))
+
+        nativeCopy = NativeCopyExtension(project.objects).also {
+            it.setupConvention(project)
+        }
+    }
+
+    open class NativeCopyExtension(objectFactory: ObjectFactory) {
+
+        /**
+         * Set up the path where the compiled native library for android should be copied to.
+         * * If not set the binary won't be copied.
+         *
+         * Default jni location for android is **src/main/jniLibs** or **src/androidMain/jniLibs**, depending on your setup.
+         */
+        open val androidJNIFolder: DirectoryProperty = objectFactory.directoryProperty()
+
+        /**
+         * Set up the path where the compiled native library for desktop compose applications should be copied to.
+         * * If not set the binary won't be copied.
+         *
+         * Default location you should use is resources (**NOT** src/main/resources).
+         *
+         * Take a look on how to configure here: [Adding files to packaged application](https://github.com/JetBrains/compose-multiplatform/tree/master/tutorials/Native_distributions_and_local_execution#adding-files-to-packaged-application)
+         */
+        open val desktopComposeResourcesFolder: DirectoryProperty = objectFactory.directoryProperty()
+
+        internal fun setupConvention(project: Project) {
+            // ToDo("check if jniLibs folder exists")
+            // ToDo("check if compose resources folder exists")
+        }
     }
 
     companion object {

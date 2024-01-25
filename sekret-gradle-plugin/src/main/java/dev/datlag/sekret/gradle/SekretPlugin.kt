@@ -1,8 +1,8 @@
 package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.common.kotlinProjectExtension
-import dev.datlag.sekret.gradle.common.sekretExtension
-import dev.datlag.sekret.gradle.tasks.CreateAndCopySekretNativeLibraryTask
+import dev.datlag.sekret.gradle.tasks.CopySekretNativeBinaryTask
+import dev.datlag.sekret.gradle.tasks.CreateAndCopySekretNativeBinaryTask
 import dev.datlag.sekret.gradle.tasks.GenerateSekretBuildScriptTask
 import dev.datlag.sekret.gradle.tasks.GenerateSekretTask
 import org.gradle.api.Plugin
@@ -16,29 +16,23 @@ import java.util.*
 open class SekretPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val propertiesExtension = project.sekretExtension.properties
-
         project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
         project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
-        project.tasks.maybeCreate(CreateAndCopySekretNativeLibraryTask.NAME, CreateAndCopySekretNativeLibraryTask::class).also {
+        project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class)
+        project.tasks.maybeCreate(CreateAndCopySekretNativeBinaryTask.NAME, CreateAndCopySekretNativeBinaryTask::class).also {
             it.setupDependingTasks()
         }
 
-        val expose = propertiesExtension.exposeModule.getOrElse(false)
         when (project.kotlinProjectExtension) {
             is KotlinSingleTargetExtension<*> -> {
                 project.dependencies {
                     runCatching {
                         project.findProject("sekret")
                     }.getOrNull()?.let {
-                        val exposure = if (expose) {
-                            "api"
-                        } else {
-                            "implementation"
-                        }
-
-                        add(exposure, it)
+                        add("implementation", it)
                     }
+
+                    add("implementation", "dev.datlag.sekret:sekret:${getVersion()}")
                 }
             }
             is KotlinMultiplatformExtension -> {
@@ -46,14 +40,10 @@ open class SekretPlugin : Plugin<Project> {
                     runCatching {
                         project.findProject("sekret")
                     }.getOrNull()?.let {
-                        val exposure = if (expose) {
-                            "commonMainApi"
-                        } else {
-                            "commonMainImplementation"
-                        }
-
-                        add(exposure, it)
+                        add("commonMainImplementation", it)
                     }
+
+                    add("commonMainImplementation", "dev.datlag.sekret:sekret:${getVersion()}")
                 }
             }
         }
