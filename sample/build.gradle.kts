@@ -1,9 +1,8 @@
-import org.gradle.api.internal.tasks.DefaultTaskDependency
 import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
 
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "1.2.0-SNAPSHOT"
+    id("dev.datlag.sekret") version "1.2.1-SNAPSHOT"
     id("org.jetbrains.compose") version "1.5.11"
     alias(libs.plugins.ksp)
 }
@@ -16,20 +15,12 @@ repositories {
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 
-dependencies {
-    implementation(compose.runtime)
-    implementation(compose.desktop.currentOs)
-
-    implementation(project(":sekret-annotations"))
-    implementation(project("sekret"))
-
-    PLUGIN_CLASSPATH_CONFIGURATION_NAME(project(":sekret-compiler-plugin"))
-}
-
 sekret {
     obfuscation {
-        secretMask.set("###")
-        secretMaskNull.set(true)
+        secretAnnotation {
+            mask.set("###")
+            maskNull.set(true)
+        }
     }
     properties {
         enabled.set(true)
@@ -41,6 +32,19 @@ sekret {
             desktopComposeResourcesFolder.set(project.layout.projectDirectory.dir("resources"))
         }
     }
+}
+
+dependencies {
+    implementation(compose.runtime)
+    implementation(compose.desktop.currentOs)
+
+    implementation(project(":sekret-annotations"))
+    implementation(project(":sekret-lib"))
+    implementation(project("sekret"))
+
+    ksp(project(":sekret-ksp"))
+
+    PLUGIN_CLASSPATH_CONFIGURATION_NAME(project(":sekret-compiler-plugin"))
 }
 
 compose {

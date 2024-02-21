@@ -15,12 +15,17 @@ class SekretCommandLineProcessor : CommandLineProcessor {
 
     override val pluginOptions: Collection<AbstractCliOption> = listOf(
         CliOption(
-            optionName = KEY_SECRET_MASK.toString(), valueDescription = "<fqname>",
+            optionName = KEY_SECRET_MASK.toString(), valueDescription = "string",
             description = "Mask for Strings annotated with @Secret"
         ),
         CliOption(
             optionName = KEY_SECRET_MASK_NULL.toString(), valueDescription = "<true|false>",
             description = "Apply mask to nullable values or not"
+        ),
+        CliOption(
+            optionName = KEY_OBFUSCATE_SEED.toString(), valueDescription = "int",
+            description = "Change seed for Obfuscation random",
+            required = false
         )
     )
 
@@ -30,9 +35,11 @@ class SekretCommandLineProcessor : CommandLineProcessor {
         when (option.optionName) {
             KEY_SECRET_MASK.toString() -> configuration.put(KEY_SECRET_MASK, value)
             KEY_SECRET_MASK_NULL.toString() -> configuration.put(KEY_SECRET_MASK_NULL, value.toBoolean())
+            KEY_OBFUSCATE_SEED.toString() -> configuration.put(KEY_OBFUSCATE_SEED, value.toInt())
         }
     }
 }
 
 val KEY_SECRET_MASK = CompilerConfigurationKey<String>("secretMask")
 val KEY_SECRET_MASK_NULL = CompilerConfigurationKey<Boolean>("secretMaskNull")
+val KEY_OBFUSCATE_SEED = CompilerConfigurationKey<Int>("obfuscateSeed")

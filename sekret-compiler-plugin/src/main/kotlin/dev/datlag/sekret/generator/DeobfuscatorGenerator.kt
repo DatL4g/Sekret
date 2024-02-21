@@ -1,33 +1,28 @@
 package dev.datlag.sekret.generator
 
 import dev.datlag.sekret.Logger
+import dev.datlag.sekret.SekretHelper
 import dev.datlag.sekret.common.declareObjectConstructor
 import dev.datlag.sekret.common.declareThisReceiver
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.ir.addDispatchReceiver
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.wasm.ir2wasm.allFields
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.addField
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildClass
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrField
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.createType
-import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.types.Variance
+import kotlin.properties.Delegates
 
 object DeobfuscatorGenerator {
 
@@ -37,80 +32,13 @@ object DeobfuscatorGenerator {
     internal var getFunction: IrSimpleFunction? = null
         private set
 
-    internal var valuesField: IrField? = null
+    internal var valuesField: IrProperty? = null
         private set
-
-    private val valueList: MutableList<String> = mutableListOf()
 
     val exists: Boolean
         get() = irClass != null
 
-    private fun listGet(pluginContext: IrPluginContext) = pluginContext.irBuiltIns.listClass.owner.functions.single {
-        it.name.asString() == "get" && it.valueParameters.size == 1
-    }
-
-    fun createIrClass(pluginContext: IrPluginContext): IrClass {
-        val genClass = pluginContext.irFactory.buildClass {
-            kind = ClassKind.OBJECT
-            name = Name.identifier("Deobfuscator")
-        }
-        genClass.declareThisReceiver(
-            irFactory = pluginContext.irFactory,
-            thisType = IrSimpleTypeImpl(
-                classifier = genClass.symbol,
-                hasQuestionMark = false,
-                arguments = emptyList(),
-                annotations = emptyList()
-            ),
-            thisOrigin = IrDeclarationOrigin.INSTANCE_RECEIVER
-        )
-        genClass.declareObjectConstructor(pluginContext)
-
-        valuesField = genClass.addField {
-            name = Name.identifier("values")
-            type = pluginContext.irBuiltIns.listClass.createType(false, listOf(
-                makeTypeProjection(
-                    type = pluginContext.irBuiltIns.stringType,
-                    variance = Variance.INVARIANT
-                )
-            ))
-            isFinal = true
-            isStatic = true
-            visibility = DescriptorVisibilities.PRIVATE
-        }
-
-        getFunction = genClass.addFunction {
-            name = Name.identifier("get")
-            returnType = pluginContext.irBuiltIns.stringType
-            isOperator = true
-        }.also { function ->
-            val pos = function.addValueParameter {
-                name = Name.identifier("pos")
-                type = pluginContext.irBuiltIns.intType
-            }
-            function.body = DeclarationIrBuilder(pluginContext, function.symbol).irBlockBody {
-                val field = irTemporary(irGetField(null, valuesField!!))
-
-                +irReturn(
-                    irCallOp(
-                        callee = listGet(pluginContext).symbol,
-                        type = function.returnType,
-                        dispatchReceiver = irGet(field),
-                        argument = irGet(pos)
-                    )
-                )
-            }
-        }
-
-        return genClass.also { irClass = it }
-    }
-
-    fun addValue(value: String): Int {
-        valueList.add(value)
-        return valueList.lastIndex
-    }
-
-    fun generateList(pluginContext: IrPluginContext) {
+    private fun listOfVararg(pluginContext: IrPluginContext): IrSimpleFunctionSymbol {
         val listOfFunction = pluginContext.referenceFunctions(
             CallableId(
                 packageName = FqName("kotlin.collections"),
@@ -132,16 +60,85 @@ object DeobfuscatorGenerator {
             }
         }
 
+        return varargListOf
+    }
+
+    private var seed by Delegates.notNull<Long>()
+    private val builder = StringBuilder()
+
+    fun createIrClass(pluginContext: IrPluginContext, logger: Logger) {
+        irClass = pluginContext.referenceClass(ClassId.fromString("dev/datlag/sekret/DeobfuscatorHelper"))?.owner
+
+        logger.warn("Class found: ${irClass != null}")
+
+        irClass!!.fields.firstNotNullOf {
+            logger.warn(it.name.asString())
+        }
+
+        val props = irClass?.properties?.toList() ?: emptyList()
+        valuesField = props.first {
+            it.name == Name.identifier("values")
+        }
+
+        irClass!!.addFunction {
+            name = Name.identifier("get")
+            isOperator = true
+            returnType = pluginContext.irBuiltIns.stringType
+        }.also { function ->
+            val id = function.addValueParameter {
+                name = Name.identifier("id")
+                type = pluginContext.irBuiltIns.longType
+            }
+
+            function.body = DeclarationIrBuilder(pluginContext, function.symbol).irBlockBody {
+                +irReturn(irString("Generated"))
+            }
+        }
+    }
+
+    fun registerString(value: String): Long {
+        var mask = 0L
+        var state = SekretHelper.Random.seed(seed)
+        state = SekretHelper.Random.next(state)
+        mask = mask or (state and 0xffff_0000_0000L)
+        state = SekretHelper.Random.next(state)
+        mask = mask or ((state and 0xffff_0000_0000L) shl 16)
+
+        val index = builder.length
+        val id = seed or ((index.toLong() shl 32) xor mask)
+
+        state = SekretHelper.Random.next(state)
+        builder.append((((state ushr 32) and 0xffffL) xor value.length.toLong()).toInt().toChar())
+
+        for (char in value) {
+            state = SekretHelper.Random.next(state)
+            builder.append((((state ushr 32) and 0xffffL) xor char.code.toLong()).toInt().toChar())
+        }
+
+        return id
+    }
+
+    fun getAllChunks(): List<String> {
+        return builder.toString().chunked(0x1fff)
+    }
+
+    fun generateList(pluginContext: IrPluginContext, logger: Logger) {
+        val varargListOf = listOfVararg(pluginContext)
         val applyParameter = DeclarationIrBuilder(pluginContext, varargListOf).irCall(varargListOf)
 
-        val irStrings = valueList.map {
+        val irStrings = getAllChunks().map {
             DeclarationIrBuilder(pluginContext, pluginContext.symbols.string).irString(it)
         }
         val varargValue = DeclarationIrBuilder(pluginContext, varargListOf).irVararg(pluginContext.irBuiltIns.stringType, irStrings)
         applyParameter.putValueArgument(0, varargValue)
 
-        valuesField?.let {
+
+        valuesField?.backingField?.let {
             it.initializer = DeclarationIrBuilder(pluginContext, it.symbol).irExprBody(applyParameter)
         }
+    }
+
+    fun setSeed(value: Int) {
+        seed = value.toLong() and 0xffff_ffffL
     }
 }

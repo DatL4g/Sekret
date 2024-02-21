@@ -11,32 +11,37 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
-val Project.kotlinProjectExtension: KotlinProjectExtension
+internal val Project.kotlinProjectExtension: KotlinProjectExtension
     get() = this.extensions.findByType<KotlinProjectExtension>()
         ?: (this.extensions.findByName("kotlin") as KotlinProjectExtension)
 
-val Project.sekretExtension: SekretPluginExtension
-    get() = this.extensions.findByType<SekretPluginExtension>() ?: runCatching {
-        this@sekretExtension.extensions.create(
-            name = "sekret",
-            type = SekretPluginExtension::class
-        ).apply { setupConvention(this@sekretExtension) }
-    }.getOrNull() ?: this.extensions.getByType<SekretPluginExtension>()
+internal val Project.sekretExtension: SekretPluginExtension
+    get() = this.extensions.findByType<SekretPluginExtension>()
+        ?: runCatching { this@sekretExtension.createSekretExtension() }.getOrNull()
+        ?: this.extensions.getByType<SekretPluginExtension>()
 
-val KotlinProjectExtension.allTargets: Iterable<KotlinTarget>
+internal fun Project.createSekretExtension(): SekretPluginExtension {
+    return this@createSekretExtension.extensions.create(
+        name = "sekret",
+        type = SekretPluginExtension::class
+    ).apply { setupConvention(this@createSekretExtension) }
+}
+
+internal val KotlinProjectExtension.allTargets: Iterable<KotlinTarget>
     get() = when (this) {
         is KotlinSingleTargetExtension<*> -> listOf(this.target)
         is KotlinMultiplatformExtension -> targets
         else -> emptyList()
     }
 
-val KotlinProjectExtension.targetsMapped: Set<Target>
+internal val KotlinProjectExtension.targetsMapped: Set<Target>
     get() {
+        val usedTargets = this.allTargets
         val allFlatten = listOf(
-            this.allTargets.map {
+            usedTargets.map {
                 it.targetName
             },
-            this.allTargets.map {
+            usedTargets.map {
                 it.name
             },
             this.sourceSets.map {
@@ -50,10 +55,13 @@ val KotlinProjectExtension.targetsMapped: Set<Target>
             }
         ).flatten()
 
-        return Target.fromSourceSetNames(allFlatten)
+        return setOf(
+            Target.fromKotlinTargets(usedTargets),
+            Target.fromSourceSetNames(allFlatten)
+        ).flatten().toSet()
     }
 
-val Project.targetsMapped: Set<Target>
+internal val Project.targetsMapped: Set<Target>
     get() = kotlinProjectExtension.targetsMapped
 
 fun Project.findMatchingTask(name: String): Task? {

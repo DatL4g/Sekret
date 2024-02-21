@@ -1,5 +1,12 @@
 package dev.datlag.sekret.gradle
 
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinJsTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+
 sealed class Target(open val name: String, open val sourceSet: String = name) {
 
     sealed class Android(
@@ -147,6 +154,32 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
         private const val ENDING_DEBUG = "Debug"
         private const val ENDING_RELEASE = "Release"
 
+        fun fromKotlinTargets(targets: Iterable<KotlinTarget>): Set<Target> {
+            val sourceTargetMapped = targets.mapNotNull { target ->
+                when (target) {
+                    is KotlinJvmTarget -> Desktop.JVM
+                    is KotlinAndroidTarget -> Android.JVM
+                    is KotlinJsTarget -> JS.Default
+                    else -> null
+                }
+            }
+
+            val platformTypeMapped = targets.mapNotNull { target ->
+                when (target.platformType) {
+                    KotlinPlatformType.jvm -> Desktop.JVM
+                    KotlinPlatformType.androidJvm -> Android.JVM
+                    KotlinPlatformType.js -> JS.Default
+                    KotlinPlatformType.wasm -> JS.WASM
+                    else -> null
+                }
+            }
+
+            return setOf(
+                sourceTargetMapped,
+                platformTypeMapped
+            ).flatten().toSet()
+        }
+
         fun fromSourceSetNames(names: Iterable<String>): Set<Target> {
             val flatNames = names.map { name ->
                 if (name.endsWith(ENDING_MAIN)) {
@@ -161,7 +194,6 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
                     name
                 }
             }
-
 
             return flatNames.mapNotNull { name ->
                 when {

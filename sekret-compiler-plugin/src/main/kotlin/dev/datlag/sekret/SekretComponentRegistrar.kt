@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.irMessageLogger
+import java.security.SecureRandom
 
 @OptIn(ExperimentalCompilerApi::class)
 @AutoService(CompilerPluginRegistrar::class)
@@ -28,11 +29,16 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
 
         val config = Config(
             secretMask = configuration[KEY_SECRET_MASK, "***"],
-            secretMaskNull = configuration[KEY_SECRET_MASK_NULL, true]
+            secretMaskNull = configuration[KEY_SECRET_MASK_NULL, true],
+            obfuscateSeed = configuration[KEY_OBFUSCATE_SEED, SecureRandom().nextInt()]
         )
+
+        DeobfuscatorGenerator.setSeed(config.obfuscateSeed)
 
         IrGenerationExtension.registerExtension(object : IrGenerationExtension {
             override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+                DeobfuscatorGenerator.createIrClass(pluginContext, logger)
+
                 val generatedDeobfuscatorModule = moduleFragment.transform(
                     transformer = DeobfuscatorTransformer(logger, pluginContext),
                     data = null
@@ -43,7 +49,7 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
                     data = null
                 )
 
-                DeobfuscatorGenerator.generateList(pluginContext)
+                DeobfuscatorGenerator.generateList(pluginContext, logger)
             }
         })
     }

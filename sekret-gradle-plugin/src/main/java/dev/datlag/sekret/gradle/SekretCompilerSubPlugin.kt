@@ -1,7 +1,6 @@
 package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.common.sekretExtension
-import dev.datlag.sekret.gradle.extension.ObfuscationExtension
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
@@ -13,10 +12,17 @@ class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
         return kotlinCompilation.target.project.provider {
             val config = kotlinCompilation.target.project.sekretExtension.obfuscation
 
-            listOf(
-                SubpluginOption("secretMask", config.secretMask.get()),
-                SubpluginOption("secretMaskNull", config.secretMaskNull.get().toString())
-            )
+            val fullList = mutableListOf(
+                SubpluginOption("secretMask", config.secretAnnotation.mask.get()),
+                SubpluginOption("secretMaskNull", config.secretAnnotation.maskNull.get().toString()),
+            ).apply {
+                val seed = config.obfuscateAnnotation.seed.orNull
+
+                if (seed != null) {
+                    add(SubpluginOption("obfuscateSeed", seed.toString()))
+                }
+            }
+            fullList
         }
     }
 

@@ -1,5 +1,6 @@
 package dev.datlag.sekret.gradle
 
+import dev.datlag.sekret.gradle.common.createSekretExtension
 import dev.datlag.sekret.gradle.common.kotlinProjectExtension
 import dev.datlag.sekret.gradle.tasks.CopySekretNativeBinaryTask
 import dev.datlag.sekret.gradle.tasks.CreateAndCopySekretNativeBinaryTask
@@ -16,6 +17,8 @@ import java.util.*
 open class SekretPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        project.createSekretExtension()
+
         project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
         project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
         project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class)
@@ -52,7 +55,7 @@ open class SekretPlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "2.0.0-alpha-01"
+        private const val VERSION = "2.0.0-alpha-02"
 
         internal fun getVersion(): String {
             return runCatching {

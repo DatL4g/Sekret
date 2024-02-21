@@ -13,6 +13,7 @@ group = artifact
 version = libVersion
 
 dependencies {
+    implementation(project(":sekret-lib"))
     compileOnly(libs.auto.service)
     kapt(libs.auto.service)
 
