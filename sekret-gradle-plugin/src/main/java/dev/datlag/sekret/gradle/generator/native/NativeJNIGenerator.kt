@@ -34,7 +34,11 @@ class NativeJNIGenerator(
                     .addParameter("key", JNI.libraryJString(JNI_PACKAGE_NAME))
                     .returns(JNI.libraryJString(JNI_PACKAGE_NAME).copy(nullable = true))
                     .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
-                    .addStatement("return %M(obfuscatedSecret, key, env)", JNI.getNativeValue(JNI_PACKAGE_NAME))
+                    .addStatement(
+                        "return %T.%M(obfuscatedSecret, key, env)",
+                        JNI.sekretHelper(JNI_PACKAGE_NAME),
+                        JNI.getExtensionNativeValue(JNI_PACKAGE_NAME)
+                    )
                     .build()
             )
         }

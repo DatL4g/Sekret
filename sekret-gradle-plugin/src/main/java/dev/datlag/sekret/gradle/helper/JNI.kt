@@ -23,6 +23,7 @@ object JNI {
     fun sekretHelper(packageName: String) = ClassName(packageName, LIBRARY_SEKRET_HELPER)
 
     fun getNativeValue(packageName: String) = MemberName(sekretHelper(packageName), "getNativeValue")
+    fun getExtensionNativeValue(packageName: String) = MemberName(packageName, "getNativeValue")
 
     fun libraryJString(packageName: String) = ClassName(packageName, LIBRARY_J_STRING)
     fun libraryJObject(packageName: String) = ClassName(packageName, LIBRARY_J_OBJECT)

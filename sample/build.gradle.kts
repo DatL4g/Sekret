@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
 
 plugins {
     kotlin("jvm")
-    id("dev.datlag.sekret") version "1.2.1-SNAPSHOT"
+    id("dev.datlag.sekret") version "1.2.2-SNAPSHOT"
     id("org.jetbrains.compose") version "1.5.11"
     alias(libs.plugins.ksp)
 }
