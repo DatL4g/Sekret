@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.PLUGIN_CLASSPATH_CONFIGURATION_NAME
 plugins {
     kotlin("jvm")
     id("dev.datlag.sekret") version "1.2.2-SNAPSHOT"
-    id("org.jetbrains.compose") version "1.5.11"
+    id("org.jetbrains.compose") version "1.6.2"
     alias(libs.plugins.ksp)
 }
 
@@ -48,8 +48,6 @@ dependencies {
 }
 
 compose {
-    kotlinCompilerPlugin.set(dependencies.compiler.forKotlin("1.9.20"))
-    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.22")
     desktop {
         application {
             mainClass = "MainKt"
