@@ -1,7 +1,6 @@
 package dev.datlag.sekret.gradle.generator.native
 
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.*
 import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.generator.SekretGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator.JNI_PACKAGE_NAME
@@ -15,21 +14,24 @@ class NativeGenerator(
     private val outputDir: File
 ) : SekretGenerator.Generator {
     override fun generate(encodedProperties: Iterable<EncodedProperty>) {
-        val spec = FileSpec.builder(settings.packageName, settings.className)
+        val spec = FileSpec.builder(settings.packageName, "${settings.className}.native")
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
+        var typeSpec = TypeSpec.objectBuilder(settings.className).addModifiers(KModifier.ACTUAL)
+
         encodedProperties.forEach { (key, secret) ->
-            spec.addFunction(
+            typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
+                    .addModifiers(KModifier.ACTUAL)
                     .addParameter("key", String::class)
-                    .returns(String::class)
+                    .returns(String::class.asClassName().copy(nullable = true))
                     .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
                     .addStatement("return %M(obfuscatedSecret, key)", JNI.getNativeValue(JNI_PACKAGE_NAME))
                     .build()
             )
         }
 
-        spec.build().writeTo(outputDir)
+        spec.addType(typeSpec.build()).build().writeTo(outputDir)
     }
 }

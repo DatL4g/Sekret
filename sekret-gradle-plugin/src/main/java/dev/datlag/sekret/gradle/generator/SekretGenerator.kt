@@ -5,17 +5,28 @@ import dev.datlag.sekret.gradle.generator.native.NativeGenerator
 import dev.datlag.sekret.gradle.generator.native.NativeJNIGenerator
 import dev.datlag.sekret.gradle.generator.nonNative.JNIGenerator
 import dev.datlag.sekret.gradle.generator.nonNative.JSGenerator
+import dev.datlag.sekret.gradle.generator.nonNative.CommonGenerator
 import java.io.File
 
 object SekretGenerator {
 
     internal const val JNI_PACKAGE_NAME = "dev.datlag.sekret"
 
+    fun createCommon(packageName: String, outputDir: File): CommonGenerator {
+        return CommonGenerator(
+            Settings(
+                packageName = packageName,
+                className = "Sekret"
+            ),
+            outputDir
+        )
+    }
+
     fun createNative(packageName: String, outputDir: File): NativeGenerator {
         return NativeGenerator(
             Settings(
                 packageName = packageName,
-                className = "sekret"
+                className = "Sekret"
             ),
             outputDir
         )
@@ -54,6 +65,7 @@ object SekretGenerator {
     fun createAllForTargets(packageName: String, structure: ModuleGenerator.SourceStructure): Set<Generator> {
         val generators = mutableSetOf<Generator>()
 
+        generators.add(createCommon(packageName, structure.commonMain))
         if (structure.hasNative) {
             generators.add(createNative(packageName, structure.nativeMain))
         }

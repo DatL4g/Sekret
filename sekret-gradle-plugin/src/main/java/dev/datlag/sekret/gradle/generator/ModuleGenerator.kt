@@ -26,6 +26,7 @@ object ModuleGenerator {
         val commonJS = targets.any { it.isJS }
 
         return SourceStructure(
+            commonMain = File(directory, COMMON_MAIN_FOLDER),
             nativeMain = File(directory, NATIVE_MAIN_FOLDER),
             jniNativeMain = File(directory, JNI_NATIVE_MAIN_FOLDER),
             jniMain = File(directory, JNI_MAIN_FOLDER),
@@ -39,12 +40,14 @@ object ModuleGenerator {
     }
 
     private const val SOURCE_FOLDER = "src/"
+    private const val COMMON_MAIN_FOLDER = "$SOURCE_FOLDER/commonMain/kotlin"
     private const val NATIVE_MAIN_FOLDER = "$SOURCE_FOLDER/nativeMain/kotlin"
     private const val JNI_NATIVE_MAIN_FOLDER = "$SOURCE_FOLDER/jniNativeMain/kotlin"
     private const val JNI_MAIN_FOLDER = "$SOURCE_FOLDER/jniMain/kotlin"
     private const val JS_COMMON_MAIN_FOLDER = "$SOURCE_FOLDER/jsCommonMain/kotlin"
 
     data class SourceStructure(
+        val commonMain: File,
         val nativeMain: File,
         val jniNativeMain: File,
         val jniMain: File,
