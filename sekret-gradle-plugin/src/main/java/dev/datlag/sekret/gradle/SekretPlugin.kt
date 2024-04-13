@@ -2,10 +2,7 @@ package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.common.createSekretExtension
 import dev.datlag.sekret.gradle.common.kotlinProjectExtension
-import dev.datlag.sekret.gradle.tasks.CopySekretNativeBinaryTask
-import dev.datlag.sekret.gradle.tasks.CreateAndCopySekretNativeBinaryTask
-import dev.datlag.sekret.gradle.tasks.GenerateSekretBuildScriptTask
-import dev.datlag.sekret.gradle.tasks.GenerateSekretTask
+import dev.datlag.sekret.gradle.tasks.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
@@ -22,6 +19,9 @@ open class SekretPlugin : Plugin<Project> {
         project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
         project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
         project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class)
+        project.tasks.maybeCreate(CreateSekretNativeBinaryTask.NAME, CreateSekretNativeBinaryTask::class).also {
+            it.setupDependingTasks()
+        }
         project.tasks.maybeCreate(CreateAndCopySekretNativeBinaryTask.NAME, CreateAndCopySekretNativeBinaryTask::class).also {
             it.setupDependingTasks()
         }
