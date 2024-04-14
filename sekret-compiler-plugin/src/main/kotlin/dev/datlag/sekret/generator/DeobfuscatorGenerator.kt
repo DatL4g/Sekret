@@ -50,7 +50,7 @@ object DeobfuscatorGenerator {
         val varargListOf = listOfFunction.firstNotNullOf { function ->
             val params = function.owner.valueParameters
             if (params.isNotEmpty()) {
-                if (params.single().isVararg) {
+                if (params.first().isVararg) {
                     function
                 } else {
                     null
@@ -76,7 +76,7 @@ object DeobfuscatorGenerator {
         }
 
         val props = irClass?.properties?.toList() ?: emptyList()
-        valuesField = props.first {
+        valuesField = props.firstOrNull {
             it.name == Name.identifier("values")
         }
 
