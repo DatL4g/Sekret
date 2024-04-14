@@ -71,7 +71,7 @@ object DeobfuscatorGenerator {
 
         logger.warn("Class found: ${irClass != null}")
 
-        irClass!!.fields.firstNotNullOf {
+        irClass?.fields?.firstNotNullOf {
             logger.warn(it.name.asString())
         }
 
@@ -80,11 +80,11 @@ object DeobfuscatorGenerator {
             it.name == Name.identifier("values")
         }
 
-        irClass!!.addFunction {
+        irClass?.addFunction {
             name = Name.identifier("get")
             isOperator = true
             returnType = pluginContext.irBuiltIns.stringType
-        }.also { function ->
+        }?.also { function ->
             val id = function.addValueParameter {
                 name = Name.identifier("id")
                 type = pluginContext.irBuiltIns.longType
