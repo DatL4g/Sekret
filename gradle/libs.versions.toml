@@ -1,5 +1,5 @@
 [versions]
-lib = "2.0.0-alpha-02"
+lib = "2.0.0-alpha-03"
 android = "8.1.2"
 auto-service = "1.1.1"
 kotlin = "1.9.23"
