@@ -5,7 +5,9 @@ import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
 import dev.datlag.sekret.gradle.common.canWriteSafely
 import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.common.sekretExtension
 import dev.datlag.sekret.gradle.common.targetsMapped
+import dev.datlag.sekret.gradle.extension.PropertiesExtension
 import org.gradle.api.Project
 import java.io.File
 
@@ -22,6 +24,7 @@ object BuildFileGenerator {
         generate(
             version = version,
             targets = requiredTargets,
+            packageName = project.sekretExtension.properties.packageName.getOrElse(PropertiesExtension.sekretPackageName),
             outputDir = ModuleGenerator.createBase(project),
             overwrite = overwrite
         )
@@ -30,10 +33,11 @@ object BuildFileGenerator {
     fun generate(
         version: String,
         targets: Iterable<Target>,
+        packageName: String,
         outputDir: File,
         overwrite: Boolean = false
     ) {
-        val fileSpec = FileSpec.scriptBuilder("build.gradle")
+        var fileSpec = FileSpec.scriptBuilder("build.gradle")
             .addPlugins(targets)
             .beginControlFlow("kotlin")
             .addSourceSets(
@@ -42,6 +46,10 @@ object BuildFileGenerator {
                 sourceSets = targets.toSet()
             )
             .endControlFlow()
+
+        if (targets.any { it.isAndroidJvm }) {
+            fileSpec = fileSpec.addAndroidBlock(packageName)
+        }
 
         val spec = fileSpec.build()
 
@@ -142,5 +150,11 @@ object BuildFileGenerator {
         spec.endControlFlow()
 
         return spec
+    }
+
+    private fun FileSpec.Builder.addAndroidBlock(packageName: String): FileSpec.Builder {
+        return this.beginControlFlow("android")
+            .addStatement("namespace = %S", packageName)
+            .endControlFlow()
     }
 }
