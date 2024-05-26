@@ -37,19 +37,14 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
 
         IrGenerationExtension.registerExtension(object : IrGenerationExtension {
             override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-                DeobfuscatorGenerator.createIrClass(pluginContext, logger)
+                // DeobfuscatorGenerator.createIrClass(pluginContext, logger)
 
-                val generatedDeobfuscatorModule = moduleFragment.transform(
-                    transformer = DeobfuscatorTransformer(logger, pluginContext),
-                    data = null
-                )
-
-                val addedObfuscatedValues = generatedDeobfuscatorModule.transform(
+                moduleFragment.transform(
                     transformer = ElementTransformer(config, logger, pluginContext),
                     data = null
                 )
 
-                DeobfuscatorGenerator.generateList(pluginContext, logger)
+                // DeobfuscatorGenerator.generateList(pluginContext, logger)
             }
         })
     }

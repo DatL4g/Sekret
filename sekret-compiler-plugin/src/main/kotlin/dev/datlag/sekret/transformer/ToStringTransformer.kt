@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 class ToStringTransformer(
     private val secretProperties: Collection<IrProperty>,
@@ -19,6 +20,7 @@ class ToStringTransformer(
     private val logger: Logger,
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitGetField(expression: IrGetField): IrExpression {
         val string = expression.type.isAnyString(true)
         val charSequence = expression.type.isAnyCharSequence(true)
@@ -27,7 +29,11 @@ class ToStringTransformer(
         val stringBuffer = expression.type.isStringBuffer(true)
 
         if (string || charSequence || stringBuilder || appendable || stringBuffer) {
-            if (expression.symbol.owner.matchesAnyProperty(secretProperties)) {
+            val matches = runCatching {
+                expression.symbol.owner.matchesAnyProperty(secretProperties)
+            }.getOrNull() ?: false
+
+            if (matches) {
                 return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
             }
         }

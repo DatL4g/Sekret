@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
-import org.jetbrains.kotlin.ir.symbols.impl.IrAnonymousInitializerSymbolImpl
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrProperty.hasMatchingAnnotation(
     name: FqName,
     parent: IrClass?,
@@ -25,27 +26,32 @@ fun IrProperty.hasMatchingAnnotation(
 ): Boolean {
     return this.hasAnnotation(name) || this.originalProperty.hasAnnotation(name) || run {
         if (checkGetter && parent != null) {
-            (runCatching {
-                parent.getPropertyGetter(this.name.asString())
-            }.getOrNull() ?: runCatching {
-                parent.getPropertyGetter(this.name.asStringStripSpecialMarkers())
-            }.getOrNull())?.owner?.hasAnnotation(name) == true
+            runCatching {
+                (runCatching {
+                    parent.getPropertyGetter(this.name.asString())
+                }.getOrNull() ?: runCatching {
+                    parent.getPropertyGetter(this.name.asStringStripSpecialMarkers())
+                }.getOrNull())?.owner?.hasAnnotation(name)
+            }.getOrNull() == true
         } else {
             false
         }
     } || run {
         if (checkSetter && parent != null) {
-            (runCatching {
-                parent.getPropertySetter(this.name.asString())
-            }.getOrNull() ?: runCatching {
-                parent.getPropertySetter(this.name.asStringStripSpecialMarkers())
-            }.getOrNull())?.owner?.hasAnnotation(name) == true
+            runCatching {
+                (runCatching {
+                    parent.getPropertySetter(this.name.asString())
+                }.getOrNull() ?: runCatching {
+                    parent.getPropertySetter(this.name.asStringStripSpecialMarkers())
+                }.getOrNull())?.owner?.hasAnnotation(name)
+            }.getOrNull() == true
         } else {
             false
         }
     }
 }
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrField.hasMatchingAnnotation(
     name: FqName,
     parent: IrClass?,
@@ -54,12 +60,17 @@ fun IrField.hasMatchingAnnotation(
 ): Boolean {
     return this.hasAnnotation(name)
             || this.type.hasAnnotation(name)
-            || this.correspondingPropertySymbol?.owner?.hasMatchingAnnotation(name, parent, checkGetter, checkSetter) ?: false
+            || runCatching {
+        this.correspondingPropertySymbol?.owner?.hasMatchingAnnotation(name, parent, checkGetter, checkSetter)
+    }.getOrNull() ?: false
 }
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrField.matchesProperty(property: IrProperty): Boolean {
     return if (this.isPropertyField) {
-        this.correspondingPropertySymbol?.owner == property || this.name == property.name
+        runCatching {
+            this.correspondingPropertySymbol?.owner == property
+        }.getOrNull() ?: false || this.name == property.name
     } else {
         false
     }
@@ -69,11 +80,13 @@ fun IrField.matchesAnyProperty(properties: Iterable<IrProperty>): Boolean {
     return properties.any { this.matchesProperty(it) }
 }
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrType.matches(signature: IdSignature.CommonSignature, nullable: Boolean? = null): Boolean {
     if (this !is IrSimpleType) return false
     if (nullable != null && this.isMarkedNullable() != nullable) return false
-    return signature == classifier.signature ||
-            classifier.owner.let { it is IrClass && it.signatureMatchesFqName(signature) }
+    return signature == classifier.signature || runCatching {
+        classifier.owner.let { it is IrClass && it.signatureMatchesFqName(signature) }
+    }.getOrNull() ?: false
 }
 
 fun IrClass.signatureMatchesFqName(signature: IdSignature.CommonSignature): Boolean =
@@ -138,6 +151,7 @@ fun IrClass.declareThisReceiver(
     }
 }
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrClass.declareObjectConstructor(
     unitType: IrType,
     irFactory: IrFactory,
@@ -168,6 +182,7 @@ fun IrClass.declareObjectConstructor(
     }
 }
 
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrClass.declareObjectConstructor(
     pluginContext: IrPluginContext
 ) = this.declareObjectConstructor(
