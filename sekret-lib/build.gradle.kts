@@ -36,16 +36,28 @@ kotlin {
     }
 
     jniTargets.forEach { target ->
-        target.compilations["main"].cinterops.create("sekret") {
-            val javaHome = System.getenv("JAVA_HOME") ?: System.getProperty("java.home")
-            packageName = "dev.datlag.sekret"
+        target.compilations.getByName("main") {
+            cinterops {
+                val sekret by creating {
+                    val javaDefaultHome = System.getProperty("java.home")
+                    val javaEnvHome = System.getenv("JAVA_HOME")
 
-            includeDirs(
-                Callable { File(javaHome, "include") },
-                Callable { File(javaHome, "include/darwin") },
-                Callable { File(javaHome, "include/linux") },
-                Callable { File(javaHome, "include/win32") }
-            )
+                    packageName("dev.datlag.sekret")
+
+                    includeDirs.allHeaders(
+                        File(javaDefaultHome, "include"),
+                        File(javaDefaultHome, "include/darwin"),
+                        File(javaDefaultHome, "include/linux"),
+                        File(javaDefaultHome, "include/win32")
+                    )
+                    includeDirs.allHeaders(
+                        File(javaEnvHome, "include"),
+                        File(javaEnvHome, "include/darwin"),
+                        File(javaEnvHome, "include/linux"),
+                        File(javaEnvHome, "include/win32")
+                    )
+                }
+            }
         }
     }
 

@@ -5,7 +5,7 @@ include(":sekret-lib")
 include(":sekret-annotations")
 include(":sekret-compiler-plugin")
 include(":sekret-ksp")
-include(":sample", ":sample:sekret")
+// include(":sample", ":sample:sekret")
 
 pluginManagement {
     repositories {

@@ -2,12 +2,12 @@
 lib = "2.0.0-alpha-04"
 android = "8.1.2"
 auto-service = "1.1.1"
-kotlin = "1.9.23"
-kotlinpoet = "1.16.0"
+kotlin = "2.0.0"
+kotlinpoet = "1.17.0"
 publish = "0.28.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-1.0.21"
 
 [libraries]
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
