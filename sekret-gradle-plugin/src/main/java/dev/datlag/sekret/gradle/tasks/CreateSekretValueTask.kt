@@ -31,9 +31,6 @@ open class CreateSekretValueTask : DefaultTask() {
     @get:Input
     open val propertyValue: Property<String> = project.objects.property(String::class.java)
 
-    @get:Input
-    open val encryptionKey: Property<String> = project.objects.property(String::class.java)
-
     @get:OutputFile
     val outputFile: RegularFileProperty = propertiesFile
 
@@ -80,7 +77,6 @@ open class CreateSekretValueTask : DefaultTask() {
 
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
-        encryptionKey.set(extension.properties.encryptionKey)
         propertiesFile.set(propertiesFile(project, extension.properties))
         propertyName.set(project.findProperty("name")?.toString()?.ifBlank { null })
         propertyValue.set(project.findProperty("value")?.toString()?.ifBlank { null })
