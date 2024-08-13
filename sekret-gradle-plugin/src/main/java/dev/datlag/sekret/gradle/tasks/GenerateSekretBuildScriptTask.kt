@@ -22,16 +22,12 @@ import javax.inject.Inject
 
 open class GenerateSekretBuildScriptTask : DefaultTask() {
 
-    @get:Input
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
-    @get:Input
     open val packageName: Property<String> = project.objects.property(String::class.java)
 
-    @get:Input
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
-    @get:OutputDirectory
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Inject

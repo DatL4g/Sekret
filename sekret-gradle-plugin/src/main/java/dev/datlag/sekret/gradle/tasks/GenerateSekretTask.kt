@@ -27,25 +27,19 @@ import javax.inject.Inject
 
 open class GenerateSekretTask : DefaultTask() {
 
-    @get:Input
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
-    @get:Input
     open val packageName: Property<String> = project.objects.property(String::class.java)
 
-    @get:Input
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
-    @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)
 
-    @get:OutputDirectory
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Inject
     open val projectLayout: ProjectLayout = project.layout
 
-    @get:InputFile
     open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
 
     private val outputDir: File
