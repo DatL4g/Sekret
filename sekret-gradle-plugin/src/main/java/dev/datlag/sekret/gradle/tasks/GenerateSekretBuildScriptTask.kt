@@ -20,22 +20,22 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.inject.Inject
 
-abstract class GenerateSekretBuildScriptTask : DefaultTask() {
+open class GenerateSekretBuildScriptTask : DefaultTask() {
 
     @get:Input
-    abstract val enabled: Property<Boolean>
+    open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
     @get:Input
-    abstract val packageName: Property<String>
+    open val packageName: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
-    abstract val targets: SetProperty<Target>
+    open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:OutputDirectory
-    abstract val outputDirectory: DirectoryProperty
+    open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Inject
-    abstract val projectLayout: ProjectLayout
+    open val projectLayout: ProjectLayout = project.layout
 
     private val outputDir: File
         get() = outputDirectory.asFile.orNull
