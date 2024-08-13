@@ -14,24 +14,7 @@ import java.io.File
 object BuildFileGenerator {
 
     fun generate(
-        project: Project,
         version: String = SekretPlugin.getVersion(),
-        overwrite: Boolean = false
-    ) {
-        val defaultTargets = project.targetsMapped
-        val requiredTargets = Target.addDependingTargets(defaultTargets)
-
-        generate(
-            version = version,
-            targets = requiredTargets,
-            packageName = project.sekretExtension.properties.packageName.getOrElse(PropertiesExtension.sekretPackageName),
-            outputDir = ModuleGenerator.createBase(project),
-            overwrite = overwrite
-        )
-    }
-
-    fun generate(
-        version: String,
         targets: Iterable<Target>,
         packageName: String,
         outputDir: File,

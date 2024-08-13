@@ -1,37 +1,63 @@
 package dev.datlag.sekret.gradle.tasks
 
+import dev.datlag.sekret.gradle.SekretPluginExtension
 import dev.datlag.sekret.gradle.common.existsSafely
 import dev.datlag.sekret.gradle.common.mkdirsSafely
 import dev.datlag.sekret.gradle.common.sekretExtension
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import javax.inject.Inject
 
-open class CopySekretNativeBinaryTask : DefaultTask() {
+abstract class CopySekretNativeBinaryTask : DefaultTask() {
+
+    @get:Input
+    abstract val enabled: Property<Boolean>
+
+    @get:InputDirectory
+    abstract val buildDirectory: DirectoryProperty
+
+    @get:InputDirectory
+    abstract val sekretDirectory: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val androidDirectory: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val desktopComposeDirectory: DirectoryProperty
+
+    @get:Inject
+    abstract val projectLayout: ProjectLayout
+
+    @get:Inject
+    abstract val fileSystem: FileSystemOperations
+
+    private val sekretDir: File
+        get() = sekretDirectory.asFile.orNull
+            ?: projectLayout.projectDirectory.dir("sekret").asFile
 
     init {
         group = "sekret"
     }
 
-    private val sekretProject: Project?
-        get() = runCatching {
-            project.findProject("sekret")
-        }.getOrNull()
-
     @TaskAction
     fun copy() {
-        val config = project.sekretExtension.properties
-        val copyConfig = config.nativeCopy
-        if (!config.enabled.getOrElse(false)) {
+        if (!enabled.getOrElse(false)) {
             return
         }
 
-        val sekretDir = ModuleGenerator.createBase(project)
-        val sekretBuildDir = sekretProject?.layout?.buildDirectory?.orNull?.asFile ?: File(sekretDir, "build")
+        val sekretBuildDir = buildDirectory.asFile.orNull ?: File(ModuleGenerator.createBase(sekretDir), "build")
 
-        val androidJniFolder = copyConfig.androidJNIFolder.orNull?.asFile
+        val androidJniFolder = androidDirectory.asFile.orNull
         if (androidJniFolder != null) {
             val androidArm32 = getBinPath("androidNativeArm32", sekretBuildDir)
             val androidArm64 = getBinPath("androidNativeArm64", sekretBuildDir)
@@ -55,7 +81,7 @@ open class CopySekretNativeBinaryTask : DefaultTask() {
             }
         }
 
-        val desktopComposeResourcesFolder = copyConfig.desktopComposeResourcesFolder.orNull?.asFile
+        val desktopComposeResourcesFolder = desktopComposeDirectory.asFile.orNull
         if (desktopComposeResourcesFolder != null) {
             val linuxArm64 = getBinPath("linuxArm64", sekretBuildDir)
             val linuxX64 = getBinPath("linuxX64", sekretBuildDir)
@@ -100,13 +126,21 @@ open class CopySekretNativeBinaryTask : DefaultTask() {
     }
 
     private fun copyFileFromTo(from: String, dest: File) {
-        File(from).listFiles { _, name ->
-            !name.endsWith(".h") && !name.endsWith(".def")
-        }?.filterNotNull()?.forEach {
-            dest.mkdirsSafely()
-
-            it.copyRecursively(File(dest, it.name), true)
+        fileSystem.copy {
+            from(File(from))
+            into(dest.mkdirsSafely())
+            exclude("**/*.h", "**/*.def")
         }
+    }
+
+    fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
+        val sekretProject = project.findProject("sekret")
+
+        enabled.set(extension.properties.enabled)
+        buildDirectory.set(sekretProject?.layout?.buildDirectory?.orNull?.asFile)
+        sekretDirectory.set(sekretProject?.projectDir ?: File(project.projectDir, "sekret"))
+        androidDirectory.set(extension.properties.nativeCopy.androidJNIFolder)
+        desktopComposeDirectory.set(extension.properties.nativeCopy.desktopComposeResourcesFolder)
     }
 
     companion object {

@@ -9,10 +9,6 @@ import java.io.File
 
 object ModuleGenerator {
 
-    fun createBase(project: Project) = createBase(
-        project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret")
-    )
-
     fun createBase(directory: File): File {
         directory.mkdirsSafely()
         return directory

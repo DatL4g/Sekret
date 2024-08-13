@@ -11,13 +11,8 @@ open class CreateAndCopySekretNativeBinaryTask : DefaultTask() {
         group = "sekret"
     }
 
-    private val sekretProject: Project?
-        get() = runCatching {
-            project.findProject("sekret")
-        }.getOrNull()
-
-    fun setupDependingTasks() {
-        val assembleTask = sekretProject?.findMatchingTask("assemble")
+    fun setupDependingTasks(project: Project) {
+        val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
         val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
         val copyTask = project.findMatchingTaskWithType<CopySekretNativeBinaryTask>(CopySekretNativeBinaryTask.NAME)
 

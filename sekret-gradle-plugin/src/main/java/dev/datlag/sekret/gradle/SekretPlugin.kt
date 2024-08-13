@@ -14,16 +14,22 @@ import java.util.*
 open class SekretPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.createSekretExtension()
+        val extension = project.createSekretExtension()
 
-        project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class)
-        project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class)
-        project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class)
+        project.tasks.maybeCreate(GenerateSekretBuildScriptTask.NAME, GenerateSekretBuildScriptTask::class).also { task ->
+            task.apply(project, extension)
+        }
+        project.tasks.maybeCreate(GenerateSekretTask.NAME, GenerateSekretTask::class).also { task ->
+            task.apply(project, extension)
+        }
+        project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class).also { task ->
+            task.apply(project, extension)
+        }
         project.tasks.maybeCreate(CreateSekretNativeBinaryTask.NAME, CreateSekretNativeBinaryTask::class).also {
-            it.setupDependingTasks()
+            it.setupDependingTasks(project)
         }
         project.tasks.maybeCreate(CreateAndCopySekretNativeBinaryTask.NAME, CreateAndCopySekretNativeBinaryTask::class).also {
-            it.setupDependingTasks()
+            it.setupDependingTasks(project)
         }
 
         when (project.kotlinProjectExtension) {
@@ -55,7 +61,7 @@ open class SekretPlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "2.0.0-alpha-05"
+        private const val VERSION = "2.0.0-alpha-06-SNAPSHOT"
 
         internal fun getVersion(): String {
             return runCatching {
