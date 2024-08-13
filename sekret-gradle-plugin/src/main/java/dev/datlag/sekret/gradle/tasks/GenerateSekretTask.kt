@@ -33,6 +33,7 @@ open class GenerateSekretTask : DefaultTask() {
 
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
+    @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)
 
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
