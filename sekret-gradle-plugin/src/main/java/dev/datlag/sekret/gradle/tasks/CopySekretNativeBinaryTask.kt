@@ -13,6 +13,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -23,15 +24,18 @@ abstract class CopySekretNativeBinaryTask : DefaultTask() {
     @get:Input
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
+    @get:Optional
     @get:InputDirectory
     open val buildDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:InputDirectory
     open val sekretDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @get:Optional
     @get:OutputDirectory
     open val androidDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @get:Optional
     @get:OutputDirectory
     open val desktopComposeDirectory: DirectoryProperty = project.objects.directoryProperty()
 
