@@ -20,14 +20,19 @@ import javax.inject.Inject
 
 abstract class CopySekretNativeBinaryTask : DefaultTask() {
 
+    @get:Input
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
+    @get:InputDirectory
     open val buildDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @get:InputDirectory
     open val sekretDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @get:OutputDirectory
     open val androidDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @get:OutputDirectory
     open val desktopComposeDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Inject
