@@ -38,4 +38,10 @@ object Utils {
         }
     }
 
+    fun saveProperties(properties: Properties, output: File) {
+        output.outputStream().use {
+            properties.store(it, null)
+        }
+    }
+
 }

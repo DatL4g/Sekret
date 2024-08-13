@@ -25,6 +25,9 @@ open class SekretPlugin : Plugin<Project> {
         project.tasks.maybeCreate(CopySekretNativeBinaryTask.NAME, CopySekretNativeBinaryTask::class).also { task ->
             task.apply(project, extension)
         }
+        project.tasks.maybeCreate(CreateSekretValueTask.NAME, CreateSekretValueTask::class).also { task ->
+            task.apply(project, extension)
+        }
         project.tasks.maybeCreate(CreateSekretNativeBinaryTask.NAME, CreateSekretNativeBinaryTask::class).also {
             it.setupDependingTasks(project)
         }
