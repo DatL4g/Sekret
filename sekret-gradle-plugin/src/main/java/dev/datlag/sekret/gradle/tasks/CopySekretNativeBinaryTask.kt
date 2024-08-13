@@ -131,8 +131,8 @@ abstract class CopySekretNativeBinaryTask : DefaultTask() {
 
     private fun copyFileFromTo(from: String, dest: File) {
         fileSystem.copy {
-            from(File(from))
-            into(dest.mkdirsSafely())
+            from(from)
+            into(dest.also { it.mkdirsSafely() })
             exclude("**/*.h", "**/*.def")
         }
     }
