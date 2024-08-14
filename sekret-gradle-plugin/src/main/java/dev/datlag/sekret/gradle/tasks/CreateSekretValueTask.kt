@@ -23,16 +23,14 @@ open class CreateSekretValueTask : DefaultTask() {
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
     @get:InputFile
-    val propertiesFile: RegularFileProperty = project.objects.fileProperty()
+    @get:OutputFile
+    open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
 
     @get:Input
     open val propertyName: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
     open val propertyValue: Property<String> = project.objects.property(String::class.java)
-
-    @get:OutputFile
-    val outputFile: RegularFileProperty = propertiesFile
 
     init {
         group = "sekret"
