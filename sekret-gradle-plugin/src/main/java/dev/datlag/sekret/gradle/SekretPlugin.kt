@@ -28,11 +28,11 @@ open class SekretPlugin : Plugin<Project> {
         project.tasks.maybeCreate(CreateSekretValueTask.NAME, CreateSekretValueTask::class).also { task ->
             task.apply(project, extension)
         }
-        project.tasks.maybeCreate(CreateSekretNativeBinaryTask.NAME, CreateSekretNativeBinaryTask::class).also {
-            it.setupDependingTasks(project)
+        project.tasks.maybeCreate(CreateSekretNativeBinaryTask.NAME, CreateSekretNativeBinaryTask::class).also { task ->
+            task.setupDependingTasks(project)
         }
-        project.tasks.maybeCreate(CreateAndCopySekretNativeBinaryTask.NAME, CreateAndCopySekretNativeBinaryTask::class).also {
-            it.setupDependingTasks(project)
+        project.tasks.maybeCreate(CreateAndCopySekretNativeBinaryTask.NAME, CreateAndCopySekretNativeBinaryTask::class).also { task ->
+            task.setupDependingTasks(project)
         }
 
         when (project.kotlinProjectExtension) {

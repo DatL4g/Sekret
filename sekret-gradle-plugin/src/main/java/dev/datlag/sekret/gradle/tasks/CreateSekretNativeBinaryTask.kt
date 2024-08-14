@@ -4,23 +4,29 @@ import dev.datlag.sekret.gradle.common.findMatchingTask
 import dev.datlag.sekret.gradle.common.findMatchingTaskWithType
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskAction
 
 open class CreateSekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
+
+        // No inputs or outputs as this task is only used to order other tasks.
+        outputs.upToDateWhen { true }
+    }
+
+    @TaskAction
+    fun run() {
+        // No actions needed here
     }
 
     fun setupDependingTasks(project: Project) {
-        val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
-        val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
+        project.afterEvaluate {
+            val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
+            val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
 
-        if (assembleTask != null && generateTask != null) {
-            dependsOn(generateTask, assembleTask)
-        } else if (assembleTask != null) {
-            dependsOn(assembleTask)
-        } else if (generateTask != null) {
-            dependsOn(generateTask)
+            generateTask?.let { mustRunAfter(it) }
+            assembleTask?.let { dependsOn(assembleTask) }
         }
     }
 

@@ -9,19 +9,25 @@ open class CreateAndCopySekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
+
+        // No inputs or outputs as this task is only used to order other tasks.
+        outputs.upToDateWhen { true }
+    }
+
+    @TaskAction
+    fun run() {
+        // No actions needed here
     }
 
     fun setupDependingTasks(project: Project) {
-        val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
-        val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
-        val copyTask = project.findMatchingTaskWithType<CopySekretNativeBinaryTask>(CopySekretNativeBinaryTask.NAME)
+        project.afterEvaluate {
+            val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
+            val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
+            val copyTask = project.findMatchingTaskWithType<CopySekretNativeBinaryTask>(CopySekretNativeBinaryTask.NAME)
 
-        if (assembleTask != null && generateTask != null) {
-            dependsOn(generateTask, assembleTask, copyTask)
-        } else if (assembleTask != null) {
-            dependsOn(assembleTask, copyTask)
-        } else if (generateTask != null) {
-            dependsOn(generateTask, copyTask)
+            generateTask?.let { mustRunAfter(it) }
+            assembleTask?.let { dependsOn(it) }
+            copyTask?.let { finalizedBy(it) }
         }
     }
 
