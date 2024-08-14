@@ -10,6 +10,7 @@ open class CreateSekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Compiles native binaries if required for the JVM (including Android)"
 
         // No inputs or outputs as this task is only used to order other tasks.
         outputs.upToDateWhen { true }

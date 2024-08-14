@@ -43,6 +43,7 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Generates buildscript for the sekret module, depending on the targets used in the source project."
     }
 
     @TaskAction

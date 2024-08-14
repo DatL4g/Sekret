@@ -9,6 +9,7 @@ open class CreateAndCopySekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Combines compile and copy task ['${CreateSekretNativeBinaryTask.NAME}', '${CopySekretNativeBinaryTask.NAME}']"
 
         // No inputs or outputs as this task is only used to order other tasks.
         outputs.upToDateWhen { true }

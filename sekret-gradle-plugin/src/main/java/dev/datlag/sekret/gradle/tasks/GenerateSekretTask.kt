@@ -54,6 +54,7 @@ open class GenerateSekretTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Generates required source files for the sekret module, including the buildscript if not present."
     }
 
     @TaskAction

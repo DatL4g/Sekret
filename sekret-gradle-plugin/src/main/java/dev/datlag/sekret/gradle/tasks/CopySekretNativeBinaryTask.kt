@@ -51,6 +51,7 @@ abstract class CopySekretNativeBinaryTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Copies compiled native binaries for the JVM (including Android) to the provided source directories make them available on these platforms."
     }
 
     @TaskAction

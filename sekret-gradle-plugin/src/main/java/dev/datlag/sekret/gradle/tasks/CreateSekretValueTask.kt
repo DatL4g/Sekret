@@ -33,6 +33,7 @@ open class CreateSekretValueTask : DefaultTask() {
 
     init {
         group = "sekret"
+        description = "Adds a key-value based pair to your properties file."
     }
 
     @TaskAction
@@ -41,7 +42,7 @@ open class CreateSekretValueTask : DefaultTask() {
             return
         }
 
-        val name = propertyName.orNull ?: throw IllegalArgumentException("Missing property 'name'")
+        val name = propertyName.orNull ?: throw IllegalArgumentException("Missing property 'key'")
         val value = propertyValue.orNull ?: throw IllegalArgumentException("Missing property 'value'")
         val propFile = propertiesFile.asFile.orNull ?: throw IllegalStateException("No sekret properties file found.")
         val properties = Utils.propertiesFromFile(propFile)
@@ -75,7 +76,7 @@ open class CreateSekretValueTask : DefaultTask() {
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
         propertiesFile.set(propertiesFile(project, extension.properties))
-        propertyName.set(project.findProperty("name")?.toString()?.ifBlank { null })
+        propertyName.set(project.findProperty("key")?.toString()?.ifBlank { null })
         propertyValue.set(project.findProperty("value")?.toString()?.ifBlank { null })
     }
 
