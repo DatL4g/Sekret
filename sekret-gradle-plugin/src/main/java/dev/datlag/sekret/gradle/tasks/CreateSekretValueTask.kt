@@ -22,7 +22,6 @@ open class CreateSekretValueTask : DefaultTask() {
     @get:Input
     open val enabled: Property<Boolean> = project.objects.property(Boolean::class.java)
 
-    @get:InputFile
     @get:OutputFile
     open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
 
