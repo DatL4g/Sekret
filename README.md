@@ -1,109 +1,40 @@
 # Sekret
 
-The Sekret plugin allows any Kotlin developer to deeply hide secrets in your project. This prevents **credentials harvesting** to a certain level.
+This project is a security-focused tool designed to enhance application amd user safety by preventing accidental leaks of sensitive information.
 
-The following obfuscation techniques are used:
+It can be used to hide user credentials in logs and provides powerful obfuscation techniques to protect application secrets by embedding them securely in native binaries.
 
-- The secret is obfuscated using a reversible XOR operation, so it never appears as plain text
-- Obfuscated secret is stored in a native binary as a hexadecimal array, so it's hard to decompile
-  - **This is not the case for javascript modules**
-- The obfuscated string is not persisted in the binary to force runtime evaluation
-
-This plugin is a more flexible and **Kotlin Multiplatform** compatible version of [klaxit/hidden-secrets-gradle-plugin](https://github.com/klaxit/hidden-secrets-gradle-plugin)
-
-⚠️ Nothing on the client-side is unbreakable. So generally speaking, **keeping a secret in application package is not a smart idea**. But when you absolutely need to, this is the best method to hide it.
-
-This plugin can be used with any Kotlin project (single-, or multiplatform).
+With planned features like class-level String obfuscation, Sekret is your solution for safeguarding confidential data and maintaining secure codebases.
 
 ## Install
 
-This project is available through `mavenCentral`.
-
-### Gradle Plugin
-
-#### ⚠️ Make sure to apply the plugin to the desired project/module only!
+The functionality and all features is based on the Gradle and Compiler plugin, which is available through `mavenCentral`.
 
 ```gradle
 plugins { 
-    id("dev.datlag.sekret") version "1.0.0"
+    id("dev.datlag.sekret") version "2.0.0-alpha-06"
 }
 ```
 
-### Plugin configuration
+## Why Alpha version?
 
-You can call the following after applying the plugin in your `build.gradle.kts`
+The latest version is currently in alpha stage, reflecting our adherence to versioning standards.
 
-```gradle
-sekret {
-    packageName.set("your.package.name")
-    encryptionKey.set("yourUniqueEncryption") // default is the specified packageName
-    // more configuration...
-}
-```
+While the core features are stable and fully functional, the project remains in alpha due to the ongoing development of a critical feature.
 
-## Setup
+This versioning approach ensures transparency and sets clear expectations as we finalize the remaining feature, paving the way for a stable release.
 
-The plugin will generate a separate module, since it needs to compile for native targets even if you just use Android or JVM for example.
+## Secure Logging
 
-### Add generated sekret module
+Prevent leaking credentials by using the Secret annotation.
 
-Therefore, you need to include the generated sekret module in your `settings.gradle.kts`.
+Read more [here](Logging.md)
 
-⚠️ Make sure to exclude this module by adding it to your `.gitignore`
+## Secrets
 
-```gradle
-include(":sample", ":sample:sekret")
-```
+Hide application secrets deeply (in native binaries).
 
-### Add secrets
-
-Create a `sekret.properties` file in the project/module where you applied the plugin and simply add key-value pairs.
-
-```properties
-YOUR_KEY_NAME=yourSuperSecretSecret
-OTHER_SECRET=th1s1s4n0th3rS3cr3t
-```
-
-You can change the name and location by changing the sekret configuration:
-
-```gradle
-sekret {
-  propertiesFile.set(project.layout.projectDirectory.file("my-secrets.properties"))
-}
-```
-
-⚠️ Make sure to exclude this file by adding it to your `.gitignore`
-
-### Generate secrets
-
-To generate source code for your provided secrets, just call `./gradlew generateSekret`.
-
-### Customize targets
-
-You can change the generated `build.gradle.kts` depending on your needs, just make sure to apply the required native targets:
-
-- For **Android**: `androidNativeX`
-- For **JVM**: `linuxX`, `mingwX` and `macOsX`, depending on your output platform.
-
-If you misconfigured your build script or added new targets to your base module, you can run `./gradlew sample:generateSekretBuildScript`.
-
-## Compose
-
-Make sure to configure the compose application correctly, take a look at the sample project.
-
-- If you use **Android** or **JVM** target you have to call `./gradlew createAndCopySekretNativeLibrary`.
-- If you use any **JS** target you can just use the generated `Sekret` class as is.
-
-### Load secrets in code
-
-```kotlin
-val binaryLoded = NativeLoader.loadLibrary("sekret", System.getProperty("compose.application.resources.dir")?.let { File(it) })
-
-if (binaryLoded) {
-  val yourKeyName = Sekret().yourKeyName("your-encryption-key")
-  val otherSecret = Sekret().otherSecret("your-encryption-key")
-}
-```
+Read more [here](Secrets.md)
 
 ## Support the project
 

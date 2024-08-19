@@ -22,11 +22,11 @@ class ToStringTransformer(
 ) : IrElementTransformerVoidWithContext() {
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitGetField(expression: IrGetField): IrExpression {
-        val string = expression.type.isAnyString(true)
-        val charSequence = expression.type.isAnyCharSequence(true)
-        val stringBuilder = expression.type.isAnyStringBuilder(true)
-        val appendable = expression.type.isAnyAppendable(true)
-        val stringBuffer = expression.type.isStringBuffer(true)
+        val string = expression.type.isAnyString(nullable = true)
+        val charSequence = expression.type.isAnyCharSequence(nullable = true)
+        val stringBuilder = expression.type.isAnyStringBuilder(nullable = true)
+        val appendable = expression.type.isAnyAppendable(nullable = true)
+        val stringBuffer = expression.type.isStringBuffer(nullable = true)
 
         if (string || charSequence || stringBuilder || appendable || stringBuffer) {
             val matches = runCatching {
@@ -34,9 +34,18 @@ class ToStringTransformer(
             }.getOrNull() ?: false
 
             if (matches) {
-                return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
+                if (config.secretMaskNull || !isNull(expression)) {
+                    return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
+                }
             }
         }
         return super.visitGetField(expression)
+    }
+
+    private fun isNull(expression: IrExpression): Boolean {
+        return when (expression) {
+            is IrConst<*> -> expression.value == null
+            else -> false
+        }
     }
 }
