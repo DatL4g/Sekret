@@ -26,9 +26,7 @@ open class CreateSekretNativeBinaryTask : DefaultTask() {
             val assembleTask = project.findProject("sekret")?.findMatchingTask("assemble")
             val generateTask = project.findMatchingTaskWithType<GenerateSekretTask>(GenerateSekretTask.NAME)
 
-            generateTask?.let {
-                assembleTask?.dependsOn(it) ?: mustRunAfter(it)
-            }
+            generateTask?.let { mustRunAfter(it) }
             assembleTask?.let { dependsOn(assembleTask) }
         }
     }
