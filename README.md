@@ -24,13 +24,13 @@ While the core features are stable and fully functional, the project remains in 
 
 This versioning approach ensures transparency and sets clear expectations as we finalize the remaining feature, paving the way for a stable release.
 
-## Secure Logging
+## 🔒 Secure Logging
 
 Prevent leaking credentials by using the Secret annotation.
 
 Read more [here](Logging.md)
 
-## Secrets
+## 🤐 Application Secrets
 
 Hide application secrets deeply (in native binaries).
 
