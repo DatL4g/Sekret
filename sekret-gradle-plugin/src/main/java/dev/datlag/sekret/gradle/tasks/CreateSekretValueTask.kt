@@ -26,10 +26,10 @@ open class CreateSekretValueTask : DefaultTask() {
     open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
 
     @get:Input
-    open val propertyName: Property<String> = project.objects.property(String::class.java)
+    open val key: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
-    open val propertyValue: Property<String> = project.objects.property(String::class.java)
+    open val value: Property<String> = project.objects.property(String::class.java)
 
     init {
         group = "sekret"
@@ -42,12 +42,12 @@ open class CreateSekretValueTask : DefaultTask() {
             return
         }
 
-        val name = propertyName.orNull ?: throw IllegalArgumentException("Missing property 'key'")
-        val value = propertyValue.orNull ?: throw IllegalArgumentException("Missing property 'value'")
+        val name = key.orNull ?: throw IllegalArgumentException("Missing property 'key'")
+        val data = value.orNull ?: throw IllegalArgumentException("Missing property 'value'")
         val propFile = propertiesFile.asFile.orNull ?: throw IllegalStateException("No sekret properties file found.")
         val properties = Utils.propertiesFromFile(propFile)
 
-        properties[name] = value
+        properties[name] = data
 
         Utils.saveProperties(properties, propFile)
     }
@@ -76,8 +76,8 @@ open class CreateSekretValueTask : DefaultTask() {
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
         propertiesFile.set(propertiesFile(project, extension.properties))
-        propertyName.set(project.findProperty("key")?.toString()?.ifBlank { null })
-        propertyValue.set(project.findProperty("value")?.toString()?.ifBlank { null })
+        key.set(project.findProperty("key")?.toString()?.ifBlank { null })
+        value.set(project.findProperty("value")?.toString()?.ifBlank { null })
     }
 
     companion object {
