@@ -11,9 +11,10 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.messageCollector
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.util.irMessageLogger
 import java.security.SecureRandom
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -24,8 +25,8 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         // available for jvm: ClassGeneratorExtension
-        val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-        val logger = Logger(true, messageCollector, configuration.irMessageLogger)
+        val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, configuration.messageCollector)
+        val logger = Logger(true, messageCollector)
 
         val config = Config(
             secretMask = configuration[KEY_SECRET_MASK, "***"],

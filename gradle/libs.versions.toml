@@ -1,13 +1,13 @@
 [versions]
-lib = "2.0.0-alpha-06"
-android = "8.5.2"
+lib = "2.0.0-alpha-07"
+android = "8.6.0"
 auto-service = "1.1.1"
-kotlin = "2.0.10"
+kotlin = "2.0.20"
 kotlinpoet = "1.18.1"
 publish = "0.29.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
-ksp = "2.0.10-1.0.24"
+ksp = "2.0.20-1.0.24"
 versions = "0.51.0"
 
 [libraries]

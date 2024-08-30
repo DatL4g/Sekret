@@ -8,10 +8,12 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irGetObjectValue
 import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.expressions.IrSetField
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 class ToStringTransformer(
@@ -20,6 +22,26 @@ class ToStringTransformer(
     private val logger: Logger,
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
+
+    private val fieldAssignments = mutableMapOf<IrField, Boolean>()
+
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
+    override fun visitSetField(expression: IrSetField): IrExpression {
+        if (config.secretMaskNull) {
+            return super.visitSetField(expression)
+        }
+
+        val matches = runCatching {
+            expression.symbol.owner.matchesAnyProperty(secretProperties)
+        }.getOrNull() ?: false
+
+        if (matches) {
+            fieldAssignments[expression.symbol.owner] = isNull(expression)
+        }
+
+        return super.visitSetField(expression)
+    }
+
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitGetField(expression: IrGetField): IrExpression {
         val string = expression.type.isAnyString(nullable = true)
@@ -34,7 +56,16 @@ class ToStringTransformer(
             }.getOrNull() ?: false
 
             if (matches) {
-                if (config.secretMaskNull || !isNull(expression)) {
+                val mask = if (fieldAssignments.isEmpty()) {
+                    config.secretMaskNull || !isNull(expression)
+                } else {
+                    fieldAssignments.getOrElse(expression.symbol.owner) {
+                        config.secretMaskNull || !isNull(expression)
+                    }
+                }
+
+
+                if (mask) {
                     return DeclarationIrBuilder(pluginContext, expression.symbol).irString(config.secretMask)
                 }
             }
