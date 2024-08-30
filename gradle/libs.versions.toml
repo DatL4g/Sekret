@@ -8,6 +8,7 @@ publish = "0.29.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
 ksp = "2.0.10-1.0.24"
+versions = "0.51.0"
 
 [libraries]
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
@@ -26,3 +27,4 @@ vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "publi
 gradle-plugin = { id = "dev.datlag.sekret", version.ref = "lib" }
 osdetector = { id = "com.google.osdetector", version.ref = "osdetector" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
