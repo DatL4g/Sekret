@@ -6,15 +6,19 @@ import dev.datlag.sekret.model.Config
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.jvm.ir.constantValue
 import org.jetbrains.kotlin.ir.builders.irGetObjectValue
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrConst
+import org.jetbrains.kotlin.ir.expressions.IrConstKind
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrSetField
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.util.isNullConst
 
 class ToStringTransformer(
     private val secretProperties: Collection<IrProperty>,
@@ -23,7 +27,7 @@ class ToStringTransformer(
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
 
-    private val fieldAssignments = mutableMapOf<IrField, Boolean>()
+    private val maskField = mutableMapOf<IrField, Boolean>()
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitSetField(expression: IrSetField): IrExpression {
@@ -36,7 +40,11 @@ class ToStringTransformer(
         }.getOrNull() ?: false
 
         if (matches) {
-            fieldAssignments[expression.symbol.owner] = isNull(expression)
+            runCatching {
+                expression.symbol.owner
+            }.getOrNull()?.let {
+                maskField[it] = !isNull(expression)
+            }
         }
 
         return super.visitSetField(expression)
@@ -56,12 +64,12 @@ class ToStringTransformer(
             }.getOrNull() ?: false
 
             if (matches) {
-                val mask = if (fieldAssignments.isEmpty()) {
+                val mask = if (maskField.isEmpty()) {
                     config.secretMaskNull || !isNull(expression)
                 } else {
-                    fieldAssignments.getOrElse(expression.symbol.owner) {
-                        config.secretMaskNull || !isNull(expression)
-                    }
+                    runCatching {
+                        maskField[expression.symbol.owner]
+                    }.getOrNull() ?: config.secretMaskNull || !isNull(expression)
                 }
 
 
@@ -73,9 +81,20 @@ class ToStringTransformer(
         return super.visitGetField(expression)
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun isNull(expression: IrExpression): Boolean {
         return when (expression) {
-            is IrConst<*> -> expression.value == null
+            is IrConst<*> -> {
+                expression.kind == IrConstKind.Null || expression.value == null
+            }
+            is IrSetField -> {
+                expression.value.isNullConst() || runCatching {
+                    expression.symbol.owner.constantValue()?.let {
+                        isNull(it)
+                    }
+                }.getOrNull() ?: false
+            }
+            is IrGetValue -> expression.isNullConst()
             else -> false
         }
     }
