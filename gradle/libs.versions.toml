@@ -1,9 +1,9 @@
 [versions]
-lib = "2.0.0-alpha-07"
+lib = "2.0.0-alpha-08-SNAPSHOT"
 android = "8.6.0"
 auto-service = "1.1.1"
-kotlin = "2.0.20"
-kotlinpoet = "1.18.1"
+kotlin = "2.1.0"
+kotlinpoet = "2.0.0"
 publish = "0.29.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"

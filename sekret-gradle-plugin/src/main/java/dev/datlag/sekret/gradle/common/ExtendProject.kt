@@ -29,8 +29,8 @@ internal fun Project.createSekretExtension(): SekretPluginExtension {
 
 internal val KotlinProjectExtension.allTargets: Iterable<KotlinTarget>
     get() = when (this) {
-        is KotlinSingleTargetExtension<*> -> listOf(this.target)
-        is KotlinMultiplatformExtension -> targets
+        is KotlinSingleTargetExtension<*> -> listOfNotNull(this.target)
+        is KotlinMultiplatformExtension -> this.targets
         else -> emptyList()
     }
 
@@ -38,14 +38,10 @@ internal val KotlinProjectExtension.targetsMapped: Set<Target>
     get() {
         val usedTargets = this.allTargets
         val allFlatten = listOf(
-            usedTargets.map {
-                it.targetName
-            },
-            usedTargets.map {
-                it.name
-            },
-            this.sourceSets.map {
-                it.name
+            usedTargets.map { it.targetName },
+            usedTargets.map { it.name },
+            this.sourceSets.map { it.name }.also {
+                println("Used sourceSets: $it")
             },
             when (this) {
                 is KotlinJvmProjectExtension -> listOf("jvm")
