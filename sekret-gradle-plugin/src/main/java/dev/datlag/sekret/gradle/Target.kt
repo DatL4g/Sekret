@@ -153,6 +153,8 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
         private const val ENDING_TEST = "Test"
         private const val ENDING_DEBUG = "Debug"
         private const val ENDING_RELEASE = "Release"
+        private const val ENDING_STAGING = "Staging"
+        private const val ENDING_PRODUCTION = "Production"
 
         fun fromKotlinTargets(targets: Iterable<KotlinTarget>): Set<Target> {
             val sourceTargetMapped = targets.mapNotNull { target ->
@@ -190,6 +192,10 @@ sealed class Target(open val name: String, open val sourceSet: String = name) {
                     name.substringBeforeLast(ENDING_DEBUG)
                 } else if (name.endsWith(ENDING_RELEASE)) {
                     name.substringBeforeLast(ENDING_RELEASE)
+                } else if (name.endsWith(ENDING_STAGING)) {
+                    name.substringBeforeLast(ENDING_STAGING)
+                } else if (name.endsWith(ENDING_PRODUCTION)) {
+                    name.substringBeforeLast(ENDING_PRODUCTION)
                 } else {
                     name
                 }

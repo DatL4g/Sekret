@@ -1,7 +1,7 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    `kotlin-dsl`
+    `kotlin-dsl` version "5.1.2"
     kotlin("jvm")
     id("java-gradle-plugin")
     `maven-publish`

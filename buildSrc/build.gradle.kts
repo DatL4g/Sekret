@@ -1,5 +1,5 @@
 plugins {
-    `kotlin-dsl`
+    `kotlin-dsl` version "5.1.2"
     `kotlin-dsl-precompiled-script-plugins`
 }
 

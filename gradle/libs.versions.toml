@@ -1,6 +1,6 @@
 [versions]
 lib = "2.0.0-alpha-08-SNAPSHOT"
-android = "8.6.0"
+android = "8.7.2"
 auto-service = "1.1.1"
 kotlin = "2.1.0"
 kotlinpoet = "2.0.0"
