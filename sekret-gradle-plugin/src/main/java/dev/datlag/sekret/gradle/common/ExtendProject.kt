@@ -108,9 +108,7 @@ internal val Project.targetsMapped: Set<Target>
         val allFlatten = listOf(
             usedTargets.map { it.targetName },
             usedTargets.map { it.name },
-            this.sourceSets.map { it.name }.also {
-                println("Used sourceSets: $it")
-            },
+            this.sourceSets.map { it.name },
             when (this) {
                 is KotlinJvmProjectExtension -> listOf("jvm")
                 is KotlinAndroidProjectExtension -> listOf("android")

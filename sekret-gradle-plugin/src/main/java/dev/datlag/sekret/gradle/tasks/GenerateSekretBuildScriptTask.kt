@@ -52,7 +52,9 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
             return
         }
         BuildFileGenerator.generate(
-            targets = Target.addDependingTargets(targets.get()),
+            targets = Target.addDependingTargets(
+                listOf(targets.get(), project.targetsMapped).flatten()
+            ),
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
             outputDir = ModuleGenerator.createBase(outputDir),
             overwrite = true

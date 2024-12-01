@@ -5,10 +5,6 @@ import dev.datlag.sekret.gradle.*
 import dev.datlag.sekret.gradle.Target
 import dev.datlag.sekret.gradle.common.canWriteSafely
 import dev.datlag.sekret.gradle.common.existsSafely
-import dev.datlag.sekret.gradle.common.sekretExtension
-import dev.datlag.sekret.gradle.common.targetsMapped
-import dev.datlag.sekret.gradle.extension.PropertiesExtension
-import org.gradle.api.Project
 import java.io.File
 
 object BuildFileGenerator {
