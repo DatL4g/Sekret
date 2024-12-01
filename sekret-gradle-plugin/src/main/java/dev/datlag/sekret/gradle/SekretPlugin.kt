@@ -1,7 +1,7 @@
 package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.common.createSekretExtension
-import dev.datlag.sekret.gradle.common.kotlinProjectExtension
+import dev.datlag.sekret.gradle.common.isSingleTarget
 import dev.datlag.sekret.gradle.tasks.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,28 +35,25 @@ open class SekretPlugin : Plugin<Project> {
             task.setupDependingTasks(project)
         }
 
-        when (project.kotlinProjectExtension) {
-            is KotlinSingleTargetExtension<*> -> {
-                project.dependencies {
-                    runCatching {
-                        project.findProject("sekret")
-                    }.getOrNull()?.let {
-                        add("implementation", it)
-                    }
-
-                    add("implementation", "dev.datlag.sekret:sekret:${getVersion()}")
+        if (project.isSingleTarget) {
+            project.dependencies {
+                runCatching {
+                    project.findProject("sekret")
+                }.getOrNull()?.let {
+                    add("implementation", it)
                 }
+
+                add("implementation", "dev.datlag.sekret:sekret:${getVersion()}")
             }
-            is KotlinMultiplatformExtension -> {
-                project.dependencies {
-                    runCatching {
-                        project.findProject("sekret")
-                    }.getOrNull()?.let {
-                        add("commonMainImplementation", it)
-                    }
-
-                    add("commonMainImplementation", "dev.datlag.sekret:sekret:${getVersion()}")
+        } else {
+            project.dependencies {
+                runCatching {
+                    project.findProject("sekret")
+                }.getOrNull()?.let {
+                    add("commonMainImplementation", it)
                 }
+
+                add("commonMainImplementation", "dev.datlag.sekret:sekret:${getVersion()}")
             }
         }
 
