@@ -20,7 +20,7 @@ class DeobfuscatorTransformer(
     private val pluginContext: IrPluginContext
 ) : IrElementTransformerVoidWithContext() {
 
-    override fun visitConst(expression: IrConst<*>): IrExpression {
+    override fun visitConst(expression: IrConst): IrExpression {
         val getMethod = DeobfuscatorGenerator.getFunction
         if (getMethod != null) {
             if (expression.kind == IrConstKind.String || expression.type.isAnyString()) {

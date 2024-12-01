@@ -84,7 +84,7 @@ class ToStringTransformer(
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun isNull(expression: IrExpression): Boolean {
         return when (expression) {
-            is IrConst<*> -> {
+            is IrConst -> {
                 expression.kind == IrConstKind.Null || expression.value == null
             }
             is IrSetField -> {
