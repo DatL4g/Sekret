@@ -12,7 +12,7 @@ Add the annotations dependency as follows:
 
 ```gradle
 dependencies {
-	implementation("dev.datlag.sekret:annotations:2.0.0-alpha-07")
+	implementation("dev.datlag.sekret:annotations:2.0.0-alpha-08")
 }
 ```
 

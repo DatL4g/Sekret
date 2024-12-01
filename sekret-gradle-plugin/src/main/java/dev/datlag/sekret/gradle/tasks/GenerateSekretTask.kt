@@ -66,9 +66,7 @@ open class GenerateSekretTask : DefaultTask() {
         val sekretDir = ModuleGenerator.createBase(outputDir)
         val requiredTargets = Target.addDependingTargets(
             listOf(targets.get(), project.targetsMapped).flatten()
-        ).also {
-            println("Used targets for generating: ${it.map { t -> t.name }.joinToString(", ")}")
-        }
+        )
         BuildFileGenerator.generate(
             targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
