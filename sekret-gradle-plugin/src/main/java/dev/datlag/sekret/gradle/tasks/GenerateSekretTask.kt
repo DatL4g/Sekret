@@ -74,6 +74,9 @@ open class GenerateSekretTask : DefaultTask() {
             Target.fromSourceSetNames(sourceSets.get())
         ).flatten().filterNotNull()
 
+        println("Used targets: ${allTargets.joinToString { it.name }}")
+        println("\n\n")
+
         val sekretDir = ModuleGenerator.createBase(outputDir)
         val requiredTargets = Target.addDependingTargets(allTargets)
         BuildFileGenerator.generate(
@@ -124,8 +127,12 @@ open class GenerateSekretTask : DefaultTask() {
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
-        targets.set(project.targetsMapped)
-        sourceSets.set(project.sourceSets.map { it.name })
+        targets.set(project.provider {
+            project.targetsMapped
+        })
+        sourceSets.set(project.provider {
+            project.sourceSets.map { it.name }
+        })
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(propertiesFile(project, extension.properties))

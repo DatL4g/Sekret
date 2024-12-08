@@ -76,8 +76,12 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
-        targets.set(project.targetsMapped)
-        sourceSets.set(project.sourceSets.map { it.name })
+        targets.set(project.provider {
+            project.targetsMapped
+        })
+        sourceSets.set(project.provider {
+            project.sourceSets.map { it.name }
+        })
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
     }
 
