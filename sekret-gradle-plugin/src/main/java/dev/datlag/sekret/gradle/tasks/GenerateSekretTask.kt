@@ -16,6 +16,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -40,7 +41,13 @@ open class GenerateSekretTask : DefaultTask() {
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:Input
-    open val sourceSets: SetProperty<String> = project.objects.setProperty(String::class.java)
+    open val hasVersionCatalogs: Property<Boolean> = project.objects.property(Boolean::class.java)
+
+    @get:Input
+    open val usesVersionCatalogForPlugin: Property<Boolean> = project.objects.property(Boolean::class.java)
+
+    @get:Input
+    open val versionCatalogLibraryAlias: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)
@@ -65,22 +72,27 @@ open class GenerateSekretTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        println("Running generateSekret")
         if (!enabled.getOrElse(false)) {
-            println("Plugin not enabled, skipping")
             return
         }
 
-        val allTargets = listOf(
-            targets.get(),
-            Target.fromSourceSetNames(sourceSets.get())
-        ).flatten().filterNotNull()
-
-        println("Used targets: ${allTargets.joinToString { it.name }}")
-        println("\n\n")
-
         val sekretDir = ModuleGenerator.createBase(outputDir)
-        val requiredTargets = Target.addDependingTargets(allTargets)
+        val usedTargets = targets.get()
+        val requiredTargets = Target.addDependingTargets(usedTargets)
+        val logLevel = if (usedTargets.size <= 1) {
+            LogLevel.WARN
+        } else {
+            LogLevel.INFO
+        }
+
+        logger.log(logLevel, "Following targets in use detected: ${usedTargets.joinToString { it.name }}.")
+        logger.log(logLevel, "Following targets are used/required depending on your configuration: ${requiredTargets.joinToString { it.name }}.")
+        logger.log(logLevel, "Please report if you encounter any missing target.")
+
+        logger.log(LogLevel.WARN, "Has Version catalogs: ${hasVersionCatalogs.getOrElse(false)}")
+        logger.log(LogLevel.WARN, "Uses VersionCatalog for Plugin: ${usesVersionCatalogForPlugin.getOrElse(false)}")
+        logger.log(LogLevel.WARN, "Sekret VersionCatalog library alias: ${versionCatalogLibraryAlias.orNull}")
+
         BuildFileGenerator.generate(
             targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
@@ -132,9 +144,9 @@ open class GenerateSekretTask : DefaultTask() {
         targets.set(project.provider {
             project.targetsMapped
         })
-        sourceSets.set(project.provider {
-            project.sourceSets.map { it.name }
-        })
+        hasVersionCatalogs.set(project.hasVersionCatalogs)
+        usesVersionCatalogForPlugin.set(project.hasSekretVersionCatalog)
+        versionCatalogLibraryAlias.set(project.sekretVersionCatalog?.sekretLibraryAlias)
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(propertiesFile(project, extension.properties))

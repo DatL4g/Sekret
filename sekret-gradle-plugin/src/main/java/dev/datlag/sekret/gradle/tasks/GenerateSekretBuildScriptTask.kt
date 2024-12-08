@@ -14,6 +14,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -36,9 +37,6 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
     @get:Input
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
-    @get:Input
-    open val sourceSets: SetProperty<String> = project.objects.setProperty(String::class.java)
-
     @get:OutputDirectory
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -60,13 +58,20 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
             return
         }
 
-        val allTargets = listOf(
-            targets.get(),
-            Target.fromSourceSetNames(sourceSets.get())
-        ).flatten().filterNotNull()
+        val usedTargets = targets.get()
+        val requiredTargets = Target.addDependingTargets(usedTargets)
+        val logLevel = if (usedTargets.size <= 1) {
+            LogLevel.WARN
+        } else {
+            LogLevel.INFO
+        }
+
+        logger.log(logLevel, "Following targets in use detected: ${usedTargets.joinToString { it.name }}.")
+        logger.log(logLevel, "Following targets are used/required depending on your configuration: ${requiredTargets.joinToString { it.name }}.")
+        logger.log(logLevel, "Please report if you encounter any missing target.")
 
         BuildFileGenerator.generate(
-            targets = Target.addDependingTargets(allTargets),
+            targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
             outputDir = ModuleGenerator.createBase(outputDir),
             overwrite = true
@@ -78,9 +83,6 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
         packageName.set(extension.properties.packageName)
         targets.set(project.provider {
             project.targetsMapped
-        })
-        sourceSets.set(project.provider {
-            project.sourceSets.map { it.name }
         })
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
     }
