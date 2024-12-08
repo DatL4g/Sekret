@@ -41,10 +41,7 @@ open class GenerateSekretTask : DefaultTask() {
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:Input
-    open val hasVersionCatalogs: Property<Boolean> = project.objects.property(Boolean::class.java)
-
-    @get:Input
-    open val usesVersionCatalogForPlugin: Property<Boolean> = project.objects.property(Boolean::class.java)
+    open val versionCatalogName: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
     open val versionCatalogLibraryAlias: Property<String> = project.objects.property(String::class.java)
@@ -89,13 +86,14 @@ open class GenerateSekretTask : DefaultTask() {
         logger.log(logLevel, "Following targets are used/required depending on your configuration: ${requiredTargets.joinToString { it.name }}.")
         logger.log(logLevel, "Please report if you encounter any missing target.")
 
-        logger.log(LogLevel.WARN, "Has Version catalogs: ${hasVersionCatalogs.getOrElse(false)}")
-        logger.log(LogLevel.WARN, "Uses VersionCatalog for Plugin: ${usesVersionCatalogForPlugin.getOrElse(false)}")
-        logger.log(LogLevel.WARN, "Sekret VersionCatalog library alias: ${versionCatalogLibraryAlias.orNull}")
-
         BuildFileGenerator.generate(
             targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
+            versionCatalogSekretDependency = versionCatalogLibraryAlias.orNull?.ifBlank { null }?.let { lib ->
+                versionCatalogName.orNull?.ifBlank { null }?.let { catalog ->
+                    "${catalog}.${lib}"
+                }
+            },
             outputDir = sekretDir,
             overwrite = false
         )
@@ -141,12 +139,18 @@ open class GenerateSekretTask : DefaultTask() {
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
+
+        // Provider values are resolved lazily
         targets.set(project.provider {
             project.targetsMapped
         })
-        hasVersionCatalogs.set(project.hasVersionCatalogs)
-        usesVersionCatalogForPlugin.set(project.hasSekretVersionCatalog)
-        versionCatalogLibraryAlias.set(project.sekretVersionCatalog?.sekretLibraryAlias)
+        versionCatalogName.set(project.provider {
+            project.sekretVersionCatalog?.name
+        })
+        versionCatalogLibraryAlias.set(project.provider {
+            project.sekretVersionCatalog?.sekretLibraryAlias
+        })
+
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(propertiesFile(project, extension.properties))
