@@ -40,7 +40,7 @@ open class GenerateSekretTask : DefaultTask() {
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:Input
-    open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
+    open val sourceSets: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)

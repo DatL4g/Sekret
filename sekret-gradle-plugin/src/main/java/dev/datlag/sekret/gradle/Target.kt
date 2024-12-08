@@ -1,6 +1,5 @@
 package dev.datlag.sekret.gradle
 
-import org.gradle.internal.impldep.kotlinx.serialization.Serializable as GradleSerializable
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -11,159 +10,125 @@ import org.gradle.api.Named
 import java.io.Serializable as JvmSerializable
 
 @Serializable
-@GradleSerializable
 sealed class Target(open val title: String, open val sourceSet: String = title) : JvmSerializable, Named {
 
     override fun getName(): String = title
 
-    @GradleSerializable
     sealed class Android(
         override val title: String,
         override val sourceSet: String = title
     ) : Target(title, sourceSet), JvmSerializable, Named {
 
-        @GradleSerializable
         object NATIVE_32 : Android("androidNativeX86"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_64 : Android("androidNativeX64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_32 : Android("androidNativeArm32"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_64 : Android("androidNativeArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object JVM : Android("androidTarget", "android"), JvmSerializable, Named {
             override val requiredPlugin: String = "com.android.library"
         }
     }
 
     @Serializable
-    @GradleSerializable
     sealed interface Apple : JvmSerializable, Named
 
-    @GradleSerializable
     sealed class Desktop(
         override val title: String
     ) : Target(title), JvmSerializable, Named {
 
-        @GradleSerializable
         sealed class Linux(override val title: String) : Desktop(title), JvmSerializable, Named {
 
-            @GradleSerializable
             object NATIVE_64 : Linux("linuxX64"), JvmSerializable, Named {
                 override val isNative: Boolean = true
             }
 
-            @GradleSerializable
             object NATIVE_ARM_64 : Linux("linuxArm64"), JvmSerializable, Named {
                 override val isNative: Boolean = true
             }
         }
 
-        @GradleSerializable
         sealed class Mac(override val title: String) : Desktop(title), Apple, JvmSerializable, Named {
 
-            @GradleSerializable
             object NATIVE_64 : Mac("macosX64"), JvmSerializable, Named {
                 override val isNative: Boolean = true
             }
 
-            @GradleSerializable
             object NATIVE_ARM_64 : Mac("macosArm64"), JvmSerializable, Named {
                 override val isNative: Boolean = true
             }
         }
 
-        @GradleSerializable
         object Windows : Desktop("mingwX64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object JVM : Desktop("jvm"), JvmSerializable, Named
     }
 
-    @GradleSerializable
     sealed class JS(override val title: String) : Target(title), JvmSerializable, Named {
 
-        @GradleSerializable
         object Default : JS("js"), JvmSerializable, Named
 
-        @GradleSerializable
         object WASM : JS("wasmJs"), JvmSerializable, Named
 
-        @GradleSerializable
         object WASI : JS("wasmWasi"), JvmSerializable, Named
     }
 
-    @GradleSerializable
     sealed class IOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
-        @GradleSerializable
         object NATIVE_64 : IOS("iosX64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_64 : IOS("iosArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_SIMULATOR_ARM_64 : IOS("iosSimulatorArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
     }
 
-    @GradleSerializable
     sealed class TVOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
-        @GradleSerializable
         object NATIVE_64 : TVOS("tvosX64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_64 : TVOS("tvosArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_SIMULATOR_ARM_64 : TVOS("tvosSimulatorArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
     }
 
-    @GradleSerializable
     sealed class WATCHOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
-        @GradleSerializable
         object NATIVE_64 : WATCHOS("watchosX64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_32 : WATCHOS("watchosArm32"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_ARM_64 : WATCHOS("watchosArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }
 
-        @GradleSerializable
         object NATIVE_SIMULATOR_ARM_64 : WATCHOS("watchosSimulatorArm64"), JvmSerializable, Named {
             override val isNative: Boolean = true
         }

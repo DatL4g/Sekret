@@ -34,10 +34,10 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
     open val packageName: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
-    open val targets: ListProperty<Target> = project.objects.listProperty(Target::class.java)
+    open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:Input
-    open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
+    open val sourceSets: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     @get:OutputDirectory
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
