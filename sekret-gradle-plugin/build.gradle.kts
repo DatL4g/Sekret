@@ -7,6 +7,7 @@ plugins {
     `maven-publish`
     signing
     alias(libs.plugins.vanniktech.publish)
+    alias(libs.plugins.serialization)
 }
 
 val artifact = VersionCatalog.artifactName()
@@ -18,6 +19,7 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlin.poet)
     implementation(libs.kase.change)
+    implementation(libs.serialization)
 }
 
 val generateVersion = tasks.create("generateVersion") {

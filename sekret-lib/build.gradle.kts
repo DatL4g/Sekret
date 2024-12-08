@@ -1,5 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -38,19 +38,20 @@ kotlin {
     jniTargets.forEach { target ->
         target.compilations.getByName("main") {
             cinterops {
-                val sekret by creating {
+                create("sekret") {
                     val javaDefaultHome = System.getProperty("java.home")
-                    val javaEnvHome = System.getenv("JAVA_HOME")
+                    val javaEnvHome = getSystemJavaHome()
 
                     packageName("dev.datlag.sekret")
 
                     includeDirs.allHeaders(
+                        // Gradle or IDE specified Java Home
                         File(javaDefaultHome, "include"),
                         File(javaDefaultHome, "include/darwin"),
                         File(javaDefaultHome, "include/linux"),
-                        File(javaDefaultHome, "include/win32")
-                    )
-                    includeDirs.allHeaders(
+                        File(javaDefaultHome, "include/win32"),
+
+                        // System set Java Home
                         File(javaEnvHome, "include"),
                         File(javaEnvHome, "include/darwin"),
                         File(javaEnvHome, "include/linux"),
@@ -194,6 +195,12 @@ fun getHost(): Host {
                 else -> throw IllegalStateException("Unknown OS: ${osdetector.classifier}")
             }
         }
+    }
+}
+
+fun getSystemJavaHome(): String? {
+    return System.getenv("JAVA_HOME")?.ifBlank { null } ?: System.getProperty("user.home")?.ifBlank { null }?.let {
+        "$it/.sdkman/candidates/java/current"
     }
 }
 

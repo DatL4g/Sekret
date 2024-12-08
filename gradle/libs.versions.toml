@@ -1,13 +1,14 @@
 [versions]
-lib = "2.0.0-alpha-08"
-android = "8.7.2"
+lib = "2.0.0-alpha-09-SNAPSHOT"
+android = "8.4.2"
 auto-service = "1.1.1"
 kotlin = "2.1.0"
 kotlinpoet = "2.0.0"
 publish = "0.29.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
-ksp = "2.0.20-1.0.24"
+ksp = "2.1.0-1.0.29"
+serialization = "1.7.3"
 versions = "0.51.0"
 
 [libraries]
@@ -19,6 +20,7 @@ kotlin-poet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref
 kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "android" }
@@ -27,4 +29,5 @@ vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "publi
 gradle-plugin = { id = "dev.datlag.sekret", version.ref = "lib" }
 osdetector = { id = "com.google.osdetector", version.ref = "osdetector" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }

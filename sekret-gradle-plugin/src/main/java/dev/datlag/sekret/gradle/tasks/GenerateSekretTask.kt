@@ -16,12 +16,15 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import java.io.File
 import javax.inject.Inject
 
@@ -35,6 +38,12 @@ open class GenerateSekretTask : DefaultTask() {
 
     @get:Input
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
+
+    @get:Input
+    open val kotlinTargets: ListProperty<KotlinTarget> = project.objects.listProperty(KotlinTarget::class.java)
+
+    @get:Input
+    open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)
@@ -63,10 +72,14 @@ open class GenerateSekretTask : DefaultTask() {
             return
         }
 
+        val allTargets = listOf(
+            targets.get(),
+            Target.fromKotlinTargets(kotlinTargets.get()),
+            Target.fromSourceSetNames(sourceSets.get())
+        ).flatten().filterNotNull()
+
         val sekretDir = ModuleGenerator.createBase(outputDir)
-        val requiredTargets = Target.addDependingTargets(
-            listOf(targets.get(), project.targetsMapped).flatten()
-        )
+        val requiredTargets = Target.addDependingTargets(allTargets)
         BuildFileGenerator.generate(
             targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
@@ -116,6 +129,8 @@ open class GenerateSekretTask : DefaultTask() {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
         targets.set(project.targetsMapped)
+        kotlinTargets.set(project.allTargets)
+        sourceSets.set(project.sourceSets.map { it.name })
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(propertiesFile(project, extension.properties))

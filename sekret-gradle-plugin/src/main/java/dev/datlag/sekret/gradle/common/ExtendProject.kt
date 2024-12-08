@@ -55,7 +55,7 @@ private val KotlinProjectExtension.allTargets: List<KotlinTarget>
         else -> emptyList()
     }
 
-private val Project.allTargets: Iterable<KotlinTarget>
+internal val Project.allTargets: Iterable<KotlinTarget>
     get() {
         val projectTargets = kotlinProjectExtension?.allTargets
         val multiTargets = listOfNotNull(
@@ -87,7 +87,7 @@ private val Project.allTargets: Iterable<KotlinTarget>
         ).flatten()
     }
 
-private val Project.sourceSets: Iterable<KotlinSourceSet>
+internal val Project.sourceSets: Iterable<KotlinSourceSet>
     get() {
         return setOfNotNull(
             kotlinProjectExtension?.sourceSets,
@@ -104,22 +104,9 @@ private val Project.sourceSets: Iterable<KotlinSourceSet>
 
 internal val Project.targetsMapped: Set<Target>
     get() {
-        val usedTargets = this.allTargets
-        val allFlatten = listOf(
-            usedTargets.map { it.targetName },
-            usedTargets.map { it.name },
-            this.sourceSets.map { it.name },
-            when (this) {
-                is KotlinJvmProjectExtension -> listOf("jvm")
-                is KotlinAndroidProjectExtension -> listOf("android")
-                is KotlinJsProjectExtension, is Kotlin2JsProjectExtension -> listOf("js")
-                else -> emptyList()
-            }
-        ).flatten()
-
         return setOf(
-            Target.fromKotlinTargets(usedTargets),
-            Target.fromSourceSetNames(allFlatten)
+            Target.fromKotlinTargets(allTargets),
+            Target.fromSourceSetNames(sourceSets.map { it.name })
         ).flatten().toSet()
     }
 

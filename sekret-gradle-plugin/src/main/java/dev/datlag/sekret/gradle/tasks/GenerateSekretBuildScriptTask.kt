@@ -3,7 +3,9 @@ package dev.datlag.sekret.gradle.tasks
 import dev.datlag.sekret.gradle.SekretPlugin
 import dev.datlag.sekret.gradle.SekretPluginExtension
 import dev.datlag.sekret.gradle.Target
+import dev.datlag.sekret.gradle.common.allTargets
 import dev.datlag.sekret.gradle.common.sekretExtension
+import dev.datlag.sekret.gradle.common.sourceSets
 import dev.datlag.sekret.gradle.common.targetsMapped
 import dev.datlag.sekret.gradle.extension.PropertiesExtension
 import dev.datlag.sekret.gradle.generator.BuildFileGenerator
@@ -12,11 +14,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import java.io.File
 import javax.inject.Inject
 
@@ -29,7 +34,13 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
     open val packageName: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
-    open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
+    open val targets: ListProperty<Target> = project.objects.listProperty(Target::class.java)
+
+    @get:Input
+    open val kotlinTargets: ListProperty<KotlinTarget> = project.objects.listProperty(KotlinTarget::class.java)
+
+    @get:Input
+    open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     @get:OutputDirectory
     open val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
@@ -51,10 +62,15 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
         if (!enabled.getOrElse(false)) {
             return
         }
+
+        val allTargets = listOf(
+            targets.get(),
+            Target.fromKotlinTargets(kotlinTargets.get()),
+            Target.fromSourceSetNames(sourceSets.get())
+        ).flatten().filterNotNull()
+
         BuildFileGenerator.generate(
-            targets = Target.addDependingTargets(
-                listOf(targets.get(), project.targetsMapped).flatten()
-            ),
+            targets = Target.addDependingTargets(allTargets),
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
             outputDir = ModuleGenerator.createBase(outputDir),
             overwrite = true
@@ -65,6 +81,8 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
         targets.set(project.targetsMapped)
+        kotlinTargets.set(project.allTargets)
+        sourceSets.set(project.sourceSets.map { it.name })
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
     }
 
