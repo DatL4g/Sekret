@@ -70,16 +70,16 @@ object BuildFileGenerator {
 
         sourceSets.forEach { target ->
             spec = if (target.isNative) {
-                spec.beginControlFlow(target.name)
+                spec.beginControlFlow(target.title)
                     .beginControlFlow("binaries")
                     .addStatement("sharedLib()")
                     .endControlFlow()
                     .endControlFlow()
             } else {
                 if (target is Target.JS.Default) {
-                    spec.addStatement("${target.name}(IR)")
+                    spec.addStatement("${target.title}(IR)")
                 } else {
-                    spec.addStatement("${target.name}()")
+                    spec.addStatement("${target.title}()")
                 }
             }
         }

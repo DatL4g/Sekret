@@ -12,15 +12,15 @@ import java.io.Serializable as JvmSerializable
 
 @Serializable
 @GradleSerializable
-sealed class Target(open val name: String, open val sourceSet: String = name) : JvmSerializable, Named {
+sealed class Target(open val title: String, open val sourceSet: String = title) : JvmSerializable, Named {
 
-    override fun getName(): String = name
+    override fun getName(): String = title
 
     @GradleSerializable
     sealed class Android(
-        override val name: String,
-        override val sourceSet: String = name
-    ) : Target(name, sourceSet), JvmSerializable, Named {
+        override val title: String,
+        override val sourceSet: String = title
+    ) : Target(title, sourceSet), JvmSerializable, Named {
 
         @GradleSerializable
         object NATIVE_32 : Android("androidNativeX86"), JvmSerializable, Named {
@@ -54,11 +54,11 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
 
     @GradleSerializable
     sealed class Desktop(
-        override val name: String
-    ) : Target(name), JvmSerializable, Named {
+        override val title: String
+    ) : Target(title), JvmSerializable, Named {
 
         @GradleSerializable
-        sealed class Linux(override val name: String) : Desktop(name), JvmSerializable, Named {
+        sealed class Linux(override val title: String) : Desktop(title), JvmSerializable, Named {
 
             @GradleSerializable
             object NATIVE_64 : Linux("linuxX64"), JvmSerializable, Named {
@@ -72,7 +72,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
         }
 
         @GradleSerializable
-        sealed class Mac(override val name: String) : Desktop(name), Apple, JvmSerializable, Named {
+        sealed class Mac(override val title: String) : Desktop(title), Apple, JvmSerializable, Named {
 
             @GradleSerializable
             object NATIVE_64 : Mac("macosX64"), JvmSerializable, Named {
@@ -95,7 +95,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
     }
 
     @GradleSerializable
-    sealed class JS(override val name: String) : Target(name), JvmSerializable, Named {
+    sealed class JS(override val title: String) : Target(title), JvmSerializable, Named {
 
         @GradleSerializable
         object Default : JS("js"), JvmSerializable, Named
@@ -108,7 +108,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
     }
 
     @GradleSerializable
-    sealed class IOS(override val name: String) : Target(name), Apple, JvmSerializable, Named {
+    sealed class IOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
         @GradleSerializable
         object NATIVE_64 : IOS("iosX64"), JvmSerializable, Named {
@@ -127,7 +127,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
     }
 
     @GradleSerializable
-    sealed class TVOS(override val name: String) : Target(name), Apple, JvmSerializable, Named {
+    sealed class TVOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
         @GradleSerializable
         object NATIVE_64 : TVOS("tvosX64"), JvmSerializable, Named {
@@ -146,7 +146,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
     }
 
     @GradleSerializable
-    sealed class WATCHOS(override val name: String) : Target(name), Apple, JvmSerializable, Named {
+    sealed class WATCHOS(override val title: String) : Target(title), Apple, JvmSerializable, Named {
 
         @GradleSerializable
         object NATIVE_64 : WATCHOS("watchosX64"), JvmSerializable, Named {
@@ -212,7 +212,7 @@ sealed class Target(open val name: String, open val sourceSet: String = name) : 
         get() = this is WATCHOS
 
     fun matchesName(name: String): Boolean {
-        return this.name.equals(name, true) || this.sourceSet.equals(name, true)
+        return this.title.equals(name, true) || this.sourceSet.equals(name, true)
     }
 
     companion object {
