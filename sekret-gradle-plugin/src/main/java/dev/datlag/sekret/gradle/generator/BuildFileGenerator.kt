@@ -13,7 +13,6 @@ object BuildFileGenerator {
         version: String = SekretPlugin.getVersion(),
         targets: Iterable<Target>,
         packageName: String,
-        versionCatalogSekretDependency: String?,
         outputDir: File,
         overwrite: Boolean = false
     ) {
@@ -23,7 +22,6 @@ object BuildFileGenerator {
             .addSourceSets(
                 version = version,
                 commonJS = targets.any { it.isJS },
-                versionCatalogSekretDependency = versionCatalogSekretDependency,
                 sourceSets = targets.toSet()
             )
             .endControlFlow()
@@ -64,7 +62,6 @@ object BuildFileGenerator {
     private fun FileSpec.Builder.addSourceSets(
         version: String,
         commonJS: Boolean,
-        versionCatalogSekretDependency: String?,
         sourceSets: Set<Target>
     ): FileSpec.Builder {
         var spec = this
@@ -93,7 +90,7 @@ object BuildFileGenerator {
         spec = spec.beginControlFlow("sourceSets")
 
         spec = spec.beginControlFlow("commonMain.dependencies")
-        spec = spec.addStatement("api(%S)", versionCatalogSekretDependency ?: "dev.datlag.sekret:sekret:$version")
+        spec = spec.addStatement("api(%S)", "dev.datlag.sekret:sekret:$version")
         spec = spec.endControlFlow()
         spec = spec.addStatement("")
 

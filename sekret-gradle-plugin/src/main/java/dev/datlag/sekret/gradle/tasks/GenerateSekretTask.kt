@@ -17,15 +17,12 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.LogLevel
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import java.io.File
 import javax.inject.Inject
 
@@ -39,12 +36,6 @@ open class GenerateSekretTask : DefaultTask() {
 
     @get:Input
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
-
-    @get:Input
-    open val versionCatalogName: Property<String> = project.objects.property(String::class.java)
-
-    @get:Input
-    open val versionCatalogLibraryAlias: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
     open val encryptionKey: Property<String> = project.objects.property(String::class.java)
@@ -89,11 +80,6 @@ open class GenerateSekretTask : DefaultTask() {
         BuildFileGenerator.generate(
             targets = requiredTargets,
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
-            versionCatalogSekretDependency = versionCatalogLibraryAlias.orNull?.ifBlank { null }?.let { lib ->
-                versionCatalogName.orNull?.ifBlank { null }?.let { catalog ->
-                    "${catalog}.${lib}"
-                }
-            },
             outputDir = sekretDir,
             overwrite = false
         )
@@ -143,12 +129,6 @@ open class GenerateSekretTask : DefaultTask() {
         // Provider values are resolved lazily
         targets.set(project.provider {
             project.targetsMapped
-        })
-        versionCatalogName.set(project.provider {
-            project.sekretVersionCatalog?.name
-        })
-        versionCatalogLibraryAlias.set(project.provider {
-            project.sekretVersionCatalog?.sekretLibraryAlias
         })
 
         encryptionKey.set(extension.properties.encryptionKey)
