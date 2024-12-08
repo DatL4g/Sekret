@@ -65,7 +65,9 @@ open class GenerateSekretTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        println("Running generateSekret")
         if (!enabled.getOrElse(false)) {
+            println("Plugin not enabled, skipping")
             return
         }
 
