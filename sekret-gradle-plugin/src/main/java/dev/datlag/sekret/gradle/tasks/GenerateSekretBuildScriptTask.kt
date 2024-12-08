@@ -37,9 +37,6 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
     open val targets: ListProperty<Target> = project.objects.listProperty(Target::class.java)
 
     @get:Input
-    open val kotlinTargets: ListProperty<KotlinTarget> = project.objects.listProperty(KotlinTarget::class.java)
-
-    @get:Input
     open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     @get:OutputDirectory
@@ -65,7 +62,6 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
 
         val allTargets = listOf(
             targets.get(),
-            Target.fromKotlinTargets(kotlinTargets.get()),
             Target.fromSourceSetNames(sourceSets.get())
         ).flatten().filterNotNull()
 
@@ -81,7 +77,6 @@ open class GenerateSekretBuildScriptTask : DefaultTask() {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
         targets.set(project.targetsMapped)
-        kotlinTargets.set(project.allTargets)
         sourceSets.set(project.sourceSets.map { it.name })
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
     }

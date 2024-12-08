@@ -40,9 +40,6 @@ open class GenerateSekretTask : DefaultTask() {
     open val targets: SetProperty<Target> = project.objects.setProperty(Target::class.java)
 
     @get:Input
-    open val kotlinTargets: ListProperty<KotlinTarget> = project.objects.listProperty(KotlinTarget::class.java)
-
-    @get:Input
     open val sourceSets: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     @get:Input
@@ -74,7 +71,6 @@ open class GenerateSekretTask : DefaultTask() {
 
         val allTargets = listOf(
             targets.get(),
-            Target.fromKotlinTargets(kotlinTargets.get()),
             Target.fromSourceSetNames(sourceSets.get())
         ).flatten().filterNotNull()
 
@@ -129,7 +125,6 @@ open class GenerateSekretTask : DefaultTask() {
         enabled.set(extension.properties.enabled)
         packageName.set(extension.properties.packageName)
         targets.set(project.targetsMapped)
-        kotlinTargets.set(project.allTargets)
         sourceSets.set(project.sourceSets.map { it.name })
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
