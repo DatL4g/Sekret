@@ -79,7 +79,7 @@ class JNIGenerator(
                     .addAnnotation(JvmStatic::class)
                     .addModifiers(KModifier.PRIVATE)
                     .returns(Utils.encryptedSecret.copy(nullable = true))
-                    .addStatement("return _${key}Encrypted()?.let(%L)", Utils.encryptedSecret.member("invoke"))
+                    .addStatement("return _${key}Encrypted()?.let(%L)", Utils.encryptedSecret.member("invoke").reference())
                     .build()
             )
         }

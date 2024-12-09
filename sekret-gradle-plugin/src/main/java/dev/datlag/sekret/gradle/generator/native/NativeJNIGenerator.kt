@@ -45,7 +45,7 @@ class NativeJNIGenerator(
                     .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
                     .addAnnotation(
                         AnnotationSpec.builder(C.cname)
-                            .addMember("%S", "Java_${Utils.packageNameCSave(settings.packageName)}_Sekret__${key}Encrypted")
+                            .addMember("%S", "Java_${Utils.packageNameCSave(settings.packageName)}_Sekret__1${key}Encrypted")
                             .build()
                     )
                     .addParameter("env", C.pointer.parameterizedBy(JNI.jniEnvVar(JNI_PACKAGE_NAME)))
