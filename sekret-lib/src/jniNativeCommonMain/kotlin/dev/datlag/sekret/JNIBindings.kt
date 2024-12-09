@@ -24,6 +24,9 @@ typealias jCharVar = UShortVarOf<jChar>
 
 typealias jInt = int32_t
 
+@OptIn(ExperimentalForeignApi::class)
+typealias jIntArray = CPointer<out CPointed>
+
 typealias jSize = jInt
 
 typealias jBoolean = uint8_t

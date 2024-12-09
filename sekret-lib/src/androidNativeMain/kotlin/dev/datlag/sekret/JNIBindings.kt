@@ -4,12 +4,28 @@ import kotlinx.cinterop.*
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun CPointer<JNIEnvVar>.newString(chars: CPointer<jCharVar>, length: Int): jString? {
-    val method = pointed.pointed?.NewString ?: error("Could not find NewString method in JNI")
+    val method = pointed.pointed?.NewString ?: return null
     return method.invoke(this, chars, length)
 }
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun jString.getStringUTFChars(env: CPointer<JNIEnvVar>): CPointer<ByteVar>? {
-    val method = env.pointed.pointed?.GetStringUTFChars ?: error("Could not find GetStringUTFChars method in JNI")
+    val method = env.pointed.pointed?.GetStringUTFChars ?: return null
     return method.invoke(env, this, null)
+}
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun CPointer<JNIEnvVar>.newIntArray(size: Int): jIntArray? {
+    val method = pointed.pointed?.NewIntArray ?: return null
+    return method.invoke(this, size)
+}
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun CPointer<JNIEnvVar>.fill(target: jIntArray, value: IntArray): jIntArray? {
+    val method = pointed.pointed?.SetIntArrayRegion ?: return null
+    value.usePinned { pinnedArray ->
+        val pointer = pinnedArray.addressOf(0)
+        method.invoke(this, target, 0, value.size, pointer)
+    }
+    return target
 }

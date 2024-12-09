@@ -11,6 +11,6 @@ public fun SekretHelper.getNativeValue(
     key: jString,
     env: CPointer<JNIEnvVar>
 ): jString? {
-    val obfuscator = key.getString(env)
+    val obfuscator = key.getString(env) ?: return null
     return SekretHelper.getNativeValue(secret, obfuscator).toJString(env)
 }
