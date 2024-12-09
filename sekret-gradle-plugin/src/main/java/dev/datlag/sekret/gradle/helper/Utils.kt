@@ -8,6 +8,9 @@ import java.util.*
 
 object Utils {
 
+    val encryptedSecret = ClassName("dev.datlag.sekret", "EncryptedSecret")
+    val sekretConfig = ClassName("dev.datlag.sekret", "SekretConfig")
+
     fun packageNameToFolderStructure(packageName: String): String {
         return packageName.replace(".", File.pathSeparator?.ifBlank { null } ?: "/")
     }

@@ -8,6 +8,7 @@ plugins {
     signing
     alias(libs.plugins.vanniktech.publish)
     alias(libs.plugins.osdetector)
+    alias(libs.plugins.serialization)
 }
 
 val artifact = VersionCatalog.artifactName()
@@ -106,6 +107,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":sekret-annotations"))
+            implementation(libs.serialization)
         }
 
         val jniNativeMain by creating {

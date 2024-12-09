@@ -3,6 +3,7 @@ package dev.datlag.sekret.gradle.generator.nonNative
 import com.squareup.kotlinpoet.*
 import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.generator.SekretGenerator
+import dev.datlag.sekret.gradle.helper.Utils
 import dev.datlag.sekret.gradle.keys
 import java.io.File
 
@@ -22,7 +23,31 @@ class CommonGenerator(
                 FunSpec.builder(key)
                     .addModifiers(KModifier.EXPECT)
                     .addParameter("key", String::class)
-                    .returns(String::class.asClassName().copy(nullable = true))
+                    .addParameter(
+                        ParameterSpec.builder(
+                            name = "config",
+                            LambdaTypeName.get(
+                                receiver = Utils.sekretConfig.nestedClass("Builder"),
+                                returnType = Unit::class.asTypeName()
+                            )
+                        ).build()
+                    )
+                    .returns(String::class.asTypeName().copy(nullable = true))
+                    .build()
+            ).addFunction(
+                FunSpec.builder(key)
+                    .addModifiers(KModifier.EXPECT)
+                    .addParameter("key", String::class)
+                    .addParameter(
+                        ParameterSpec.builder(
+                            name = "config",
+                            Utils.sekretConfig
+                        ).defaultValue(
+                            "%T()",
+                            Utils.sekretConfig
+                        ).build()
+                    )
+                    .returns(String::class.asTypeName().copy(nullable = true))
                     .build()
             )
         }

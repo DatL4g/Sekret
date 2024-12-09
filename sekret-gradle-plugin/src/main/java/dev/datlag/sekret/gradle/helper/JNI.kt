@@ -12,6 +12,7 @@ object JNI {
 
     private const val LIBRARY_J_STRING = "jString"
     private const val LIBRARY_J_OBJECT = "jObject"
+    private const val LIBRARY_J_IntArray = "jIntArray"
 
     private const val LIBRARY_SEKRET_HELPER = "SekretHelper"
 
@@ -24,9 +25,12 @@ object JNI {
 
     fun getNativeValue(packageName: String) = MemberName(sekretHelper(packageName), "getNativeValue")
     fun getExtensionNativeValue(packageName: String) = MemberName(packageName, "getNativeValue")
+    fun newIntArray(packageName: String) = MemberName(packageName, "newIntArray")
+    fun fillTarget(packageName: String) = MemberName(packageName, "fill")
 
     fun libraryJString(packageName: String) = ClassName(packageName, LIBRARY_J_STRING)
     fun libraryJObject(packageName: String) = ClassName(packageName, LIBRARY_J_OBJECT)
+    fun libraryJIntArray(packageName: String) = ClassName(packageName, LIBRARY_J_IntArray)
 
     sealed class Error(private val msg: String) {
         object NewString : Error("Could not find NewString method in JNI")

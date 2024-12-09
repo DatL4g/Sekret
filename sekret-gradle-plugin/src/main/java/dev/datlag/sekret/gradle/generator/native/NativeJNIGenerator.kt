@@ -22,11 +22,11 @@ class NativeJNIGenerator(
 
         encodedProperties.forEach { (key, secret) ->
             spec.addFunction(
-                FunSpec.builder(key)
+                FunSpec.builder("${key}Decrypted")
                     .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
                     .addAnnotation(
                         AnnotationSpec.builder(C.cname)
-                            .addMember("%S", "Java_${Utils.packageNameCSave(settings.packageName)}_Sekret_$key")
+                            .addMember("%S", "Java_${Utils.packageNameCSave(settings.packageName)}_Sekret_${key}Decrypted")
                             .build()
                     )
                     .addParameter("env", C.pointer.parameterizedBy(JNI.jniEnvVar(JNI_PACKAGE_NAME)))
@@ -39,6 +39,24 @@ class NativeJNIGenerator(
                         JNI.sekretHelper(JNI_PACKAGE_NAME),
                         JNI.getExtensionNativeValue(JNI_PACKAGE_NAME)
                     )
+                    .build()
+            ).addFunction(
+                FunSpec.builder("_${key}Encrypted")
+                    .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
+                    .addAnnotation(
+                        AnnotationSpec.builder(C.cname)
+                            .addMember("%S", "Java_${Utils.packageNameCSave(settings.packageName)}_Sekret__${key}Encrypted")
+                            .build()
+                    )
+                    .addParameter("env", C.pointer.parameterizedBy(JNI.jniEnvVar(JNI_PACKAGE_NAME)))
+                    .addParameter("clazz", JNI.libraryJObject(JNI_PACKAGE_NAME).copy(nullable = true))
+                    .returns(JNI.libraryJIntArray(JNI_PACKAGE_NAME).copy(nullable = true))
+                    .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
+                    .addStatement(
+                        "val target = env.%M(obfuscatedSecret.size) ?: return null",
+                        JNI.newIntArray(JNI_PACKAGE_NAME)
+                    )
+                    .addStatement("return env.%M(target, obfuscatedSecret)", JNI.fillTarget(JNI_PACKAGE_NAME))
                     .build()
             )
         }

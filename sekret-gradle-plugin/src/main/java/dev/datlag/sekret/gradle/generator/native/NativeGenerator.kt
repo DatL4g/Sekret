@@ -22,9 +22,30 @@ class NativeGenerator(
         encodedProperties.forEach { (key, secret) ->
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
-                    .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))
                     .addModifiers(KModifier.ACTUAL)
                     .addParameter("key", String::class)
+                    .addParameter(
+                        ParameterSpec.builder(
+                            name = "config",
+                            LambdaTypeName.get(
+                                receiver = Utils.sekretConfig.nestedClass("Builder"),
+                                returnType = Unit::class.asTypeName()
+                            )
+                        ).build()
+                    )
+                    .returns(String::class.asTypeName().copy(nullable = true))
+                    .addStatement("return $key(key, %T.Builder().apply(config).build())", Utils.sekretConfig)
+                    .build()
+            ).addFunction(
+                FunSpec.builder(key)
+                    .addModifiers(KModifier.ACTUAL)
+                    .addParameter("key", String::class)
+                    .addParameter(
+                        ParameterSpec.builder(
+                            name = "config",
+                            Utils.sekretConfig
+                        ).build()
+                    )
                     .returns(String::class.asClassName().copy(nullable = true))
                     .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
                     .addStatement("return %M(obfuscatedSecret, key)", JNI.getNativeValue(JNI_PACKAGE_NAME))
