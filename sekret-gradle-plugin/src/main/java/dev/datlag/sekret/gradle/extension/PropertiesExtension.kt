@@ -1,8 +1,11 @@
 package dev.datlag.sekret.gradle.extension
 
+import dev.datlag.sekret.gradle.common.existsSafely
+import dev.datlag.sekret.gradle.common.isDirectorySafely
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
@@ -99,7 +102,9 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         open val desktopComposeResourcesFolder: DirectoryProperty = objectFactory.directoryProperty()
 
         internal fun setupConvention(project: Project) {
-            // ToDo("check if jniLibs folder exists")
+            androidJNIFolder.convention(
+                resolveFolder(project.layout.projectDirectory.dir("src/androidMain/jniLibs"))
+            )
             // ToDo("check if compose resources folder exists")
         }
     }
@@ -108,5 +113,13 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         internal const val sekretFileName = "sekret.properties"
         internal const val sekretPackageName = "dev.datlag.sekret"
         internal const val googleServicesFileName = "google-services.json"
+
+        private fun resolveFolder(dir: Directory): Directory? {
+            return if (dir.asFile.existsSafely() && dir.asFile.isDirectorySafely()) {
+                dir
+            } else {
+                null
+            }
+        }
     }
 }
