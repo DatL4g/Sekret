@@ -39,6 +39,12 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
     open val propertiesFile: RegularFileProperty = objectFactory.fileProperty()
 
     /**
+     * Change where the google-services.json file for your secrets is located.
+     * Default is "google-services.json" in the **androidMain** target of the module the plugin is applied.
+     */
+    open val googleServicesFile: RegularFileProperty = objectFactory.fileProperty()
+
+    /**
      * Configuration for handling copy process of native binaries.
      */
     lateinit var nativeCopy: NativeCopyExtension
@@ -65,6 +71,7 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         })
         encryptionKey.convention(packageName)
         propertiesFile.convention(project.layout.projectDirectory.file(sekretFileName))
+        googleServicesFile.convention(project.layout.projectDirectory.file("src/androidMain/$googleServicesFileName"))
 
         nativeCopy = NativeCopyExtension(project.objects).also {
             it.setupConvention(project)
@@ -100,5 +107,6 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
     companion object {
         internal const val sekretFileName = "sekret.properties"
         internal const val sekretPackageName = "dev.datlag.sekret"
+        internal const val googleServicesFileName = "google-services.json"
     }
 }

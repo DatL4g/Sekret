@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.kotlin.poet)
     implementation(libs.kase.change)
     implementation(libs.serialization)
+    implementation(libs.serialization.json)
 }
 
 val generateVersion = tasks.create("generateVersion") {

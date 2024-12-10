@@ -11,6 +11,7 @@ import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator
 import dev.datlag.sekret.gradle.helper.Encoder
 import dev.datlag.sekret.gradle.helper.Utils
+import dev.datlag.sekret.gradle.model.GoogleServices
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -48,6 +49,9 @@ open class GenerateSekretTask : DefaultTask() {
 
     @get:InputFile
     open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
+
+    @get:InputFile
+    open val googleServicesFile: RegularFileProperty = project.objects.fileProperty()
 
     private val outputDir: File
         get() = outputDirectory.asFile.orNull
@@ -89,15 +93,26 @@ open class GenerateSekretTask : DefaultTask() {
             targets = requiredTargets
         )
 
-        val propFile = propertiesFile.asFile.orNull ?: throw IllegalStateException("No sekret properties file found.")
-        val properties = Utils.propertiesFromFile(propFile)
+        val propFile = propertiesFile.orNull?.asFile
+        val googleServicesFile = googleServicesFile.orNull?.asFile
+
+        if (propFile == null && googleServicesFile == null) {
+            throw IllegalStateException("No sekret.properties file or google-services.json found.")
+        }
+
+        val properties = propFile?.let(Utils::propertiesFromFile)
+        val googleServices = googleServicesFile?.let { GoogleServices.from(it, logger) }
+
+        if (properties == null && googleServices == null) {
+            throw IllegalStateException("No sekret.properties file or google-services.json could not be parsed.")
+        }
 
         val generator = SekretGenerator.createAllForTargets(
             packageName = packageName.getOrElse(PropertiesExtension.sekretPackageName),
             structure = structure
         )
 
-        val encodedProperties = Encoder.encodeProperties(properties, encryptionKey.get())
+        val encodedProperties = Encoder.encodeProperties(properties, googleServices, encryptionKey.get())
         SekretGenerator.generate(encodedProperties, *generator.toTypedArray())
     }
 
@@ -118,8 +133,28 @@ open class GenerateSekretTask : DefaultTask() {
             return null
         }
 
-        return resolveFile(config.propertiesFile.asFile.getOrElse(project.file(PropertiesExtension.sekretFileName)))
+        return resolveFile(config.propertiesFile.orNull?.asFile ?: project.file(PropertiesExtension.sekretFileName))
             ?: resolveFile(project.projectDir)
+    }
+
+    private fun googleServicesFile(project: Project, config: PropertiesExtension): File? {
+        val defaultName = PropertiesExtension.googleServicesFileName
+
+        fun resolveFile(file: File): File? {
+            if (file.existsSafely() && file.canReadSafely()) {
+                val googleServicesFile = if (file.isDirectorySafely()) {
+                    File(file, defaultName)
+                } else {
+                    file
+                }
+                if (googleServicesFile.existsSafely() && googleServicesFile.canReadSafely()) {
+                    return googleServicesFile
+                }
+            }
+            return null
+        }
+
+        return config.googleServicesFile.orNull?.asFile?.let(::resolveFile)
     }
 
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
@@ -134,6 +169,7 @@ open class GenerateSekretTask : DefaultTask() {
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(propertiesFile(project, extension.properties))
+        googleServicesFile.set(googleServicesFile(project, extension.properties))
     }
 
     companion object {

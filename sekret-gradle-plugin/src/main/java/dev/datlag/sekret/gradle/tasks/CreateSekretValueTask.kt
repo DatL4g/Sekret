@@ -44,7 +44,7 @@ open class CreateSekretValueTask : DefaultTask() {
 
         val name = key.orNull ?: throw IllegalArgumentException("Missing property 'key'")
         val data = value.orNull ?: throw IllegalArgumentException("Missing property 'value'")
-        val propFile = propertiesFile.asFile.orNull ?: throw IllegalStateException("No sekret properties file found.")
+        val propFile = propertiesFile.orNull?.asFile ?: throw IllegalStateException("No sekret properties file found.")
         val properties = Utils.propertiesFromFile(propFile)
 
         properties[name] = data
