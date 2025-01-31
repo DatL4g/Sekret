@@ -4,11 +4,11 @@ android = "8.4.2"
 auto-service = "1.1.1"
 kotlin = "2.1.10"
 kotlinpoet = "2.0.0"
-publish = "0.29.0"
+publish = "0.30.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
 ksp = "2.1.10-1.0.29"
-serialization = "1.7.3"
+serialization = "1.8.0"
 versions = "0.52.0"
 
 [libraries]
