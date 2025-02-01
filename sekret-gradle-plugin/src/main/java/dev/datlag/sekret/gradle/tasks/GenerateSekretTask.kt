@@ -16,6 +16,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.Property
@@ -96,8 +97,8 @@ open class GenerateSekretTask : DefaultTask() {
             targets = requiredTargets
         )
 
-        val propFile = propertiesFile.orNull?.asFile
-        val googleServicesFile = googleServicesFile.orNull?.asFile
+        val propFile = propertiesFile(propertiesFile.orNull)
+        val googleServicesFile = googleServicesFile(googleServicesFile.orNull)
 
         if (propFile == null && googleServicesFile == null) {
             throw IllegalStateException("No sekret.properties file or google-services.json found.")
@@ -119,7 +120,7 @@ open class GenerateSekretTask : DefaultTask() {
         SekretGenerator.generate(encodedProperties, *generator.toTypedArray())
     }
 
-    private fun propertiesFile(project: Project, config: PropertiesExtension): File? {
+    private fun propertiesFile(file: RegularFile?): File? {
         val defaultName = PropertiesExtension.sekretFileName
 
         fun resolveFile(file: File): File? {
@@ -136,11 +137,10 @@ open class GenerateSekretTask : DefaultTask() {
             return null
         }
 
-        return resolveFile(config.propertiesFile.orNull?.asFile ?: project.file(PropertiesExtension.sekretFileName))
-            ?: resolveFile(project.projectDir)
+        return file?.asFile?.let(::resolveFile)
     }
 
-    private fun googleServicesFile(project: Project, config: PropertiesExtension): File? {
+    private fun googleServicesFile(file: RegularFile?): File? {
         val defaultName = PropertiesExtension.googleServicesFileName
 
         fun resolveFile(file: File): File? {
@@ -157,7 +157,7 @@ open class GenerateSekretTask : DefaultTask() {
             return null
         }
 
-        return config.googleServicesFile.orNull?.asFile?.let(::resolveFile)
+        return file?.asFile?.let(::resolveFile)
     }
 
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
@@ -171,8 +171,8 @@ open class GenerateSekretTask : DefaultTask() {
 
         encryptionKey.set(extension.properties.encryptionKey)
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
-        propertiesFile.set(propertiesFile(project, extension.properties))
-        googleServicesFile.set(googleServicesFile(project, extension.properties))
+        propertiesFile.set(extension.properties.propertiesFile)
+        googleServicesFile.set(extension.properties.googleServicesFile)
     }
 
     companion object {

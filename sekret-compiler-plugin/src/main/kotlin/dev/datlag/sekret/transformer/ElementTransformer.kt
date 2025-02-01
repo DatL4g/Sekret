@@ -3,7 +3,6 @@ package dev.datlag.sekret.transformer
 import dev.datlag.sekret.model.Config
 import dev.datlag.sekret.Logger
 import dev.datlag.sekret.common.*
-import dev.datlag.sekret.generator.DeobfuscatorGenerator
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.FirIncompatiblePluginAPI
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -28,7 +27,6 @@ class ElementTransformer(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitClassNew(declaration: IrClass): IrStatement {
-        val hasObfuscate = declaration.hasAnnotation(obfuscateAnnotation)
         val secretAnnotation = FqName.fromSegments(listOf("dev.datlag.sekret", "Secret"))
 
         val secretProperties = runCatching {
@@ -42,32 +40,6 @@ class ElementTransformer(
             )
         }
 
-        if (hasObfuscate && DeobfuscatorGenerator.exists) {
-            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
-            /**
-             * Working example:
-             * toString.owner.body = DeclarationIrBuilder(pluginContext, toString).irBlockBody {
-             *                     +irReturn(irCall(getString))
-             *                 }
-             */
-        }
-
         return super.visitClassNew(declaration)
-    }
-
-    override fun visitFileNew(declaration: IrFile): IrFile {
-        if (declaration.hasAnnotation(obfuscateAnnotation) && DeobfuscatorGenerator.exists) {
-            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
-        }
-
-        return super.visitFileNew(declaration)
-    }
-
-    override fun visitConstructor(declaration: IrConstructor): IrStatement {
-        if (declaration.hasAnnotation(obfuscateAnnotation) && DeobfuscatorGenerator.exists) {
-            declaration.transformChildren(DeobfuscatorTransformer(logger, pluginContext), null)
-        }
-
-        return super.visitConstructor(declaration)
     }
 }

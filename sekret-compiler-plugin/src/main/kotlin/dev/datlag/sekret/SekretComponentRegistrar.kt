@@ -1,9 +1,7 @@
 package dev.datlag.sekret
 
 import com.google.auto.service.AutoService
-import dev.datlag.sekret.generator.DeobfuscatorGenerator
 import dev.datlag.sekret.model.Config
-import dev.datlag.sekret.transformer.DeobfuscatorTransformer
 import dev.datlag.sekret.transformer.ElementTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -24,7 +22,6 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
         get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        // available for jvm: ClassGeneratorExtension
         val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, configuration.messageCollector)
         val logger = Logger(true, messageCollector)
 
@@ -34,18 +31,12 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
             obfuscateSeed = configuration[KEY_OBFUSCATE_SEED, SecureRandom().nextInt()]
         )
 
-        DeobfuscatorGenerator.setSeed(config.obfuscateSeed)
-
         IrGenerationExtension.registerExtension(object : IrGenerationExtension {
             override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-                // DeobfuscatorGenerator.createIrClass(pluginContext, logger)
-
                 moduleFragment.transform(
                     transformer = ElementTransformer(config, logger, pluginContext),
                     data = null
                 )
-
-                // DeobfuscatorGenerator.generateList(pluginContext, logger)
             }
         })
     }

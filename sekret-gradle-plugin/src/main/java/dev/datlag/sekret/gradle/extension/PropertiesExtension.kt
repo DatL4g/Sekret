@@ -7,6 +7,7 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -73,8 +74,13 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
             project.group.toString().ifBlank { sekretPackageName }
         })
         encryptionKey.convention(packageName)
-        propertiesFile.convention(project.layout.projectDirectory.file(sekretFileName))
-        googleServicesFile.convention(project.layout.projectDirectory.file("src/androidMain/$googleServicesFileName"))
+        propertiesFile.convention(project.provider {
+            resolveFile(project.layout.projectDirectory.file(sekretFileName))
+        })
+        googleServicesFile.convention(project.provider {
+            resolveFile(project.layout.projectDirectory.file("src/androidMain/$googleServicesFileName"))
+                ?: resolveFile(project.layout.projectDirectory.file("src/main/$googleServicesFileName"))
+        })
 
         nativeCopy = NativeCopyExtension(project.objects).also {
             it.setupConvention(project)
@@ -102,10 +108,14 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         open val desktopComposeResourcesFolder: DirectoryProperty = objectFactory.directoryProperty()
 
         internal fun setupConvention(project: Project) {
-            androidJNIFolder.convention(
+            androidJNIFolder.convention(project.provider {
                 resolveFolder(project.layout.projectDirectory.dir("src/androidMain/jniLibs"))
-            )
-            // ToDo("check if compose resources folder exists")
+                    ?: resolveFolder(project.layout.projectDirectory.dir("src/main/jniLibs"))
+            })
+            desktopComposeResourcesFolder.convention(project.provider {
+                resolveFolder(project.layout.projectDirectory.dir("src/jvmMain/resources"))
+                    ?: resolveFolder(project.layout.projectDirectory.dir("src/desktopMain/resources"))
+            })
         }
     }
 
@@ -117,6 +127,14 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         private fun resolveFolder(dir: Directory): Directory? {
             return if (dir.asFile.existsSafely() && dir.asFile.isDirectorySafely()) {
                 dir
+            } else {
+                null
+            }
+        }
+
+        private fun resolveFile(file: RegularFile): RegularFile? {
+            return if (file.asFile.existsSafely()) {
+                file
             } else {
                 null
             }
