@@ -37,8 +37,7 @@ sekret {
         propertiesFile.set(File("custom/path/to/file.properties")) // default: sekret.properties in the current module folder
         
         nativeCopy {
-            androidJNIFolder.set(project.layout.projectDirectory.dir("src/androidMain/jniLibs")) // REQUIRED if targeting android
-            desktopComposeResourcesFolder.set(project.layout.projectDirectory.dir("src/jvmMain/resources")) // for targeting desktop compose
+            // set output directories here
         }
     }
 }
@@ -111,4 +110,49 @@ if (binaryLoaded) {
   val yourKeyName = Sekret.yourKeyName("YourCustomEncryptionKey")
   val otherSecret = Sekret.otherSecret("YourCustomEncryptionKey")
 }
+```
+
+### Android / JVM
+
+Since the Strings are retrieved by using JNI calls it can be configured accordingly.
+
+```kotlin
+SekretConfig {
+    jni { 
+        // Whether the String decryption should be done in native code .
+        // Native decryption is vulnerable to JNI tracing.
+        // Default: false
+        decryptDirectly = false
+
+        // Whether the String decryption should be done in native code if non-native decryption fails.
+        // Only relevant if decryptDirectly is false
+        // Default: true
+        fallbackToDirectDecryption = true
+    }
+}
+```
+
+It can be ued per-decryption then, like this:
+
+```kotlin
+val neverDirectDecryption = Sekret.yourKeyName("YourCustomEncryptionKey", SekretConfig {
+    jni {
+        decryptDirectly = false
+        fallbackToDirectDecryption = false
+    }
+})
+
+// You can omit the config in this case, as it's provided per default
+val fallbackDirectDecryption = Sekret.yourKeyName("YourCustomEncryptionKey", SekretConfig {
+  jni {
+    decryptDirectly = false
+    fallbackToDirectDecryption = true
+  }
+})
+
+val directDecryption = Sekret.yourKeyName("YourCustomEncryptionKey", SekretConfig {
+  jni {
+    decryptDirectly = true
+  }
+})
 ```

@@ -12,7 +12,7 @@ The functionality and all features is based on the Gradle and Compiler plugin, w
 
 ```gradle
 plugins { 
-    id("dev.datlag.sekret") version "2.0.0-alpha-08"
+    id("dev.datlag.sekret") version "2.0.0"
 }
 ```
 

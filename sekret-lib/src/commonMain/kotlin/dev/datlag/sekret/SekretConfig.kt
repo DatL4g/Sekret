@@ -27,6 +27,14 @@ data class SekretConfig(
             var decryptDirectly: Boolean = false
             var fallbackToDirectDecryption: Boolean = true
 
+            fun decryptDirectly(decrypt: Boolean) = apply {
+                this.decryptDirectly = decrypt
+            }
+
+            fun fallbackToDirectDecryption(fallback: Boolean) = apply {
+                this.fallbackToDirectDecryption = fallback
+            }
+
             fun build(): JNI = JNI(decryptDirectly, fallbackToDirectDecryption)
         }
     }
@@ -34,6 +42,10 @@ data class SekretConfig(
     class Builder {
         var jni: JNI = JNI()
             private set
+
+        fun jni(jni: JNI) = apply {
+            this.jni = jni
+        }
 
         fun jni(block: JNI.Builder.() -> Unit) = apply {
             jni = JNI.Builder().apply(block).build()
