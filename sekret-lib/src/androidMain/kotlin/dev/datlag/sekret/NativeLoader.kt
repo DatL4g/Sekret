@@ -1,10 +1,13 @@
 package dev.datlag.sekret
 
+import android.content.Context
+import android.os.Build
+import com.getkeepsafe.relinker.ReLinker
 import dev.datlag.sekret.common.systemLoad
 import dev.datlag.sekret.common.systemLoadLibrary
 import java.io.File
 
-object NativeLoader {
+data object NativeLoader {
 
     /**
      * Load native library by name (and path)
@@ -14,6 +17,9 @@ object NativeLoader {
      *
      * @return true if the library was found and loaded
      */
+    @JvmStatic
+    @JvmOverloads
+    @RequestedApi(23)
     fun loadLibrary(name: String, path: File? = null): Boolean {
         val ending = ".so"
 
@@ -66,5 +72,29 @@ object NativeLoader {
             }
         }
         return libraryLoaded
+    }
+
+    /**
+     * Load native library by name (and path)
+     *
+     * @param context the context in which the load process is handled
+     * @param name the name of the native library
+     * @param path the path where the library [name] is located
+     *
+     * @return true if the library was found and loaded
+     */
+    @OptIn(RequestedApi::class)
+    @JvmStatic
+    @JvmOverloads
+    fun loadLibrary(context: Context, name: String, path: File? = null): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return loadLibrary(name, path)
+        }
+
+        val relinkerLoaded = runCatching {
+            ReLinker.loadLibrary(context, name)
+        }.isSuccess
+
+        return loadLibrary(name, path) || relinkerLoaded
     }
 }

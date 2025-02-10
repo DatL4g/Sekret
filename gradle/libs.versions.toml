@@ -8,6 +8,7 @@ publish = "0.30.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
 ksp = "2.1.10-1.0.29"
+relinker = "1.4.5"
 serialization = "1.8.0"
 versions = "0.52.0"
 
@@ -20,6 +21,7 @@ kotlin-poet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref
 kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+relinker = { group = "com.getkeepsafe.relinker", name = "relinker", version.ref = "relinker" }
 serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 

@@ -123,6 +123,10 @@ kotlin {
             androidNativeMain.get().dependsOn(this)
             jniNativeMain.dependsOn(this)
         }
+
+        androidMain.dependencies {
+            implementation(libs.relinker)
+        }
     }
 }
 
@@ -137,6 +141,10 @@ android {
     compileOptions {
         sourceCompatibility = CompileOptions.sourceCompatibility
         targetCompatibility = CompileOptions.targetCompatibility
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 

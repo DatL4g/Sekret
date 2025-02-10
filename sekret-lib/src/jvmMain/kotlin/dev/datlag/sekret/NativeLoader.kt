@@ -4,7 +4,7 @@ import dev.datlag.sekret.common.systemLoad
 import dev.datlag.sekret.common.systemLoadLibrary
 import java.io.File
 
-object NativeLoader {
+data object NativeLoader {
 
     /**
      * Load native library by name (and path)
@@ -14,6 +14,8 @@ object NativeLoader {
      *
      * @return true if the library was found and loaded
      */
+    @JvmStatic
+    @JvmOverloads
     fun loadLibrary(name: String, path: File? = null): Boolean {
         val currentOs = Platform.os
         val ending = when {
