@@ -97,6 +97,6 @@ data object NativeLoader {
             ReLinker.loadLibrary(context, name)
         }.isSuccess
 
-        return relinkerLoaded || loadLibrary(name, path)
+        return loadLibrary(name, path) || relinkerLoaded
     }
 }
