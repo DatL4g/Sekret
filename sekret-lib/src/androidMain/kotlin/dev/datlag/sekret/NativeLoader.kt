@@ -92,9 +92,11 @@ data object NativeLoader {
         }
 
         val relinkerLoaded = runCatching {
+            ReLinker.recursively().loadLibrary(context, name)
+        }.recoverCatching {
             ReLinker.loadLibrary(context, name)
         }.isSuccess
 
-        return loadLibrary(name, path) || relinkerLoaded
+        return relinkerLoaded || loadLibrary(name, path)
     }
 }
