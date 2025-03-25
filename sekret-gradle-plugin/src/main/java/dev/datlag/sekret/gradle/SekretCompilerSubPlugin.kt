@@ -31,8 +31,7 @@ class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
     override fun getPluginArtifact(): SubpluginArtifact {
         return SubpluginArtifact(
             groupId = GROUP_NAME,
-            artifactId = ARTIFACT,
-            version = SekretPlugin.getVersion()
+            artifactId = ARTIFACT
         )
     }
 
