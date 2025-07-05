@@ -3,10 +3,11 @@ package dev.datlag.sekret.gradle
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.jetbrains.kotlin.gradle.targets.js.KotlinJsTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import kotlinx.serialization.Serializable
 import org.gradle.api.Named
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrSubTarget
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import java.io.Serializable as JvmSerializable
 
 @Serializable
@@ -193,7 +194,7 @@ sealed class Target(open val title: String, open val sourceSet: String = title) 
                 when (target) {
                     is KotlinJvmTarget -> Desktop.JVM
                     is KotlinAndroidTarget -> Android.JVM
-                    is KotlinJsTarget -> JS.Default
+                    is KotlinJsIrTarget, is KotlinJsIrSubTarget -> JS.Default
                     else -> null
                 }
             }
