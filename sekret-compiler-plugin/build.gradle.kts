@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     kotlin("jvm")
     kotlin("kapt")
@@ -13,7 +11,6 @@ group = artifact
 version = libVersion
 
 dependencies {
-    implementation(project(":sekret-lib"))
     compileOnly(libs.auto.service)
     kapt(libs.auto.service)
 
@@ -21,7 +18,7 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     val publishId = "compiler-plugin"

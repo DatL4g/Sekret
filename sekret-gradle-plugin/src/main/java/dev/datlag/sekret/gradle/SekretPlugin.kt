@@ -59,7 +59,7 @@ open class SekretPlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "2.1.1"
+        private const val VERSION = "2.2.0-SNAPSHOT"
 
         internal fun getVersion(): String {
             return runCatching {

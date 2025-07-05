@@ -1,15 +1,15 @@
 [versions]
-lib = "2.1.2"
-android = "8.4.2"
+lib = "2.2.0-SNAPSHOT"
+android = "8.11.0"
 auto-service = "1.1.1"
-kotlin = "2.1.20"
-kotlinpoet = "2.0.0"
-publish = "0.31.0"
+kotlin = "2.2.0"
+kotlinpoet = "2.2.0"
+publish = "0.33.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
-ksp = "2.1.20-1.0.31"
+ksp = "2.2.0-2.0.2"
 relinker = "1.4.5"
-serialization = "1.8.0"
+serialization = "1.9.0"
 versions = "0.52.0"
 
 [libraries]
@@ -17,10 +17,7 @@ auto-service = { group = "com.google.auto.service", name = "auto-service", versi
 kotlin-gradle-plugin-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-compiler-embeddable = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
-kotlin-poet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet" }
 kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kase-change" }
-ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 relinker = { group = "com.getkeepsafe.relinker", name = "relinker", version.ref = "relinker" }
 serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
@@ -29,7 +26,6 @@ serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serializ
 android-library = { id = "com.android.library", version.ref = "android" }
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
-gradle-plugin = { id = "dev.datlag.sekret", version.ref = "lib" }
 osdetector = { id = "com.google.osdetector", version.ref = "osdetector" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

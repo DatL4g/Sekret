@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     `kotlin-dsl`
     kotlin("jvm")
@@ -58,7 +56,7 @@ gradlePlugin {
 }
 
 mavenPublishing {
-    publishToMavenCentral(host = SonatypeHost.S01, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     val publishId = "gradle-plugin"

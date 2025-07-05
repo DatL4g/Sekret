@@ -53,20 +53,6 @@ fun IrProperty.hasMatchingAnnotation(
 }
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-fun IrField.hasMatchingAnnotation(
-    name: FqName,
-    parent: IrClass?,
-    checkGetter: Boolean = false,
-    checkSetter: Boolean = false,
-): Boolean {
-    return this.hasAnnotation(name)
-            || this.type.hasAnnotation(name)
-            || runCatching {
-        this.correspondingPropertySymbol?.owner?.hasMatchingAnnotation(name, parent, checkGetter, checkSetter)
-    }.getOrNull() ?: false
-}
-
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun IrField.matchesProperty(property: IrProperty): Boolean {
     return if (this.isPropertyField) {
         runCatching {
@@ -125,69 +111,3 @@ fun IrType.isAnyAppendable(nullable: Boolean = false): Boolean {
 fun IrType.isStringBuffer(nullable: Boolean = false): Boolean {
     return this.matchesPossibleNull(JavaSignatureValues.stringBuffer, nullable = nullable)
 }
-
-fun IrClass.declareThisReceiver(
-    irFactory: IrFactory,
-    thisType: IrType,
-    thisOrigin: IrDeclarationOrigin,
-    startOffset: Int = this.startOffset,
-    endOffset: Int = this.endOffset,
-    name: Name = SpecialNames.THIS
-) {
-    thisReceiver = irFactory.createValueParameter(
-        startOffset = startOffset,
-        endOffset = endOffset,
-        origin = thisOrigin,
-        name = name,
-        type = thisType,
-        isAssignable = false,
-        symbol = IrValueParameterSymbolImpl(),
-        index = UNDEFINED_PARAMETER_INDEX,
-        varargElementType = null,
-        isCrossinline = false,
-        isNoinline = false,
-        isHidden = false
-    ).apply {
-        this.parent = this@declareThisReceiver
-    }
-}
-
-@OptIn(UnsafeDuringIrConstructionAPI::class)
-fun IrClass.declareObjectConstructor(
-    unitType: IrType,
-    irFactory: IrFactory,
-    irConstructorSymbol: IrConstructorSymbol
-) {
-    this.addConstructor {
-        isPrimary = true
-        returnType = this@declareObjectConstructor.typeWith()
-    }.apply {
-        body = irFactory.createBlockBody(
-            startOffset = SYNTHETIC_OFFSET,
-            endOffset = SYNTHETIC_OFFSET
-        ).apply {
-            statements += IrDelegatingConstructorCallImpl.fromSymbolOwner(
-                startOffset = SYNTHETIC_OFFSET,
-                endOffset = SYNTHETIC_OFFSET,
-                type = this@declareObjectConstructor.typeWith(),
-                symbol = irConstructorSymbol
-            )
-
-            statements += IrInstanceInitializerCallImpl(
-                startOffset = SYNTHETIC_OFFSET,
-                endOffset = SYNTHETIC_OFFSET,
-                classSymbol = this@declareObjectConstructor.symbol,
-                type = unitType
-            )
-        }
-    }
-}
-
-@OptIn(UnsafeDuringIrConstructionAPI::class)
-fun IrClass.declareObjectConstructor(
-    pluginContext: IrPluginContext
-) = this.declareObjectConstructor(
-    unitType = pluginContext.irBuiltIns.unitType,
-    irFactory = pluginContext.irFactory,
-    irConstructorSymbol = pluginContext.irBuiltIns.anyClass.constructors.first()
-)
