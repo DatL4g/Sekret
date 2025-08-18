@@ -12,17 +12,9 @@ The functionality and all features is based on the Gradle and Compiler plugin, w
 
 ```gradle
 plugins { 
-    id("dev.datlag.sekret") version "2.0.0"
+    id("dev.datlag.sekret") version "2.2.0"
 }
 ```
-
-## Why Alpha version?
-
-The latest version is currently in alpha stage, reflecting our adherence to versioning standards.
-
-While the core features are stable and fully functional, the project remains in alpha due to the ongoing development of a critical feature.
-
-This versioning approach ensures transparency and sets clear expectations as we finalize the remaining feature, paving the way for a stable release.
 
 ## 🔒 Secure Logging
 
