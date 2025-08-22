@@ -41,6 +41,8 @@ kotlin {
                 create("sekret") {
                     val javaDefaultHome = System.getProperty("java.home")
                     val javaEnvHome = getSystemJavaHome()
+                    val javaSdkMan = getSdkManJava()
+                    val javaDefaultRuntime = getDefaultRuntimeJava()
 
                     packageName("dev.datlag.sekret")
 
@@ -55,7 +57,19 @@ kotlin {
                         File(javaEnvHome, "include"),
                         File(javaEnvHome, "include/darwin"),
                         File(javaEnvHome, "include/linux"),
-                        File(javaEnvHome, "include/win32")
+                        File(javaEnvHome, "include/win32"),
+
+                        // SDK Man Java
+                        File(javaSdkMan, "include"),
+                        File(javaSdkMan, "include/darwin"),
+                        File(javaSdkMan, "include/linux"),
+                        File(javaSdkMan, "include/win32"),
+
+                        // Default Runtime Java
+                        File(javaDefaultRuntime, "include"),
+                        File(javaDefaultRuntime, "include/darwin"),
+                        File(javaDefaultRuntime, "include/linux"),
+                        File(javaDefaultRuntime, "include/win32"),
                     )
                 }
             }
@@ -208,9 +222,17 @@ fun getHost(): Host {
 }
 
 fun getSystemJavaHome(): String? {
-    return System.getenv("JAVA_HOME")?.ifBlank { null } ?: System.getProperty("user.home")?.ifBlank { null }?.let {
+    return System.getenv("JAVA_HOME")?.ifBlank { null }
+}
+
+fun getSdkManJava(): String? {
+    return System.getProperty("user.home")?.ifBlank { null }?.let {
         "$it/.sdkman/candidates/java/current"
     }
+}
+
+fun getDefaultRuntimeJava(): String? {
+    return "/usr/lib/jvm/default-runtime"
 }
 
 enum class Host(val label: String) {
