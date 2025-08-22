@@ -59,14 +59,10 @@ open class SekretPlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "2.2.0"
+        private const val VERSION = "2.2.10-SNAPSHOT"
 
         internal fun getVersion(): String {
-            return runCatching {
-                val props = Properties()
-                props.load(Companion::class.java.getResourceAsStream("sekret_plugin.properties"))
-                props.getProperty("version")
-            }.getOrNull()?.ifBlank { null } ?: VERSION
+            return this::class.java.`package`?.implementationVersion?.ifBlank { null } ?: VERSION
         }
     }
 }

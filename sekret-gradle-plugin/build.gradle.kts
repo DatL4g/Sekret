@@ -12,6 +12,12 @@ val artifact = VersionCatalog.artifactName()
 group = artifact
 version = libVersion
 
+tasks.jar {
+    manifest {
+        attributes["Implementation-Version"] = libVersion
+    }
+}
+
 dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(libs.kotlin.gradle.plugin.api)
@@ -20,25 +26,6 @@ dependencies {
     implementation(libs.serialization)
     implementation(libs.serialization.json)
     implementation(libs.serialization.yaml)
-}
-
-val generateVersion = tasks.create("generateVersion") {
-    val propFile = layout.buildDirectory.file("generated/sekret_plugin.properties").get().asFile
-
-    outputs.file(propFile)
-    doLast {
-        runCatching {
-            propFile.parentFile?.mkdirs()
-        }.getOrNull()
-        runCatching {
-            propFile.createNewFile()
-        }.getOrNull()
-        propFile.writeText("version=$libVersion")
-    }
-}
-
-tasks.processResources {
-    from(files(generateVersion))
 }
 
 gradlePlugin {
