@@ -12,13 +12,13 @@ class CommonGenerator(
     private val outputDir: File
 ) : SekretGenerator.Generator {
 
-    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
         var typeSpec = TypeSpec.objectBuilder(settings.className).addModifiers(KModifier.EXPECT)
 
-        encodedProperties.keys.forEach { key ->
+        encodedProperties.filter { it.targetType is EncodedProperty.TargetType.Common }.keys.forEach { key ->
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .addModifiers(KModifier.EXPECT)

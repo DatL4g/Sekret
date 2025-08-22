@@ -13,17 +13,17 @@ class NativeGenerator(
     private val settings: SekretGenerator.Settings,
     private val outputDir: File
 ) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, "${settings.className}.native")
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
         var typeSpec = TypeSpec.objectBuilder(settings.className).addModifiers(KModifier.ACTUAL)
 
-        encodedProperties.forEach { (key, secret) ->
+        encodedProperties.filter { it.targetType is EncodedProperty.TargetType.Common || it.targetType is EncodedProperty.TargetType.Native }.forEach { (key, secret, target) ->
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .apply {
-                        if (actualModifier) {
+                        if (target is EncodedProperty.TargetType.Common) {
                             addModifiers(KModifier.ACTUAL)
                         }
                     }
@@ -43,7 +43,7 @@ class NativeGenerator(
             ).addFunction(
                 FunSpec.builder(key)
                     .apply {
-                        if (actualModifier) {
+                        if (target is EncodedProperty.TargetType.Common) {
                             addModifiers(KModifier.ACTUAL)
                         }
                     }

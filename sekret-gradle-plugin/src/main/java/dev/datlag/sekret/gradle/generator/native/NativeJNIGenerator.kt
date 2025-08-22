@@ -16,11 +16,11 @@ class NativeJNIGenerator(
     private val settings: SekretGenerator.Settings,
     private val outputDir: File
 ) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
-        encodedProperties.forEach { (key, secret) ->
+        encodedProperties.filter { it.targetType is EncodedProperty.TargetType.Common || it.targetType is EncodedProperty.TargetType.JNI }.forEach { (key, secret) ->
             spec.addFunction(
                 FunSpec.builder("${key}Decrypted")
                     .addAnnotation(Utils.optInAnnotation(C.experimentalForeignApi, C.experimentalNativeApi))

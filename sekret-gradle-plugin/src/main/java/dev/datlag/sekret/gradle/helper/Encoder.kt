@@ -14,6 +14,7 @@ object Encoder {
     fun encodeProperties(
         properties: Properties?,
         googleServices: GoogleServices?,
+        yamlConfig: YamlConfig?,
         password: String
     ): Collection<EncodedProperty> {
         val props = mutableSetOf<EncodedProperty>()
@@ -86,20 +87,49 @@ object Encoder {
                 }
             }
         }
+        yamlConfig?.let { config ->
+            config.common.forEach { entry ->
+                val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
+                val secretValue = encode(entry.value, password)
+
+                props.add(EncodedProperty(
+                    key = keyName,
+                    secret = secretValue
+                ))
+            }
+            config.jni.forEach { entry ->
+                val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
+                val secretValue = encode(entry.value, password)
+
+                props.add(EncodedProperty(
+                    key = keyName,
+                    secret = secretValue,
+                    targetType = EncodedProperty.TargetType.JNI
+                ))
+            }
+            config.web.forEach { entry ->
+                val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
+                val secretValue = encode(entry.value, password)
+
+                props.add(EncodedProperty(
+                    key = keyName,
+                    secret = secretValue,
+                    targetType = EncodedProperty.TargetType.Web
+                ))
+            }
+            config.native.forEach { entry ->
+                val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
+                val secretValue = encode(entry.value, password)
+
+                props.add(EncodedProperty(
+                    key = keyName,
+                    secret = secretValue,
+                    targetType = EncodedProperty.TargetType.Native
+                ))
+            }
+        }
 
         return props
-    }
-
-    fun encodeProperties(targetValues: Collection<YamlConfig.Target>, password: String): Collection<EncodedProperty> {
-        return targetValues.map { entry ->
-            val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
-            val secretValue = encode(entry.value, password)
-
-            EncodedProperty(
-                key = keyName,
-                secret = secretValue
-            )
-        }.toSet()
     }
 
     private fun encode(value: String, password: String): String {

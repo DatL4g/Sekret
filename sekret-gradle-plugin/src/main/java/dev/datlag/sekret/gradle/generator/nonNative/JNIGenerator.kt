@@ -12,18 +12,18 @@ class JNIGenerator(
     private val settings: SekretGenerator.Settings,
     private val outputDir: File
 ) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, "${settings.className}.jni")
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
         var typeSpec = TypeSpec.objectBuilder(settings.className).addModifiers(KModifier.ACTUAL)
 
-        encodedProperties.keys.forEach { key ->
+        encodedProperties.filter { it.targetType is EncodedProperty.TargetType.Common || it.targetType is EncodedProperty.TargetType.JNI }.forEach { (key, _, target) ->
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .addAnnotation(JvmStatic::class)
                     .apply {
-                        if (actualModifier) {
+                        if (target is EncodedProperty.TargetType.Common) {
                             addModifiers(KModifier.ACTUAL)
                         }
                     }
@@ -44,7 +44,7 @@ class JNIGenerator(
                 FunSpec.builder(key)
                     .addAnnotation(JvmStatic::class)
                     .apply {
-                        if (actualModifier) {
+                        if (target is EncodedProperty.TargetType.Common) {
                             addModifiers(KModifier.ACTUAL)
                         }
                     }

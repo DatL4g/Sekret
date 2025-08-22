@@ -127,22 +127,8 @@ open class GenerateSekretTask : DefaultTask() {
             structure = structure
         )
 
-        val encodedProperties = Encoder.encodeProperties(properties, googleServices, encryptionKey.get())
+        val encodedProperties = Encoder.encodeProperties(properties, googleServices, yamlConfig, encryptionKey.get())
         SekretGenerator.generate(encodedProperties, generator)
-
-        if (yamlConfig != null) {
-            val common = Encoder.encodeProperties(yamlConfig.common, encryptionKey.get())
-            SekretGenerator.generate(common, generator)
-
-            val web = Encoder.encodeProperties(yamlConfig.web, encryptionKey.get())
-            SekretGenerator.generate(web, generator.filterIsInstance<JSGenerator>())
-
-            val jni = Encoder.encodeProperties(yamlConfig.jni, encryptionKey.get())
-            SekretGenerator.generate(jni, generator.filter { it is JNIGenerator || it is NativeJNIGenerator })
-
-            val native = Encoder.encodeProperties(yamlConfig.native, encryptionKey.get())
-            SekretGenerator.generate(native, generator.filterIsInstance<NativeGenerator>())
-        }
     }
 
     private fun propertiesFile(file: RegularFile?): File? {

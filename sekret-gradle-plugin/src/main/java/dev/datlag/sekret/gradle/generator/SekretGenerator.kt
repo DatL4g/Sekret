@@ -82,16 +82,15 @@ object SekretGenerator {
 
     fun generate(
         encodedProperties: Collection<EncodedProperty>,
-        generators: Iterable<Generator>,
-        actualModifier: Boolean = generators.any { it is CommonGenerator }
+        generators: Iterable<Generator>
     ) {
         if (encodedProperties.isNotEmpty()) {
-            generators.forEach { it.generate(encodedProperties, actualModifier) }
+            generators.forEach { it.generate(encodedProperties) }
         }
     }
 
     interface Generator {
-        fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean)
+        fun generate(encodedProperties: Iterable<EncodedProperty>)
     }
 
     data class Settings(

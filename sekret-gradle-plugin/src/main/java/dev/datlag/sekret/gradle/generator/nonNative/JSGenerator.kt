@@ -12,17 +12,17 @@ class JSGenerator(
     private val settings: SekretGenerator.Settings,
     private val outputDir: File
 ) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
         val spec = FileSpec.builder(settings.packageName, "${settings.className}.js")
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
         var typeSpec = TypeSpec.objectBuilder(settings.className).addModifiers(KModifier.ACTUAL)
 
-        encodedProperties.forEach { (key, secret) ->
+        encodedProperties.filter { it.targetType is EncodedProperty.TargetType.Common || it.targetType is EncodedProperty.TargetType.Web }.forEach { (key, secret, target) ->
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .apply {
-                        if (actualModifier) {
+                        if (target is EncodedProperty.TargetType.Common) {
                             addModifiers(KModifier.ACTUAL)
                         }
                     }
@@ -41,7 +41,11 @@ class JSGenerator(
                     .build()
             ).addFunction(
                 FunSpec.builder(key)
-                    .addModifiers(KModifier.ACTUAL)
+                    .apply {
+                        if (target is EncodedProperty.TargetType.Common) {
+                            addModifiers(KModifier.ACTUAL)
+                        }
+                    }
                     .addParameter("key", String::class)
                     .addParameter(
                         ParameterSpec.builder(
