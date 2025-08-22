@@ -72,7 +72,16 @@ object BuildFileGenerator {
             spec = if (target.isNative) {
                 spec.beginControlFlow(target.title)
                     .beginControlFlow("binaries")
-                    .addStatement("sharedLib()")
+                    .apply {
+                        if (target is Target.Android.NATIVE_64) {
+                            beginControlFlow("sharedLib")
+                                .addBodyComment("Workaround for android 16kb page size, currently not supported on this target")
+                                .addStatement("linkerOpts += listOf(%S, %S, %S)", "-Wl,-z,max-page-size=16384", "-Wl,-z,common-page-size=16384", "-v")
+                                .endControlFlow()
+                        } else {
+                            addStatement("sharedLib()")
+                        }
+                    }
                     .endControlFlow()
                     .endControlFlow()
             } else {
