@@ -2,6 +2,7 @@ package dev.datlag.sekret.gradle.helper
 
 import dev.datlag.sekret.gradle.EncodedProperty
 import dev.datlag.sekret.gradle.model.GoogleServices
+import dev.datlag.sekret.gradle.model.YamlConfig
 import net.pearx.kasechange.toCamelCase
 import net.pearx.kasechange.universalWordSplitter
 import java.security.MessageDigest
@@ -14,7 +15,7 @@ object Encoder {
         properties: Properties?,
         googleServices: GoogleServices?,
         password: String
-    ): Iterable<EncodedProperty> {
+    ): Collection<EncodedProperty> {
         val props = mutableSetOf<EncodedProperty>()
 
         properties?.entries?.forEach { entry ->
@@ -87,6 +88,18 @@ object Encoder {
         }
 
         return props
+    }
+
+    fun encodeProperties(targetValues: Collection<YamlConfig.Target>, password: String): Collection<EncodedProperty> {
+        return targetValues.map { entry ->
+            val keyName = entry.name.toCamelCase(universalWordSplitter(treatDigitsAsUppercase = false)).trim()
+            val secretValue = encode(entry.value, password)
+
+            EncodedProperty(
+                key = keyName,
+                secret = secretValue
+            )
+        }.toSet()
     }
 
     private fun encode(value: String, password: String): String {

@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.kase.change)
     implementation(libs.serialization)
     implementation(libs.serialization.json)
+    implementation(libs.serialization.yaml)
 }
 
 val generateVersion = tasks.create("generateVersion") {

@@ -9,9 +9,14 @@ import dev.datlag.sekret.gradle.extension.PropertiesExtension
 import dev.datlag.sekret.gradle.generator.BuildFileGenerator
 import dev.datlag.sekret.gradle.generator.ModuleGenerator
 import dev.datlag.sekret.gradle.generator.SekretGenerator
+import dev.datlag.sekret.gradle.generator.native.NativeGenerator
+import dev.datlag.sekret.gradle.generator.native.NativeJNIGenerator
+import dev.datlag.sekret.gradle.generator.nonNative.JNIGenerator
+import dev.datlag.sekret.gradle.generator.nonNative.JSGenerator
 import dev.datlag.sekret.gradle.helper.Encoder
 import dev.datlag.sekret.gradle.helper.Utils
 import dev.datlag.sekret.gradle.model.GoogleServices
+import dev.datlag.sekret.gradle.model.YamlConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -57,6 +62,10 @@ open class GenerateSekretTask : DefaultTask() {
     @get:InputFile
     open val googleServicesFile: RegularFileProperty = project.objects.fileProperty()
 
+    @get:Optional
+    @get:InputFile
+    open val yamlFile: RegularFileProperty = project.objects.fileProperty()
+
     private val outputDir: File
         get() = outputDirectory.asFile.orNull
             ?: projectLayout.projectDirectory.dir("sekret").asFile
@@ -99,16 +108,18 @@ open class GenerateSekretTask : DefaultTask() {
 
         val propFile = propertiesFile(propertiesFile.orNull)
         val googleServicesFile = googleServicesFile(googleServicesFile.orNull)
+        val yamlFile = yamlFile(yamlFile.orNull)
 
-        if (propFile == null && googleServicesFile == null) {
-            throw IllegalStateException("No sekret.properties file or google-services.json found.")
+        if (propFile == null && googleServicesFile == null && yamlFile == null) {
+            throw IllegalStateException("No sekret.properties file, google-services.json or sekret.yaml file found.")
         }
 
         val properties = propFile?.let(Utils::propertiesFromFile)
         val googleServices = googleServicesFile?.let { GoogleServices.from(it, logger) }
+        val yamlConfig = yamlFile?.let { YamlConfig.from(it, logger) }
 
-        if (properties == null && googleServices == null) {
-            throw IllegalStateException("No sekret.properties file or google-services.json could not be parsed.")
+        if (properties == null && googleServices == null && yamlConfig == null) {
+            throw IllegalStateException("Neither of your provided properties, google-services or yaml could be parsed.")
         }
 
         val generator = SekretGenerator.createAllForTargets(
@@ -117,47 +128,54 @@ open class GenerateSekretTask : DefaultTask() {
         )
 
         val encodedProperties = Encoder.encodeProperties(properties, googleServices, encryptionKey.get())
-        SekretGenerator.generate(encodedProperties, *generator.toTypedArray())
+        SekretGenerator.generate(encodedProperties, generator)
+
+        if (yamlConfig != null) {
+            val common = Encoder.encodeProperties(yamlConfig.common, encryptionKey.get())
+            SekretGenerator.generate(common, generator)
+
+            val web = Encoder.encodeProperties(yamlConfig.web, encryptionKey.get())
+            SekretGenerator.generate(web, generator.filterIsInstance<JSGenerator>())
+
+            val jni = Encoder.encodeProperties(yamlConfig.jni, encryptionKey.get())
+            SekretGenerator.generate(jni, generator.filter { it is JNIGenerator || it is NativeJNIGenerator })
+
+            val native = Encoder.encodeProperties(yamlConfig.native, encryptionKey.get())
+            SekretGenerator.generate(native, generator.filterIsInstance<NativeGenerator>())
+        }
     }
 
     private fun propertiesFile(file: RegularFile?): File? {
         val defaultName = PropertiesExtension.sekretFileName
 
-        fun resolveFile(file: File): File? {
-            if (file.existsSafely() && file.canReadSafely()) {
-                val sekretFile = if (file.isDirectorySafely()) {
-                    File(file, defaultName)
-                } else {
-                    file
-                }
-                if (sekretFile.existsSafely() && sekretFile.canReadSafely()) {
-                    return sekretFile
-                }
-            }
-            return null
-        }
-
-        return file?.asFile?.let(::resolveFile)
+        return file?.asFile?.let { resolveFile(it, defaultName) }
     }
 
     private fun googleServicesFile(file: RegularFile?): File? {
         val defaultName = PropertiesExtension.googleServicesFileName
 
-        fun resolveFile(file: File): File? {
-            if (file.existsSafely() && file.canReadSafely()) {
-                val googleServicesFile = if (file.isDirectorySafely()) {
-                    File(file, defaultName)
-                } else {
-                    file
-                }
-                if (googleServicesFile.existsSafely() && googleServicesFile.canReadSafely()) {
-                    return googleServicesFile
-                }
-            }
-            return null
-        }
+        return file?.asFile?.let { resolveFile(it, defaultName) }
+    }
 
-        return file?.asFile?.let(::resolveFile)
+    private fun yamlFile(file: RegularFile?): File? {
+        val defaultName = PropertiesExtension.yamlFileName
+        val alternativeName = PropertiesExtension.yamlAlternativeFileName
+
+        return file?.asFile?.let { resolveFile(it, defaultName) } ?: file?.asFile?.let { resolveFile(it, alternativeName) }
+    }
+
+    private fun resolveFile(file: File, defaultName: String): File? {
+        if (file.existsSafely() && file.canReadSafely()) {
+            val sekretFile = if (file.isDirectorySafely()) {
+                File(file, defaultName)
+            } else {
+                file
+            }
+            if (sekretFile.existsSafely() && sekretFile.canReadSafely()) {
+                return sekretFile
+            }
+        }
+        return null
     }
 
     fun apply(project: Project, extension: SekretPluginExtension = project.sekretExtension) {
@@ -173,6 +191,7 @@ open class GenerateSekretTask : DefaultTask() {
         outputDirectory.set(project.findProject("sekret")?.projectDir ?: File(project.projectDir, "sekret"))
         propertiesFile.set(extension.properties.propertiesFile)
         googleServicesFile.set(extension.properties.googleServicesFile)
+        yamlFile.set(extension.properties.yamlFile)
     }
 
     companion object {

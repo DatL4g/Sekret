@@ -12,7 +12,7 @@ class CommonGenerator(
     private val outputDir: File
 ) : SekretGenerator.Generator {
 
-    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
         val spec = FileSpec.builder(settings.packageName, settings.className)
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 

@@ -49,6 +49,12 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
     open val googleServicesFile: RegularFileProperty = objectFactory.fileProperty()
 
     /**
+     * Change where the YAML file for your secrets is located.
+     * Default is "sekret.yaml" in the module the plugin is applied.
+     */
+    open val yamlFile: RegularFileProperty = objectFactory.fileProperty()
+
+    /**
      * Configuration for handling copy process of native binaries.
      */
     lateinit var nativeCopy: NativeCopyExtension
@@ -80,6 +86,11 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         googleServicesFile.convention(project.provider {
             resolveFile(project.layout.projectDirectory.file("src/androidMain/$googleServicesFileName"))
                 ?: resolveFile(project.layout.projectDirectory.file("src/main/$googleServicesFileName"))
+                ?: resolveFile(project.layout.projectDirectory.file(googleServicesFileName))
+        })
+        yamlFile.convention(project.provider {
+            resolveFile(project.layout.projectDirectory.file(yamlFileName))
+                ?: resolveFile(project.layout.projectDirectory.file(yamlAlternativeFileName))
         })
 
         nativeCopy = NativeCopyExtension(project.objects).also {
@@ -123,6 +134,8 @@ open class PropertiesExtension(objectFactory: ObjectFactory) {
         internal const val sekretFileName = "sekret.properties"
         internal const val sekretPackageName = "dev.datlag.sekret"
         internal const val googleServicesFileName = "google-services.json"
+        internal const val yamlFileName = "sekret.yaml"
+        internal const val yamlAlternativeFileName = "sekret.yml"
 
         private fun resolveFolder(dir: Directory): Directory? {
             return if (dir.asFile.existsSafely() && dir.asFile.isDirectorySafely()) {

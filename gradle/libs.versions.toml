@@ -1,5 +1,5 @@
 [versions]
-lib = "2.2.0"
+lib = "2.2.10-SNAPSHOT"
 android = "8.12.1"
 auto-service = "1.1.1"
 kotlin = "2.2.10"
@@ -11,6 +11,7 @@ ksp = "2.2.10-2.0.2"
 relinker = "1.4.5"
 serialization = "1.9.0"
 versions = "0.52.0"
+kaml = "0.92.0"
 
 [libraries]
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
@@ -21,6 +22,7 @@ kase-change = { group = "net.pearx.kasechange", name = "kasechange", version.ref
 relinker = { group = "com.getkeepsafe.relinker", name = "relinker", version.ref = "relinker" }
 serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+serialization-yaml = { group = "com.charleskorn.kaml", name = "kaml", version.ref = "kaml" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "android" }

@@ -12,7 +12,7 @@ class JNIGenerator(
     private val settings: SekretGenerator.Settings,
     private val outputDir: File
 ) : SekretGenerator.Generator {
-    override fun generate(encodedProperties: Iterable<EncodedProperty>) {
+    override fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean) {
         val spec = FileSpec.builder(settings.packageName, "${settings.className}.jni")
             .addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
@@ -22,7 +22,11 @@ class JNIGenerator(
             typeSpec = typeSpec.addFunction(
                 FunSpec.builder(key)
                     .addAnnotation(JvmStatic::class)
-                    .addModifiers(KModifier.ACTUAL)
+                    .apply {
+                        if (actualModifier) {
+                            addModifiers(KModifier.ACTUAL)
+                        }
+                    }
                     .addParameter("key", String::class)
                     .addParameter(
                         ParameterSpec.builder(
@@ -39,7 +43,11 @@ class JNIGenerator(
             ).addFunction(
                 FunSpec.builder(key)
                     .addAnnotation(JvmStatic::class)
-                    .addModifiers(KModifier.ACTUAL)
+                    .apply {
+                        if (actualModifier) {
+                            addModifiers(KModifier.ACTUAL)
+                        }
+                    }
                     .addParameter("key", String::class)
                     .addParameter("config", Utils.sekretConfig)
                     .returns(String::class.asTypeName().copy(nullable = true))

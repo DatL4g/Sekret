@@ -118,11 +118,12 @@ object BuildFileGenerator {
         spec = spec.endControlFlow()
 
         if (commonJS) {
-            spec = spec.addBodyComment("Can be used for JS, WASM and WASI")
+            spec = spec.addBodyComment("Can be used for JS, WASM")
             spec = spec.addBodyComment("Add your required targets accordingly")
-            spec = spec.beginControlFlow("val jsCommonMain by creating")
+            spec = spec.beginControlFlow("val webMain by creating")
             spec = spec.addStatement("dependsOn(commonMain.get())")
             spec = spec.addStatement("jsMain.orNull?.dependsOn(this)")
+            spec = spec.addStatement("wasmJsMain.orNull?.dependsOn(this)")
             spec = spec.endControlFlow()
         }
 

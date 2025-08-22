@@ -26,7 +26,7 @@ object ModuleGenerator {
             nativeMain = File(directory, NATIVE_MAIN_FOLDER),
             jniNativeMain = File(directory, JNI_NATIVE_MAIN_FOLDER),
             jniMain = File(directory, JNI_MAIN_FOLDER),
-            jsCommonMain = File(directory, JS_COMMON_MAIN_FOLDER)
+            webMain = File(directory, WEB_MAIN_FOLDER)
         ).also {
             it.mkdirs(
                 nativeTarget = hasNativeTarget,
@@ -40,14 +40,14 @@ object ModuleGenerator {
     private const val NATIVE_MAIN_FOLDER = "$SOURCE_FOLDER/nativeMain/kotlin"
     private const val JNI_NATIVE_MAIN_FOLDER = "$SOURCE_FOLDER/jniNativeMain/kotlin"
     private const val JNI_MAIN_FOLDER = "$SOURCE_FOLDER/jniMain/kotlin"
-    private const val JS_COMMON_MAIN_FOLDER = "$SOURCE_FOLDER/jsCommonMain/kotlin"
+    private const val WEB_MAIN_FOLDER = "$SOURCE_FOLDER/webMain/kotlin"
 
     data class SourceStructure(
         val commonMain: File,
         val nativeMain: File,
         val jniNativeMain: File,
         val jniMain: File,
-        val jsCommonMain: File
+        val webMain: File
     ) {
         fun mkdirs(
             nativeTarget: Boolean,
@@ -59,7 +59,7 @@ object ModuleGenerator {
                 jniMain.mkdirsSafely()
             }
             if (jsTarget) {
-                jsCommonMain.mkdirsSafely()
+                webMain.mkdirsSafely()
             }
         }
 
@@ -76,6 +76,6 @@ object ModuleGenerator {
             get() = hasJNINative && hasJNIDefault
 
         val hasJS: Boolean
-            get() = jsCommonMain.existsSafely() && jsCommonMain.canWriteSafely()
+            get() = webMain.existsSafely() && webMain.canWriteSafely()
     }
 }

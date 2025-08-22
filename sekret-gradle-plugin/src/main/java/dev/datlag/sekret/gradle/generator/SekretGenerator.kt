@@ -74,18 +74,24 @@ object SekretGenerator {
             generators.add(createJNI(packageName, structure.jniMain))
         }
         if (structure.hasJS) {
-            generators.add(createJS(packageName, structure.jsCommonMain))
+            generators.add(createJS(packageName, structure.webMain))
         }
 
         return generators
     }
 
-    fun generate(encodedProperties: Iterable<EncodedProperty>, vararg generator: Generator) {
-        generator.forEach { it.generate(encodedProperties) }
+    fun generate(
+        encodedProperties: Collection<EncodedProperty>,
+        generators: Iterable<Generator>,
+        actualModifier: Boolean = generators.any { it is CommonGenerator }
+    ) {
+        if (encodedProperties.isNotEmpty()) {
+            generators.forEach { it.generate(encodedProperties, actualModifier) }
+        }
     }
 
     interface Generator {
-        fun generate(encodedProperties: Iterable<EncodedProperty>)
+        fun generate(encodedProperties: Iterable<EncodedProperty>, actualModifier: Boolean)
     }
 
     data class Settings(
