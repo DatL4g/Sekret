@@ -2,7 +2,6 @@ package dev.datlag.sekret.gradle.tasks
 
 import dev.datlag.sekret.gradle.SekretPluginExtension
 import dev.datlag.sekret.gradle.common.canReadSafely
-import dev.datlag.sekret.gradle.common.createEmpty
 import dev.datlag.sekret.gradle.common.existsSafely
 import dev.datlag.sekret.gradle.common.isDirectorySafely
 import dev.datlag.sekret.gradle.common.sekretExtension
@@ -16,7 +15,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import kotlin.text.toBoolean as stringToBool
 
 open class CreateSekretValueTask : DefaultTask() {
 
@@ -55,20 +53,18 @@ open class CreateSekretValueTask : DefaultTask() {
 
     private fun propertiesFile(
         project: Project,
-        config: PropertiesExtension,
-        createFile: Boolean
+        config: PropertiesExtension
     ): File? {
         val defaultName = PropertiesExtension.sekretFileName
 
         fun resolveFile(file: File): File? {
-            if (createFile || (file.existsSafely() && file.canReadSafely())) {
+            if (file.existsSafely() && file.canReadSafely()) {
                 val sekretFile = if (file.isDirectorySafely()) {
                     File(file, defaultName)
                 } else {
                     file
                 }
 
-                sekretFile.createEmpty(delete = false)
                 if (sekretFile.existsSafely() && sekretFile.canReadSafely()) {
                     return sekretFile
                 }
@@ -84,20 +80,11 @@ open class CreateSekretValueTask : DefaultTask() {
         propertiesFile.set(
             propertiesFile(
                 project,
-                extension.properties,
-                project.findProperty("create").toBoolean()
+                extension.properties
             )
         )
         key.set(project.findProperty("key")?.toString()?.ifBlank { null })
         value.set(project.findProperty("value")?.toString()?.ifBlank { null })
-    }
-
-    private fun Any?.toBoolean(): Boolean {
-        return when (this) {
-            is Boolean -> this
-            is Int -> this == 1
-            else -> this.toString().trim().stringToBool()
-        }
     }
 
     companion object {
