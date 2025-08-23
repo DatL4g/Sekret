@@ -49,7 +49,16 @@ class JNIGenerator(
                         }
                     }
                     .addParameter("key", String::class)
-                    .addParameter("config", Utils.sekretConfig)
+                    .addParameter(
+                        ParameterSpec.builder(
+                            name = "config",
+                            Utils.sekretConfig
+                        ).apply {
+                            if (target is EncodedProperty.TargetType.JNI) {
+                                defaultValue("%T()", Utils.sekretConfig)
+                            }
+                        }.build()
+                    )
                     .returns(String::class.asTypeName().copy(nullable = true))
                     .beginControlFlow("return if (config.jni.decryptDirectly)")
                         .addStatement("${key}Decrypted(key)")

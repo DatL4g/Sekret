@@ -51,7 +51,11 @@ class JSGenerator(
                         ParameterSpec.builder(
                             name = "config",
                             Utils.sekretConfig
-                        ).build()
+                        ).apply {
+                            if (target is EncodedProperty.TargetType.Web) {
+                                defaultValue("%T()", Utils.sekretConfig)
+                            }
+                        }.build()
                     )
                     .returns(String::class.asClassName().copy(nullable = true))
                     .addStatement("val obfuscatedSecret = intArrayOf(%L)", secret)
