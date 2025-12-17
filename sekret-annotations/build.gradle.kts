@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -14,6 +15,11 @@ group = artifact
 version = libVersion
 
 kotlin {
+    androidLibrary {
+        compileSdk = Configuration.compileSdk
+        minSdk = Configuration.minSdk
+        namespace = "$artifact.annotation"
+    }
     androidNativeX86()
     androidNativeX64()
     androidNativeArm32()
@@ -42,9 +48,6 @@ kotlin {
         watchosDeviceArm64()
     }
 
-    androidTarget {
-        publishAllLibraryVariants()
-    }
     jvm()
 
     js(IR) {
@@ -65,20 +68,6 @@ kotlin {
     }
 
     applyDefaultHierarchyTemplate()
-}
-
-android {
-    compileSdk = Configuration.compileSdk
-    namespace = artifact
-
-    defaultConfig {
-        minSdk = Configuration.minSdk
-    }
-
-    compileOptions {
-        sourceCompatibility = CompileOptions.sourceCompatibility
-        targetCompatibility = CompileOptions.targetCompatibility
-    }
 }
 
 mavenPublishing {

@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -93,8 +94,10 @@ kotlin {
     }
 
     // non-native targets
-    androidTarget {
-        publishAllLibraryVariants()
+    androidLibrary {
+        compileSdk = Configuration.compileSdk
+        minSdk = Configuration.minSdk
+        namespace = artifact
     }
     jvm()
 
@@ -140,24 +143,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.relinker)
         }
-    }
-}
-
-android {
-    compileSdk = Configuration.compileSdk
-    namespace = artifact
-
-    defaultConfig {
-        minSdk = Configuration.minSdk
-    }
-
-    compileOptions {
-        sourceCompatibility = CompileOptions.sourceCompatibility
-        targetCompatibility = CompileOptions.targetCompatibility
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 }
 
