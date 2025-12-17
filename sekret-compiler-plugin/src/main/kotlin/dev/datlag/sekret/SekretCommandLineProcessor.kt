@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.config.CompilerConfigurationKey
 @OptIn(ExperimentalCompilerApi::class)
 @AutoService(CommandLineProcessor::class)
 class SekretCommandLineProcessor : CommandLineProcessor {
-    override val pluginId: String = "sekretPlugin"
+    override val pluginId: String = PLUGIN_ID
 
     override val pluginOptions: Collection<AbstractCliOption> = listOf(
         CliOption(
@@ -37,6 +37,10 @@ class SekretCommandLineProcessor : CommandLineProcessor {
             KEY_SECRET_MASK_NULL.toString() -> configuration.put(KEY_SECRET_MASK_NULL, value.toBoolean())
             KEY_OBFUSCATE_SEED.toString() -> configuration.put(KEY_OBFUSCATE_SEED, value.toInt())
         }
+    }
+
+    companion object {
+        internal const val PLUGIN_ID = "sekretPlugin"
     }
 }
 

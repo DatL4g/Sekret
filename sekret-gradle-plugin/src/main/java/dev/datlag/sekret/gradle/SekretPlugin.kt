@@ -59,7 +59,7 @@ open class SekretPlugin : Plugin<Project> {
     }
 
     companion object {
-        private const val VERSION = "2.2.10"
+        private const val VERSION = "2.3.0"
 
         internal fun getVersion(): String {
             return this::class.java.`package`?.implementationVersion?.ifBlank { null } ?: VERSION

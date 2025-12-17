@@ -14,6 +14,12 @@ import org.gradle.util.internal.ConfigureUtil
 open class ObfuscationExtension(objectFactory: ObjectFactory) {
 
     /**
+     * Set whether obfuscation (secure logging) is enabled or not.
+     * Default: true
+     */
+    open val enabled: Property<Boolean> = objectFactory.property(Boolean::class.java)
+
+    /**
      * Configuration for how *Secret* annotations are handled.
      */
     lateinit var secretAnnotation: SecretAnnotationExtension
@@ -54,6 +60,7 @@ open class ObfuscationExtension(objectFactory: ObjectFactory) {
     }
 
     internal fun setupConvention(project: Project) {
+        enabled.convention(true)
         secretAnnotation = SecretAnnotationExtension(project.objects).also {
             it.setupConvention(project)
         }

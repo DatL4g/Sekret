@@ -4,6 +4,8 @@ sample/sekret
 sample/resources/*
 !sample/resources/.gitkeep
 
+kotlin-js-store
+
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij,intellij+iml,intellij+all,android,androidstudio,maven,gradle,java,kotlin,netbeans,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij,intellij+iml,intellij+all,android,androidstudio,maven,gradle,java,kotlin,netbeans,visualstudiocode
 

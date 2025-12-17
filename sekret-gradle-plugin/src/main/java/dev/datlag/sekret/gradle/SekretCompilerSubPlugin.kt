@@ -1,6 +1,7 @@
 package dev.datlag.sekret.gradle
 
 import dev.datlag.sekret.gradle.common.sekretExtension
+import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
@@ -8,6 +9,18 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
+
+    private lateinit var project: Project
+    private var enabled: Boolean = true
+
+    override fun apply(target: Project) {
+        super.apply(target)
+
+        project = target.also {
+            enabled = it.sekretExtension.obfuscation.enabled.getOrElse(enabled)
+        }
+    }
+
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         return kotlinCompilation.target.project.provider {
             val config = kotlinCompilation.target.project.sekretExtension.obfuscation
@@ -36,7 +49,9 @@ class SekretCompilerSubPlugin : KotlinCompilerPluginSupportPlugin {
         )
     }
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
+    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
+        return project.sekretExtension.obfuscation.enabled.getOrElse(enabled)
+    }
 
     companion object {
         private const val GROUP_NAME = "dev.datlag.sekret"

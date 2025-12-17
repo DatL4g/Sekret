@@ -19,6 +19,8 @@ class SekretComponentRegistrar : CompilerPluginRegistrar() {
     override val supportsK2: Boolean
         get() = true
 
+    override val pluginId: String = SekretCommandLineProcessor.PLUGIN_ID
+
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         val messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, configuration.messageCollector)
         val logger = Logger(true, messageCollector)

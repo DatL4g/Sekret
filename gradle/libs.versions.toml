@@ -1,17 +1,17 @@
 [versions]
-lib = "2.2.10"
-android = "8.12.1"
+lib = "2.3.0"
+android = "8.13.2"
 auto-service = "1.1.1"
-kotlin = "2.2.10"
+kotlin = "2.3.0"
 kotlinpoet = "2.2.0"
-publish = "0.34.0"
+publish = "0.35.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.4"
 relinker = "1.4.5"
 serialization = "1.9.0"
-versions = "0.52.0"
-kaml = "0.92.0"
+versions = "0.53.0"
+kaml = "0.104.0"
 
 [libraries]
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
