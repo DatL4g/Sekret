@@ -1,6 +1,5 @@
 package dev.datlag.sekret
 
-import com.google.auto.service.AutoService
 import dev.datlag.sekret.model.Config
 import dev.datlag.sekret.transformer.ElementTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
@@ -14,7 +13,6 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import java.security.SecureRandom
 
 @OptIn(ExperimentalCompilerApi::class)
-@AutoService(CompilerPluginRegistrar::class)
 class SekretComponentRegistrar : CompilerPluginRegistrar() {
     override val supportsK2: Boolean
         get() = true

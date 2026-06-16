@@ -40,10 +40,6 @@ private val Project.kotlinAndroidProjectExtension: KotlinAndroidProjectExtension
     get() = this.extensions.findByType<KotlinAndroidProjectExtension>()
         ?: this.extensions.findByName("kotlin") as? KotlinAndroidProjectExtension
 
-private val Project.kotlinJsExtension: KotlinJsProjectExtension?
-    get() = this.extensions.findByType<KotlinJsProjectExtension>()
-        ?: this.extensions.findByName("kotlin") as? KotlinJsProjectExtension
-
 private val KotlinProjectExtension.allTargets: List<KotlinTarget>
     get() = when (this) {
         is KotlinSingleTargetExtension<*> -> listOfNotNull(this.target)
@@ -68,16 +64,12 @@ internal val Project.allTargets: Iterable<KotlinTarget>
             kotlinAndroidProjectExtension?.allTargets,
             kotlinAndroidProjectExtension?.target?.let(::listOfNotNull)
         ).flatten()
-        val jsTargets = listOfNotNull(
-            kotlinJsExtension?.allTargets
-        ).flatten()
 
         return setOfNotNull(
             projectTargets,
             multiTargets,
             jvmTargets,
-            androidTargets,
-            jsTargets
+            androidTargets
         ).flatten()
     }
 
@@ -91,7 +83,6 @@ internal val Project.sourceSets: Iterable<KotlinSourceSet>
             kotlinJvmProjectExtension?.sourceSets,
             kotlinAndroidExtension?.sourceSets,
             kotlinAndroidProjectExtension?.sourceSets,
-            kotlinJsExtension?.sourceSets
         ).flatten()
     }
 
@@ -112,9 +103,8 @@ internal val Project.isSingleTarget: Boolean
         val usingJvm = kotlinJvmExtension != null || kotlinJvmProjectExtension != null
         val usingAndroid = kotlinAndroidExtension != null || kotlinAndroidProjectExtension != null
         val usingJava = usingJvm || usingAndroid
-        val usingJs = kotlinJsExtension != null
 
-        return usingJava xor usingJs
+        return usingJava
     }
 
 fun Project.findMatchingTask(name: String): Task? {

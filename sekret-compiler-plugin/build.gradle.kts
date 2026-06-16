@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm")
-    kotlin("kapt")
     `maven-publish`
     signing
     alias(libs.plugins.vanniktech.publish)
@@ -11,9 +10,6 @@ group = artifact
 version = libVersion
 
 dependencies {
-    compileOnly(libs.auto.service)
-    kapt(libs.auto.service)
-
     compileOnly(libs.kotlin.compiler.embeddable)
 }
 

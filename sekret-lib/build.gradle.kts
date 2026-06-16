@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -94,7 +93,7 @@ kotlin {
     }
 
     // non-native targets
-    androidLibrary {
+    android {
         compileSdk = Configuration.compileSdk
         minSdk = Configuration.minSdk
         namespace = artifact

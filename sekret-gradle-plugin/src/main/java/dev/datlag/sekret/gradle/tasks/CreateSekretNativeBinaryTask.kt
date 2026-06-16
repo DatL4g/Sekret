@@ -5,7 +5,9 @@ import dev.datlag.sekret.gradle.common.findMatchingTaskWithType
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Only executes depending tasks, nothing to cache")
 open class CreateSekretNativeBinaryTask : DefaultTask() {
 
     init {

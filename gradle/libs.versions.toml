@@ -1,16 +1,16 @@
 [versions]
 lib = "2.3.0"
-android = "8.13.2"
+android = "9.2.1"
 auto-service = "1.1.1"
-kotlin = "2.3.0"
-kotlinpoet = "2.2.0"
-publish = "0.35.0"
+kotlin = "2.4.0"
+kotlinpoet = "2.3.0"
+publish = "0.36.0"
 kase-change = "1.4.1"
 osdetector = "1.7.3"
 ksp = "2.3.4"
 relinker = "1.4.5"
-serialization = "1.9.0"
-versions = "0.53.0"
+serialization = "1.11.0"
+versions = "0.54.0"
 kaml = "0.104.0"
 
 [libraries]

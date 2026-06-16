@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -15,7 +14,7 @@ group = artifact
 version = libVersion
 
 kotlin {
-    androidLibrary {
+    android {
         compileSdk = Configuration.compileSdk
         minSdk = Configuration.minSdk
         namespace = "$artifact.annotation"

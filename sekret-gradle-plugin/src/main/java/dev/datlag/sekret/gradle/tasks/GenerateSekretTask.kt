@@ -26,14 +26,18 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.inject.Inject
 
+@CacheableTask
 open class GenerateSekretTask : DefaultTask() {
 
     @get:Input
@@ -56,14 +60,17 @@ open class GenerateSekretTask : DefaultTask() {
 
     @get:Optional
     @get:InputFile
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     open val propertiesFile: RegularFileProperty = project.objects.fileProperty()
 
     @get:Optional
     @get:InputFile
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     open val googleServicesFile: RegularFileProperty = project.objects.fileProperty()
 
     @get:Optional
     @get:InputFile
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     open val yamlFile: RegularFileProperty = project.objects.fileProperty()
 
     private val outputDir: File
