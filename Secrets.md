@@ -37,7 +37,7 @@ sekret {
         propertiesFile.set(File("custom/path/to/file.properties")) // default: sekret.properties in the current module folder
         
         nativeCopy {
-            // set output directories here
+            androidJNIFolder.set(file("custom/path/to/src/main/jniLibs")) // default does not copy the native libraries
         }
     }
 }
@@ -132,7 +132,7 @@ SekretConfig {
 }
 ```
 
-It can be ued per-decryption then, like this:
+It can be used per-decryption then, like this:
 
 ```kotlin
 val neverDirectDecryption = Sekret.yourKeyName("YourCustomEncryptionKey", SekretConfig {
